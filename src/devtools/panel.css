@@ -1,0 +1,86 @@
+@import url("open-props/style");
+@import url("open-props/normalize");
+@import url("buttons.css");
+@import url("solid-notifications/index.css");
+
+html {
+  --brand-0: #d0def7;
+  --brand-1: #a3bdee;
+  --brand-2: #779de3;
+  --brand-3: #4b7bd7;
+  --brand-4: #1e57c9;
+  --brand-5: #133e95;
+  --brand-6: #092764;
+  --brand-7: #031236;
+  --brand-8: #00030f;
+  --brand-light: var(--brand-4);
+  --brand-dark: var(--brand-1);
+  --brand: var(--brand-light);
+  --error-color-light: var(--red-12);
+  --error-color-dark: var(--red-1);
+  --error-color: var(--error-color-light);
+  --error-bg-color-light: var(--pink-0);
+  --error-bg-color-dark: var(--pink-12);
+  --error-bg-color: var(--error-bg-color-light);
+  --success-color-light: var(--green-9);
+  --success-color-dark: var(--green-0);
+  --success-color: var(--success-color-light);
+  --success-bg-color-light: var(--teal-0);
+  --success-bg-color-dark: var(--teal-10);
+  --success-bg-color: var(--success-bg-color-light);
+  --info-color-light: var(--indigo-9);
+  --info-color-dark: var(--indigo-1);
+  --info-color: var(--info-color-light);
+  --info-bg-color-light: var(--blue-0);
+  --info-bg-color-dark: var(--blue-11);
+  --info-bg-color: var(--info-bg-color-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    --brand: var(--brand-dark);
+    --error-color: var(--error-color-dark);
+    --error-bg-color: var(--error-bg-color-dark);
+    --success-color: var(--success-color-dark);
+    --success-bg-color: var(--success-bg-color-dark);
+    --info-color: var(--info-color-dark);
+    --info-bg-color: var(--info-bg-color-dark);
+  }
+}
+
+body {
+  font-family: var(--font-humanist);
+  font-size: var(--font-size-2);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-weight-4);
+  max-inline-size: unset;
+}
+
+h1 {
+  font-size: var(--font-size-5);
+}
+
+h2 {
+  font-size: var(--font-size-4);
+}
+
+h3 {
+  font-size: var(--font-size-3);
+}
+
+p,
+ul,
+ol,
+dl,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-2);
+}

@@ -1,0 +1,9 @@
+@media (prefers-reduced-motion: no-preference) {
+  .triangle {
+    transition: transform 400ms var(--ease-1);
+  }
+}
+
+.up {
+  transform: rotate(180deg);
+}
