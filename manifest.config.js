@@ -17,5 +17,7 @@ export default defineManifest({
   devtools_page: "src/devtools/index.html",
   action: {
     default_icon: "public/idb-browser-48x48.png",
+    default_popup: "src/popup.html",
+    default_title: "IndexedDB Browser",
   },
 });
