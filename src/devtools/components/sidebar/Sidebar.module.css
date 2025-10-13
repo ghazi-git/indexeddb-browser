@@ -2,7 +2,7 @@
   --sidebar-inline-size: 200px;
 
   inline-size: var(--sidebar-inline-size);
-  padding: var(--size-2);
+  padding-block: var(--size-2);
   border-inline-end: var(--border-size-2) solid var(--surface-2);
   overflow: hidden;
 }
@@ -15,6 +15,5 @@
 
 .sidebar.closed {
   inline-size: 0;
-  padding-inline: 0;
   border-inline-end: none;
 }
