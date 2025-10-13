@@ -1,0 +1,20 @@
+.header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--size-2);
+}
+
+.header > button {
+  flex-shrink: 0;
+}
+
+.refresh-icon {
+  margin-inline-start: auto;
+}
+
+.sidebar-icon svg,
+.refresh-icon svg {
+  inline-size: var(--size-4);
+  block-size: auto;
+}
