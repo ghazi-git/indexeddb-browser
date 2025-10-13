@@ -34,6 +34,8 @@ html {
   --info-bg-color-light: var(--blue-0);
   --info-bg-color-dark: var(--blue-11);
   --info-bg-color: var(--info-bg-color-light);
+
+  font-size: 14px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,8 +51,15 @@ html {
 }
 
 body {
+  block-size: 100%;
+  min-block-size: 600px;
   font-family: var(--font-humanist);
-  font-size: var(--font-size-2);
+  font-size: 100%;
+}
+
+#root {
+  block-size: 100%;
+  min-block-size: 100%;
 }
 
 h1,
@@ -64,14 +73,10 @@ h6 {
 }
 
 h1 {
-  font-size: var(--font-size-5);
-}
-
-h2 {
   font-size: var(--font-size-4);
 }
 
-h3 {
+h2 {
   font-size: var(--font-size-3);
 }
 
@@ -79,6 +84,7 @@ p,
 ul,
 ol,
 dl,
+h3,
 h4,
 h5,
 h6 {
