@@ -1,5 +1,11 @@
 import { Toaster, ToastProvider } from "solid-notifications";
 
+import MainContent from "@/devtools/components/main-content/MainContent";
+import Sidebar from "@/devtools/components/sidebar/Sidebar";
+import { SidebarContextProvider } from "@/devtools/components/sidebar/sidebar-context";
+
+import styles from "./App.module.css";
+
 function App() {
   return (
     <ToastProvider
@@ -10,7 +16,12 @@ function App() {
       dismissButtonStyle={{ "box-shadow": "none" }}
     >
       <Toaster />
-      <h1>Welcome to your devtools panel</h1>
+      <div class={styles.app}>
+        <SidebarContextProvider>
+          <Sidebar />
+          <MainContent />
+        </SidebarContextProvider>
+      </div>
     </ToastProvider>
   );
 }

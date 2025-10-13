@@ -1,0 +1,10 @@
+.app {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  min-block-size: 100%;
+}
+
+.app main {
+  flex-grow: 1;
+}
