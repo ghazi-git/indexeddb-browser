@@ -14,10 +14,16 @@ export function singleLineEllipsis(
   htmlElement.style.overflow = "hidden";
   htmlElement.style.textOverflow = "ellipsis";
   htmlElement.style.whiteSpace = "nowrap";
-  onMount(() => {
+
+  const observer = new ResizeObserver(() => {
     if (htmlElement.scrollWidth > htmlElement.clientWidth) {
       htmlElement.setAttribute("title", fullText());
+    } else {
+      htmlElement.removeAttribute("title");
     }
+  });
+  onMount(() => {
+    observer.observe(htmlElement);
   });
 }
 
