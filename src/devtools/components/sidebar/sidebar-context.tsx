@@ -100,6 +100,7 @@ interface Database {
   name: string;
   version: number;
   isSelected: boolean;
+  isExpanded: boolean;
   objectStores: ObjectStore[];
 }
 
