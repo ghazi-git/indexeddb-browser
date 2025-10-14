@@ -30,18 +30,30 @@ export function SidebarContextProvider(props: FlowProps) {
     storeSidebarState(store);
   };
 
-  const toggleSelectedDatabase = (dbName: string) => {
-    if (store.selectedDatabase?.name === dbName) {
-      store.selectedDatabase.isSelected = false;
-      return;
-    }
-
+  const setSelectedItem = (dbName: string, storeName?: string) => {
+    // According to https://www.w3.org/WAI/ARIA/apg/patterns/treeview/
+    // only a single tree item can be selected at any time
     batch(() => {
       for (let i = 0; i < store.databases.length; i++) {
-        const isSelected = store.databases[i].name === dbName;
+        const db = store.databases[i];
+        const isSelected = storeName ? false : db.name === dbName;
         setStore("databases", i, "isSelected", isSelected);
+
+        for (let j = 0; j < db.objectStores.length; j++) {
+          const isSelected =
+            db.name === dbName && db.objectStores[j].name === storeName;
+          setStore("databases", i, "objectStores", j, "isSelected", isSelected);
+        }
       }
     });
+    storeSidebarState(store);
+  };
+  const toggleExpandedDatabase = (dbName: string) => {
+    const index = store.databases.findIndex((db) => db.name === dbName);
+    if (index >= 0) {
+      setStore("databases", index, "isExpanded", (prev) => !prev);
+    }
+    storeSidebarState(store);
   };
 
   return (
@@ -50,7 +62,8 @@ export function SidebarContextProvider(props: FlowProps) {
         sidebar: store,
         openSidebar,
         closeSidebar,
-        toggleSelectedDatabase,
+        setSelectedItem,
+        toggleExpandedDatabase,
       }}
     >
       {props.children}
@@ -84,7 +97,8 @@ interface SidebarContextType {
   sidebar: SidebarStore;
   openSidebar: () => void;
   closeSidebar: () => void;
-  toggleSelectedDatabase: (dbName: string) => void;
+  setSelectedItem: (dbName: string, storeName?: string) => void;
+  toggleExpandedDatabase: (dbName: string) => void;
 }
 
 interface SidebarState {

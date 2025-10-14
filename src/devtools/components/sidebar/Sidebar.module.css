@@ -1,10 +1,15 @@
 .sidebar {
   --sidebar-inline-size: 200px;
+  --sidebar-padding-inline: var(--size-2);
 
   inline-size: var(--sidebar-inline-size);
   padding-block: var(--size-2);
   border-inline-end: var(--border-size-2) solid var(--surface-2);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--size-3);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -16,4 +21,8 @@
 .sidebar.closed {
   inline-size: 0;
   border-inline-end: none;
+}
+
+.no-databases {
+  padding-inline: var(--sidebar-padding-inline);
 }

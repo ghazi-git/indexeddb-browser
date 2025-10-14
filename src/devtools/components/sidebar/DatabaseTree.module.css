@@ -1,0 +1,69 @@
+.database-tree {
+  padding-inline-end: var(--size-1);
+}
+
+.database-item {
+  margin-block-end: var(--size-2);
+  user-select: none;
+}
+
+.database-item[aria-expanded="false"] > ul {
+  display: none;
+}
+
+.database {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--size-2);
+  padding-inline-start: var(--size-3);
+  border-start-end-radius: var(--radius-3);
+  border-end-end-radius: var(--radius-3);
+  font-size: var(--font-size-3);
+  cursor: pointer;
+}
+
+.database:hover {
+  background-color: var(--surface-2);
+}
+
+.database-item[aria-selected="true"] .database {
+  background-color: var(--surface-4);
+}
+
+.chevron {
+  flex-shrink: 0;
+}
+
+.chevron > svg {
+  inline-size: var(--size-4);
+  block-size: auto;
+}
+
+.no-object-stores {
+  inline-size: var(--size-4);
+}
+
+.object-store {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--size-2);
+  padding-inline-start: var(--size-8);
+  border-start-end-radius: var(--radius-3);
+  border-end-end-radius: var(--radius-3);
+  cursor: pointer;
+}
+
+.object-store:hover {
+  background-color: var(--surface-2);
+}
+
+.object-store[aria-selected="true"] {
+  background-color: var(--surface-4);
+}
+
+.object-store-icon {
+  inline-size: var(--size-3);
+  block-size: auto;
+}
