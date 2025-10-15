@@ -20,9 +20,10 @@ interface DatabaseTreeContextType {
     dbRef: HTMLLIElement,
     storeRefs: HTMLLIElement[],
   ) => void;
+  focusItem: (dbIndex: number, storeIndex?: number) => void;
 }
 
-type TreeItem = [dbIndex: number, storeIndex: number | undefined];
+export type TreeItem = [dbIndex: number, storeIndex: number | undefined];
 
 export interface DatabaseTreeStore {
   databases: Database[];

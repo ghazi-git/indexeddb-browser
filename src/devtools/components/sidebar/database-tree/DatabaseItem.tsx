@@ -12,7 +12,7 @@ import styles from "./DatabaseItem.module.css";
 
 export default function DatabaseItem(props: DatabaseItemProps) {
   const [local, rest] = splitProps(props, ["class", "db", "dbIndex"]);
-  const { tree, setSelectedItem, toggleExpandedDatabase, setRefs } =
+  const { tree, setSelectedItem, toggleExpandedDatabase, setRefs, focusItem } =
     useDatabaseTreeContext();
   const tabindex = createMemo(() => {
     const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
@@ -45,6 +45,21 @@ export default function DatabaseItem(props: DatabaseItemProps) {
       }
       tabindex={tabindex()}
       role="treeitem"
+      onKeyDown={(event) => {
+        if (local.db.objectStores.length) {
+          if (event.key === "ArrowRight") {
+            if (local.db.isExpanded) {
+              focusItem(local.dbIndex, 0);
+            } else {
+              toggleExpandedDatabase(local.dbIndex);
+            }
+          } else if (event.key === "ArrowLeft" && local.db.isExpanded) {
+            toggleExpandedDatabase(local.dbIndex);
+          } else if (event.key === "Enter") {
+            setSelectedItem(local.dbIndex);
+          }
+        }
+      }}
       {...rest}
     >
       <div

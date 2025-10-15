@@ -16,7 +16,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
     "objectStore",
     "objectStoreIndex",
   ]);
-  const { tree, setSelectedItem } = useDatabaseTreeContext();
+  const { tree, setSelectedItem, focusItem } = useDatabaseTreeContext();
   const tabindex = createMemo(() => {
     const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
     return focusableDBIndex === local.dbIndex &&
@@ -41,6 +41,15 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
       }}
       role="treeitem"
       tabindex={tabindex()}
+      onKeyDown={(event) => {
+        if (event.key === "ArrowLeft") {
+          event.stopPropagation();
+          focusItem(local.dbIndex);
+        } else if (event.key === "Enter") {
+          event.stopPropagation();
+          setSelectedItem(local.dbIndex, local.objectStoreIndex);
+        }
+      }}
       {...rest}
     >
       <div class={styles["object-store-icon"]}>
