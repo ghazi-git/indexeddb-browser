@@ -32,10 +32,22 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
   const toggleExpandedDatabase = (dbIndex: number) => {
     setTree("databases", dbIndex, "isExpanded", (prev) => !prev);
   };
+  const setRefs = (
+    dbIndex: number,
+    dbRef: HTMLLIElement,
+    storeRefs: HTMLLIElement[],
+  ) => {
+    batch(() => {
+      setTree("databases", dbIndex, "ref", dbRef);
+      for (let i = 0; i < tree.databases[dbIndex].objectStores.length; i++) {
+        setTree("databases", dbIndex, "objectStores", i, "ref", storeRefs[i]);
+      }
+    });
+  };
 
   return (
     <DatabaseTreeContext.Provider
-      value={{ tree, setSelectedItem, toggleExpandedDatabase }}
+      value={{ tree, setSelectedItem, toggleExpandedDatabase, setRefs }}
     >
       <ul
         class={styles["database-tree"]}

@@ -1,4 +1,4 @@
-import { For, JSX, Show, splitProps } from "solid-js";
+import { For, JSX, onMount, Show, splitProps } from "solid-js";
 
 import {
   Database,
@@ -12,10 +12,17 @@ import styles from "./DatabaseItem.module.css";
 
 export default function DatabaseItem(props: DatabaseItemProps) {
   const [local, rest] = splitProps(props, ["class", "db", "dbIndex"]);
-  const { setSelectedItem, toggleExpandedDatabase } = useDatabaseTreeContext();
+  const { setSelectedItem, toggleExpandedDatabase, setRefs } =
+    useDatabaseTreeContext();
+  let dbRef!: HTMLLIElement;
+  const storeRefs: HTMLLIElement[] = [];
+  onMount(() => {
+    setRefs(local.dbIndex, dbRef, storeRefs);
+  });
 
   return (
     <li
+      ref={dbRef}
       class={`${styles["database-item"]} ${local.class ?? ""}`}
       aria-selected={local.db.isSelected}
       aria-expanded={
@@ -50,6 +57,9 @@ export default function DatabaseItem(props: DatabaseItemProps) {
           <For each={local.db.objectStores}>
             {(objStore, objStoreIndex) => (
               <ObjectStoreItem
+                ref={(elt) => {
+                  storeRefs[objStoreIndex()] = elt;
+                }}
                 dbIndex={local.dbIndex}
                 objectStore={objStore}
                 objectStoreIndex={objStoreIndex()}

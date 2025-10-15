@@ -15,6 +15,11 @@ interface DatabaseTreeContextType {
   tree: DatabaseTreeStore;
   setSelectedItem: (dbIndex: number, storeIndex?: number) => void;
   toggleExpandedDatabase: (dbIndex: number) => void;
+  setRefs: (
+    dbIndex: number,
+    dbRef: HTMLLIElement,
+    storeRefs: HTMLLIElement[],
+  ) => void;
 }
 
 interface DatabaseTreeStore {
