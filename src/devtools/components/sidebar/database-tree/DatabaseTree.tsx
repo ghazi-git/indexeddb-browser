@@ -21,12 +21,20 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
         const db = tree.databases[i];
         const isSelected = i === dbIndex && storeIndex === undefined;
         setTree("databases", i, "isSelected", isSelected);
+        setTree("databases", i, "isFocused", isSelected);
+        if (isSelected) {
+          db.ref?.focus();
+        }
         const tabindex = isSelected ? 0 : -1;
         setTree("databases", i, "tabindex", tabindex);
 
         for (let j = 0; j < db.objectStores.length; j++) {
           const isSelected = i === dbIndex && j === storeIndex;
           setTree("databases", i, "objectStores", j, "isSelected", isSelected);
+          setTree("databases", i, "objectStores", j, "isFocused", isSelected);
+          if (isSelected) {
+            db.objectStores[j].ref?.focus();
+          }
           const tabindex = isSelected ? 0 : -1;
           setTree("databases", i, "objectStores", j, "tabindex", tabindex);
         }
