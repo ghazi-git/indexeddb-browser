@@ -28,6 +28,7 @@ export default function DatabaseItem(props: DatabaseItemProps) {
       aria-expanded={
         local.db.objectStores.length ? local.db.isExpanded : undefined
       }
+      tabindex={local.db.tabindex}
       role="treeitem"
       {...rest}
     >

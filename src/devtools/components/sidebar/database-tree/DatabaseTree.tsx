@@ -21,10 +21,14 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
         const db = tree.databases[i];
         const isSelected = i === dbIndex && storeIndex === undefined;
         setTree("databases", i, "isSelected", isSelected);
+        const tabindex = isSelected ? 0 : -1;
+        setTree("databases", i, "tabindex", tabindex);
 
         for (let j = 0; j < db.objectStores.length; j++) {
           const isSelected = i === dbIndex && j === storeIndex;
           setTree("databases", i, "objectStores", j, "isSelected", isSelected);
+          const tabindex = isSelected ? 0 : -1;
+          setTree("databases", i, "objectStores", j, "tabindex", tabindex);
         }
       }
     });
@@ -73,17 +77,21 @@ function getInitialTreeData(databases: IndexedDB[]) {
       isSelected: false,
       isExpanded: false,
       isFocused: false,
+      tabindex: -1,
       objectStores: db.objectStores
         .map((name) => ({
           ref: null,
           name,
           isSelected: false,
+          isFocused: false,
+          tabindex: -1,
         }))
         .toSorted((obj1, obj2) => collator.compare(obj1.name, obj2.name)),
     }))
     .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
   if (initialData[0].objectStores.length) {
     initialData[0].isExpanded = true;
+    initialData[0].tabindex = 0;
   }
   return { databases: initialData };
 }

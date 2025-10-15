@@ -33,6 +33,7 @@ export interface Database {
   isSelected: boolean;
   isExpanded: boolean;
   isFocused: boolean;
+  tabindex: number;
   objectStores: ObjectStore[];
 }
 
@@ -40,4 +41,6 @@ export interface ObjectStore {
   ref: HTMLLIElement | null;
   name: string;
   isSelected: boolean;
+  isFocused: boolean;
+  tabindex: number;
 }

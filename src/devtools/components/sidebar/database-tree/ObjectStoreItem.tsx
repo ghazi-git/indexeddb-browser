@@ -26,6 +26,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
         setSelectedItem(local.dbIndex, local.objectStoreIndex);
       }}
       role="treeitem"
+      tabindex={local.objectStore.tabindex}
       {...rest}
     >
       <div class={styles["object-store-icon"]}>

@@ -3,6 +3,10 @@
   user-select: none;
 }
 
+.database-item:focus-visible {
+  outline: none;
+}
+
 .database-item[aria-expanded="false"] > ul {
   display: none;
 }
@@ -21,6 +25,17 @@
 
 .database:hover {
   background-color: var(--surface-2);
+}
+
+.database-item:focus-visible .database {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .database-item:focus-visible .database {
+    transition: outline-offset 50ms var(--ease-2);
+  }
 }
 
 .database-item[aria-selected="true"] .database {
