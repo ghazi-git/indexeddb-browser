@@ -1,4 +1,4 @@
-import { For, JSX, onMount, Show, splitProps } from "solid-js";
+import { createMemo, For, JSX, onMount, Show, splitProps } from "solid-js";
 
 import {
   Database,
@@ -12,8 +12,23 @@ import styles from "./DatabaseItem.module.css";
 
 export default function DatabaseItem(props: DatabaseItemProps) {
   const [local, rest] = splitProps(props, ["class", "db", "dbIndex"]);
-  const { setSelectedItem, toggleExpandedDatabase, setRefs } =
+  const { tree, setSelectedItem, toggleExpandedDatabase, setRefs } =
     useDatabaseTreeContext();
+  const tabindex = createMemo(() => {
+    const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
+    return focusableDBIndex === local.dbIndex &&
+      focusableStoreIndex === undefined
+      ? 0
+      : -1;
+  });
+  const isSelected = createMemo(() => {
+    return (
+      !!tree.selectedItem &&
+      tree.selectedItem[0] === local.dbIndex &&
+      tree.selectedItem[1] === undefined
+    );
+  });
+
   let dbRef!: HTMLLIElement;
   const storeRefs: HTMLLIElement[] = [];
   onMount(() => {
@@ -24,11 +39,11 @@ export default function DatabaseItem(props: DatabaseItemProps) {
     <li
       ref={dbRef}
       class={`${styles["database-item"]} ${local.class ?? ""}`}
-      aria-selected={local.db.isSelected}
+      aria-selected={isSelected()}
       aria-expanded={
         local.db.objectStores.length ? local.db.isExpanded : undefined
       }
-      tabindex={local.db.tabindex}
+      tabindex={tabindex()}
       role="treeitem"
       {...rest}
     >

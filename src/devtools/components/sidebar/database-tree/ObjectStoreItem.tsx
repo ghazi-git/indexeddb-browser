@@ -1,4 +1,4 @@
-import { JSX, splitProps } from "solid-js";
+import { createMemo, JSX, splitProps } from "solid-js";
 
 import {
   ObjectStore,
@@ -16,17 +16,31 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
     "objectStore",
     "objectStoreIndex",
   ]);
-  const { setSelectedItem } = useDatabaseTreeContext();
+  const { tree, setSelectedItem } = useDatabaseTreeContext();
+  const tabindex = createMemo(() => {
+    const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
+    return focusableDBIndex === local.dbIndex &&
+      focusableStoreIndex === local.objectStoreIndex
+      ? 0
+      : -1;
+  });
+  const isSelected = createMemo(() => {
+    return (
+      !!tree.selectedItem &&
+      tree.selectedItem[0] === local.dbIndex &&
+      tree.selectedItem[1] === local.objectStoreIndex
+    );
+  });
 
   return (
     <li
       class={`${styles["object-store"]} ${local.class ?? ""}`}
-      aria-selected={local.objectStore.isSelected}
+      aria-selected={isSelected()}
       onClick={() => {
         setSelectedItem(local.dbIndex, local.objectStoreIndex);
       }}
       role="treeitem"
-      tabindex={local.objectStore.tabindex}
+      tabindex={tabindex()}
       {...rest}
     >
       <div class={styles["object-store-icon"]}>

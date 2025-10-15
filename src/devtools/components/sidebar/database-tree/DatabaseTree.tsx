@@ -4,6 +4,7 @@ import { createStore } from "solid-js/store";
 import {
   Database,
   DatabaseTreeContext,
+  DatabaseTreeStore,
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
 import DatabaseItem from "@/devtools/components/sidebar/database-tree/DatabaseItem";
 import styles from "@/devtools/components/sidebar/database-tree/DatabaseTree.module.css";
@@ -17,29 +18,15 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
     // only a single tree item (either a db or a store) can be selected at
     // any time
     batch(() => {
-      for (let i = 0; i < tree.databases.length; i++) {
-        const db = tree.databases[i];
-        const isSelected = i === dbIndex && storeIndex === undefined;
-        setTree("databases", i, "isSelected", isSelected);
-        setTree("databases", i, "isFocused", isSelected);
-        if (isSelected) {
-          db.ref?.focus();
-        }
-        const tabindex = isSelected ? 0 : -1;
-        setTree("databases", i, "tabindex", tabindex);
-
-        for (let j = 0; j < db.objectStores.length; j++) {
-          const isSelected = i === dbIndex && j === storeIndex;
-          setTree("databases", i, "objectStores", j, "isSelected", isSelected);
-          setTree("databases", i, "objectStores", j, "isFocused", isSelected);
-          if (isSelected) {
-            db.objectStores[j].ref?.focus();
-          }
-          const tabindex = isSelected ? 0 : -1;
-          setTree("databases", i, "objectStores", j, "tabindex", tabindex);
-        }
-      }
+      setTree("selectedItem", [dbIndex, storeIndex]);
+      setTree("focusableItem", [dbIndex, storeIndex]);
+      setTree("focusedItem", [dbIndex, storeIndex]);
     });
+    if (storeIndex === undefined) {
+      tree.databases[dbIndex].ref?.focus();
+    } else {
+      tree.databases[dbIndex].objectStores[storeIndex].ref?.focus();
+    }
   };
   const toggleExpandedDatabase = (dbIndex: number) => {
     setTree("databases", dbIndex, "isExpanded", (prev) => !prev);
@@ -74,7 +61,7 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
   );
 }
 
-function getInitialTreeData(databases: IndexedDB[]) {
+function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
   // todo restore last selected DB per origin to restore it when user comes back
   const collator = new Intl.Collator(undefined, { sensitivity: "base" });
   const initialData: Database[] = databases
@@ -82,26 +69,24 @@ function getInitialTreeData(databases: IndexedDB[]) {
       ref: null,
       name: db.name,
       version: db.version,
-      isSelected: false,
       isExpanded: false,
-      isFocused: false,
-      tabindex: -1,
       objectStores: db.objectStores
         .map((name) => ({
           ref: null,
           name,
-          isSelected: false,
-          isFocused: false,
-          tabindex: -1,
         }))
         .toSorted((obj1, obj2) => collator.compare(obj1.name, obj2.name)),
     }))
     .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
   if (initialData[0].objectStores.length) {
     initialData[0].isExpanded = true;
-    initialData[0].tabindex = 0;
   }
-  return { databases: initialData };
+  return {
+    databases: initialData,
+    selectedItem: null,
+    focusedItem: null,
+    focusableItem: [0, undefined],
+  };
 }
 
 interface DatabaseTreeProps {

@@ -22,25 +22,25 @@ interface DatabaseTreeContextType {
   ) => void;
 }
 
-interface DatabaseTreeStore {
+type TreeItem = [dbIndex: number, storeIndex: number | undefined];
+
+export interface DatabaseTreeStore {
   databases: Database[];
+  // for accessibility
+  selectedItem: TreeItem | null; // aria-selected=true
+  focusedItem: TreeItem | null;
+  focusableItem: TreeItem; // tabindex=0
 }
 
 export interface Database {
   ref: HTMLLIElement | null;
   name: string;
   version: number;
-  isSelected: boolean;
   isExpanded: boolean;
-  isFocused: boolean;
-  tabindex: number;
   objectStores: ObjectStore[];
 }
 
 export interface ObjectStore {
   ref: HTMLLIElement | null;
   name: string;
-  isSelected: boolean;
-  isFocused: boolean;
-  tabindex: number;
 }
