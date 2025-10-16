@@ -52,7 +52,6 @@ html {
 
 body {
   block-size: 100%;
-  min-block-size: 600px;
   font-family: var(--font-humanist);
   font-size: 100%;
 }

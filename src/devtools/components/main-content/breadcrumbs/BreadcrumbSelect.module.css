@@ -1,0 +1,45 @@
+.base-select {
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
+  appearance: base-select;
+  padding: 0 var(--size-2);
+  background-color: var(--surface-1);
+  font-weight: var(--font-weight-4);
+  font-size: var(--font-size-3);
+
+  &:hover {
+    background-color: var(--surface-2);
+  }
+
+  &:has(> option[value="---"]:checked) {
+    background-color: var(--surface-2);
+    font-style: italic;
+    font-weight: var(--font-weight-3);
+    color: var(--text-2);
+  }
+
+  &:has(> option:checked:not([value="---"])) {
+    font-weight: var(--font-weight-6);
+  }
+
+  &::picker-icon {
+    display: none;
+  }
+
+  &::picker(select) {
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
+    appearance: base-select;
+    inset-inline-start: calc(anchor(left) - 21px);
+    min-inline-size: var(--size-12);
+    background-color: var(--surface-2);
+    border-radius: var(--radius-2);
+    font-size: var(--font-size-2);
+    font-weight: var(--font-weight-4);
+    font-style: normal;
+    border: var(--border-size-1) solid var(--surface-4);
+  }
+
+  option[value="---"] {
+    font-style: italic;
+    font-weight: var(--font-weight-3);
+  }
+}

@@ -7,8 +7,8 @@ export default defineManifest({
   name: pkg.name,
   version: pkg.version,
   // v129 latest anchor positioning changes shipped
-  // v133 hint added for popover
-  minimum_chrome_version: "133",
+  // v135 base-select
+  minimum_chrome_version: "135",
   icons: {
     48: "public/idb-browser-48x48.png",
     96: "public/idb-browser-96x96.png",
