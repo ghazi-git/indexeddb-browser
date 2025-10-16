@@ -45,6 +45,10 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
         if (event.key === "ArrowLeft") {
           event.stopPropagation();
           focusItem(local.dbIndex);
+        } else if (event.key === "ArrowRight") {
+          // don't let the event bubble up to DatabaseItem to avoid triggering
+          // its event listener
+          event.stopPropagation();
         } else if (event.key === "Enter") {
           event.stopPropagation();
           setSelectedItem(local.dbIndex, local.objectStoreIndex);
