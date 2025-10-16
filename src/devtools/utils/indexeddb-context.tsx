@@ -1,0 +1,53 @@
+import {
+  createContext,
+  createResource,
+  FlowProps,
+  Resource,
+  useContext,
+} from "solid-js";
+
+import { getDatabases, IndexedDB } from "@/devtools/utils/dummy-data";
+
+const IndexedDBContext = createContext<IndexedDBContextType>();
+
+export function useIndexedDBContext() {
+  const context = useContext(IndexedDBContext);
+  if (!context) {
+    throw new Error("useIndexedDBContext: cannot find IndexedDBContext");
+  }
+
+  return context;
+}
+
+export function IndexedDBContextProvide(props: FlowProps) {
+  const [data, { refetch }] = createResource(() => {
+    return new Promise<IndexedDB[]>((resolve) => {
+      setTimeout(() => {
+        const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+        const dbs: IndexedDB[] = getDatabases()
+          .map((db) => ({
+            name: db.name,
+            version: db.version,
+            objectStores: db.objectStores.toSorted(collator.compare),
+          }))
+          .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
+        resolve(dbs);
+      }, 2000);
+    });
+  });
+
+  const refetchIndexedDBs = () => {
+    refetch();
+  };
+
+  return (
+    <IndexedDBContext.Provider value={{ databases: data, refetchIndexedDBs }}>
+      {props.children}
+    </IndexedDBContext.Provider>
+  );
+}
+
+interface IndexedDBContextType {
+  databases: Resource<IndexedDB[]>;
+  refetchIndexedDBs: () => void;
+}

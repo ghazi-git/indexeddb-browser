@@ -1,22 +1,16 @@
-import { createResource, Match, Show, Switch } from "solid-js";
+import { Match, Show, Switch } from "solid-js";
 
 import DatabaseTree from "@/devtools/components/sidebar/database-tree/DatabaseTree";
 import { useSidebarContext } from "@/devtools/components/sidebar/sidebar-context";
 import SidebarHeader from "@/devtools/components/sidebar/SidebarHeader";
 import SingleLineText from "@/devtools/components/SingleLineText";
-import { getDatabases, IndexedDB } from "@/devtools/utils/dummy-data";
+import { useIndexedDBContext } from "@/devtools/utils/indexeddb-context";
 
 import styles from "./Sidebar.module.css";
 
 export default function Sidebar() {
   const { sidebar } = useSidebarContext();
-  const [databases] = createResource(() => {
-    return new Promise<IndexedDB[]>((resolve) => {
-      setTimeout(() => {
-        resolve(getDatabases());
-      }, 500);
-    });
-  });
+  const { databases } = useIndexedDBContext();
 
   return (
     <aside
@@ -33,8 +27,8 @@ export default function Sidebar() {
         </Match>
         <Match when={databases.error}>
           <SingleLineText
-            class={styles["no-databases"]}
-            text="An error occurred"
+            class={styles.error}
+            text="Unable to get the database list."
           />
         </Match>
         <Match when={databases()}>

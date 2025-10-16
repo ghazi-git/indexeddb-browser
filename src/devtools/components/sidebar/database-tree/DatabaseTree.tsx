@@ -128,21 +128,16 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
 
 function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
   // todo restore last selected DB per origin to restore it when user comes back
-  const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-  const initialData: Database[] = databases
-    .map((db) => ({
+  const initialData: Database[] = databases.map((db) => ({
+    ref: null,
+    name: db.name,
+    version: db.version,
+    isExpanded: false,
+    objectStores: db.objectStores.map((name) => ({
       ref: null,
-      name: db.name,
-      version: db.version,
-      isExpanded: false,
-      objectStores: db.objectStores
-        .map((name) => ({
-          ref: null,
-          name,
-        }))
-        .toSorted((obj1, obj2) => collator.compare(obj1.name, obj2.name)),
-    }))
-    .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
+      name,
+    })),
+  }));
   if (initialData[0].objectStores.length) {
     initialData[0].isExpanded = true;
   }

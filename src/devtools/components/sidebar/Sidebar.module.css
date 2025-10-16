@@ -26,3 +26,8 @@
 .no-databases {
   padding-inline: var(--sidebar-padding-inline);
 }
+
+.error {
+  padding-inline: var(--sidebar-padding-inline);
+  color: var(--error-color);
+}

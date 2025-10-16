@@ -1,13 +1,17 @@
+import { Show } from "solid-js";
+
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useSidebarContext } from "@/devtools/components/sidebar/sidebar-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import CloseSidebarIcon from "@/devtools/components/svg-icons/CloseSidebarIcon";
 import RefreshIcon from "@/devtools/components/svg-icons/RefreshIcon";
+import { useIndexedDBContext } from "@/devtools/utils/indexeddb-context";
 
 import styles from "./SidebarHeader.module.css";
 
 export default function SidebarHeader() {
   const { closeSidebar } = useSidebarContext();
+  const { databases, refetchIndexedDBs } = useIndexedDBContext();
 
   return (
     <h1 class={styles.header}>
@@ -23,9 +27,17 @@ export default function SidebarHeader() {
       <SingleLineText text="IndexedDBs" />
       <UnstyledButton
         class={styles["refresh-icon"]}
-        title="Refresh database list"
+        title={
+          databases.loading ? "Fetching database list" : "Refresh database list"
+        }
+        onClick={() => {
+          refetchIndexedDBs();
+        }}
+        loading={databases.loading}
       >
-        <RefreshIcon />
+        <Show when={!databases.loading}>
+          <RefreshIcon />
+        </Show>
       </UnstyledButton>
     </h1>
   );
