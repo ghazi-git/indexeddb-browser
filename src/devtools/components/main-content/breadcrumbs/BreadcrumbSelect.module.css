@@ -25,6 +25,13 @@
     display: none;
   }
 
+  selectedcontent {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-inline-size: 150px;
+  }
+
   &::picker(select) {
     /* stylelint-disable-next-line declaration-property-value-no-unknown */
     appearance: base-select;

@@ -10,6 +10,9 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
       class={`${styles["base-select"]} ${local.class ?? ""}`}
       {...selectProps}
     >
+      <button>
+        <selectedcontent />
+      </button>
       <For each={local.options}>
         {({ label, value }) => (
           <option value={value ?? ""} selected={value === local.value}>
