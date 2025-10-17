@@ -1,5 +1,6 @@
 import { Toaster, ToastProvider } from "solid-notifications";
 
+import { ActiveObjectStoreContextProvider } from "@/devtools/components/active-object-store-context";
 import { IndexedDBContextProvider } from "@/devtools/components/indexeddb-context";
 import MainContent from "@/devtools/components/main-content/MainContent";
 import { OriginContextProvider } from "@/devtools/components/origin-context";
@@ -21,10 +22,12 @@ function App() {
       <div class={styles.app}>
         <OriginContextProvider>
           <IndexedDBContextProvider>
-            <SidebarContextProvider>
-              <Sidebar />
-              <MainContent />
-            </SidebarContextProvider>
+            <ActiveObjectStoreContextProvider>
+              <SidebarContextProvider>
+                <Sidebar />
+                <MainContent />
+              </SidebarContextProvider>
+            </ActiveObjectStoreContextProvider>
           </IndexedDBContextProvider>
         </OriginContextProvider>
       </div>

@@ -1,6 +1,7 @@
-import { batch, For } from "solid-js";
+import { batch, createEffect, For, untrack } from "solid-js";
 import { createStore } from "solid-js/store";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import {
   Database,
   DatabaseTreeContext,
@@ -85,6 +86,29 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
     const [dbIndex, storeIndex] = flatItems[flatItems.length - 1];
     focusItem(dbIndex, storeIndex);
   };
+
+  // set the active store on selected item change
+  const { activeObjectStore, setActiveObjectStore } =
+    useActiveObjectStoreContext();
+  createEffect(() => {
+    const item = tree.selectedItem;
+    untrack(() => {
+      if (item?.[1] !== undefined) {
+        const [dbIndex, storeIndex] = item;
+        const dbName = tree.databases[dbIndex].name;
+        const storeName = tree.databases[dbIndex].objectStores[storeIndex].name;
+        const activeStore = activeObjectStore();
+        if (activeStore === null) {
+          setActiveObjectStore({ dbName, storeName });
+        } else if (
+          activeStore.dbName !== dbName ||
+          activeStore.storeName !== storeName
+        ) {
+          setActiveObjectStore({ dbName, storeName });
+        }
+      }
+    });
+  });
 
   return (
     <DatabaseTreeContext.Provider

@@ -1,5 +1,15 @@
-import { batch, createSignal, Match, onMount, Show, Switch } from "solid-js";
+import {
+  batch,
+  createEffect,
+  createSignal,
+  Match,
+  onMount,
+  Show,
+  Switch,
+  untrack,
+} from "solid-js";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import BreadcrumbSelect, {
   EMPTY_VALUE,
 } from "@/devtools/components/main-content/breadcrumbs/BreadcrumbSelect";
@@ -38,6 +48,18 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
   };
   onMount(() => {
     setSelectedDB(props.databases[0]);
+  });
+
+  // set the active store on selected item change
+  const { setActiveObjectStore } = useActiveObjectStoreContext();
+  createEffect(() => {
+    const storeName = selectedStore();
+    untrack(() => {
+      const dbName = selectedDB()?.name;
+      if (dbName && storeName !== EMPTY_VALUE) {
+        setActiveObjectStore({ dbName, storeName });
+      }
+    });
   });
 
   return (
