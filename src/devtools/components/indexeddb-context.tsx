@@ -1,11 +1,13 @@
 import {
   createContext,
+  createEffect,
   createResource,
   FlowProps,
   Resource,
   useContext,
 } from "solid-js";
 
+import { useOriginContext } from "@/devtools/components/origin-context";
 import { getDatabases, IndexedDB } from "@/devtools/utils/dummy-data";
 
 const IndexedDBContext = createContext<IndexedDBContextType>();
@@ -39,6 +41,14 @@ export function IndexedDBContextProvider(props: FlowProps) {
   const refetchIndexedDBs = () => {
     refetch();
   };
+
+  // when the inspected window origin changes update the indexedDB list
+  const { origin } = useOriginContext();
+  createEffect(() => {
+    if (origin()) {
+      refetchIndexedDBs();
+    }
+  });
 
   return (
     <IndexedDBContext.Provider value={{ databases: data, refetchIndexedDBs }}>
