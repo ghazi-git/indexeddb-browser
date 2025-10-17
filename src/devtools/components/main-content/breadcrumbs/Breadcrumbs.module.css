@@ -1,0 +1,19 @@
+.breadcrumbs {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.breadcrumbs > button,
+.breadcrumbs > .angle-right-icon {
+  flex-shrink: 0;
+}
+
+.angle-right-icon svg {
+  inline-size: var(--size-4);
+  block-size: auto;
+}
+
+.no-stores {
+  padding-inline-start: var(--size-1);
+}

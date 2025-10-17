@@ -25,8 +25,8 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
 }
 
 // some css styles are based on the empty value
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-const EMPTY_VALUE = "---";
+
+export const EMPTY_VALUE = "---";
 
 interface BreadcrumbSelectProps
   extends Omit<JSX.HTMLAttributes<HTMLSelectElement>, "children"> {
