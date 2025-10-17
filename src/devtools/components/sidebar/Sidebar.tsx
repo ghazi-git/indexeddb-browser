@@ -1,10 +1,10 @@
 import { Match, Show, Switch } from "solid-js";
 
+import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import DatabaseTree from "@/devtools/components/sidebar/database-tree/DatabaseTree";
 import { useSidebarContext } from "@/devtools/components/sidebar/sidebar-context";
 import SidebarHeader from "@/devtools/components/sidebar/SidebarHeader";
 import SingleLineText from "@/devtools/components/SingleLineText";
-import { useIndexedDBContext } from "@/devtools/utils/indexeddb-context";
 
 import styles from "./Sidebar.module.css";
 

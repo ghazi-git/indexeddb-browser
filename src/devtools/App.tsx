@@ -1,9 +1,9 @@
 import { Toaster, ToastProvider } from "solid-notifications";
 
+import { IndexedDBContextProvider } from "@/devtools/components/indexeddb-context";
 import MainContent from "@/devtools/components/main-content/MainContent";
 import Sidebar from "@/devtools/components/sidebar/Sidebar";
 import { SidebarContextProvider } from "@/devtools/components/sidebar/sidebar-context";
-import { IndexedDBContextProvide } from "@/devtools/utils/indexeddb-context";
 
 import styles from "./App.module.css";
 
@@ -18,12 +18,12 @@ function App() {
     >
       <Toaster />
       <div class={styles.app}>
-        <IndexedDBContextProvide>
+        <IndexedDBContextProvider>
           <SidebarContextProvider>
             <Sidebar />
             <MainContent />
           </SidebarContextProvider>
-        </IndexedDBContextProvide>
+        </IndexedDBContextProvider>
       </div>
     </ToastProvider>
   );

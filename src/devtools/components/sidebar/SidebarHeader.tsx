@@ -1,11 +1,11 @@
 import { Show } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useSidebarContext } from "@/devtools/components/sidebar/sidebar-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import CloseSidebarIcon from "@/devtools/components/svg-icons/CloseSidebarIcon";
 import RefreshIcon from "@/devtools/components/svg-icons/RefreshIcon";
-import { useIndexedDBContext } from "@/devtools/utils/indexeddb-context";
 
 import styles from "./SidebarHeader.module.css";
 

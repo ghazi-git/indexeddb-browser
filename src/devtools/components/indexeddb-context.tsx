@@ -19,7 +19,7 @@ export function useIndexedDBContext() {
   return context;
 }
 
-export function IndexedDBContextProvide(props: FlowProps) {
+export function IndexedDBContextProvider(props: FlowProps) {
   const [data, { refetch }] = createResource(() => {
     return new Promise<IndexedDB[]>((resolve) => {
       setTimeout(() => {
