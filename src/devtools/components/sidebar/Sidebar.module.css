@@ -18,6 +18,10 @@
   }
 }
 
+.sidebar:not(.closed) {
+  min-inline-size: 100px;
+}
+
 .sidebar.closed {
   inline-size: 0;
   border-inline-end: none;
