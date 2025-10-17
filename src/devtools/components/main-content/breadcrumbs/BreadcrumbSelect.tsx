@@ -11,6 +11,7 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
       {...selectProps}
     >
       <button>
+        {/* @ts-expect-error tag available in chrome since v135 */}
         <selectedcontent />
       </button>
       <For each={local.options}>
@@ -25,7 +26,6 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
 }
 
 // some css styles are based on the empty value
-
 export const EMPTY_VALUE = "---";
 
 interface BreadcrumbSelectProps
