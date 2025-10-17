@@ -1,15 +1,3 @@
 .main-content {
   padding: var(--size-2);
 }
-
-.header {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: var(--size-2);
-}
-
-.sidebar-icon svg {
-  inline-size: var(--size-4);
-  block-size: auto;
-}
