@@ -55,21 +55,18 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
     useActiveObjectStoreContext();
   createEffect(() => {
     const storeName = selectedStore();
-    untrack(() => {
-      const dbName = selectedDB()?.name;
-      if (dbName && storeName !== EMPTY_VALUE) {
-        setActiveObjectStore({ dbName, storeName });
-      }
-    });
+    const dbName = untrack(() => selectedDB()?.name);
+    if (dbName && storeName !== EMPTY_VALUE) {
+      setActiveObjectStore({ dbName, storeName });
+    }
   });
   // set the selected item on active store change
   createEffect(() => {
     const activeStore = activeObjectStore();
     if (activeStore) {
       const { dbName, storeName } = activeStore;
-      let db: IndexedDB | undefined;
-      untrack(() => {
-        db = props.databases.find((db) => db.name === dbName);
+      const db = untrack(() => {
+        return props.databases.find((db) => db.name === dbName);
       });
       if (db) {
         batch(() => {

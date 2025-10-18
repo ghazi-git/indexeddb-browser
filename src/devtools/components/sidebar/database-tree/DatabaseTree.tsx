@@ -92,12 +92,16 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
     useActiveObjectStoreContext();
   createEffect(() => {
     const item = tree.selectedItem;
-    untrack(() => {
-      if (item?.[1] !== undefined) {
-        const [dbIndex, storeIndex] = item;
-        const dbName = tree.databases[dbIndex].name;
-        const storeName = tree.databases[dbIndex].objectStores[storeIndex].name;
-        const activeStore = activeObjectStore();
+    if (item) {
+      const [dbIndex, storeIndex] = item;
+      if (storeIndex !== undefined) {
+        const { activeStore, dbName, storeName } = untrack(() => {
+          return {
+            activeStore: activeObjectStore(),
+            dbName: tree.databases[dbIndex].name,
+            storeName: tree.databases[dbIndex].objectStores[storeIndex].name,
+          };
+        });
         if (activeStore === null) {
           setActiveObjectStore({ dbName, storeName });
         } else if (
@@ -107,28 +111,31 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
           setActiveObjectStore({ dbName, storeName });
         }
       }
-    });
+    }
   });
   // set the selected item on active store change
   createEffect(() => {
     const activeStore = activeObjectStore();
-    let dbIndex = -1;
-    let storeIndex = -1;
     if (activeStore) {
       const { dbName, storeName } = activeStore;
-      untrack(() => {
-        dbIndex = tree.databases.findIndex((db) => db.name === dbName);
-        storeIndex =
-          tree.databases[dbIndex]?.objectStores.findIndex(
-            (st) => st.name === storeName,
-          ) ?? -1;
-      });
-    }
-    if (dbIndex >= 0 && storeIndex >= 0) {
-      batch(() => {
-        setTree("selectedItem", [dbIndex, storeIndex]);
-        setTree("focusableItem", [dbIndex, storeIndex]);
-      });
+      const { dbIndex, storeIndex } = untrack(
+        (): { dbIndex: number; storeIndex: number } => {
+          const dbIdx = tree.databases.findIndex((db) => db.name === dbName);
+          return {
+            dbIndex: dbIdx,
+            storeIndex:
+              tree.databases[dbIdx]?.objectStores.findIndex(
+                (st) => st.name === storeName,
+              ) ?? -1,
+          };
+        },
+      );
+      if (dbIndex >= 0 && storeIndex >= 0) {
+        batch(() => {
+          setTree("selectedItem", [dbIndex, storeIndex]);
+          setTree("focusableItem", [dbIndex, storeIndex]);
+        });
+      }
     }
   });
 
