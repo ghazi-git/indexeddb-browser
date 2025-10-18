@@ -51,7 +51,8 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
   });
 
   // set the active store on selected item change
-  const { setActiveObjectStore } = useActiveObjectStoreContext();
+  const { activeObjectStore, setActiveObjectStore } =
+    useActiveObjectStoreContext();
   createEffect(() => {
     const storeName = selectedStore();
     untrack(() => {
@@ -60,6 +61,23 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
         setActiveObjectStore({ dbName, storeName });
       }
     });
+  });
+  // set the selected item on active store change
+  createEffect(() => {
+    const activeStore = activeObjectStore();
+    if (activeStore) {
+      const { dbName, storeName } = activeStore;
+      let db: IndexedDB | undefined;
+      untrack(() => {
+        db = props.databases.find((db) => db.name === dbName);
+      });
+      if (db) {
+        batch(() => {
+          setSelectedDB(db);
+          setSelectedStore(storeName);
+        });
+      }
+    }
   });
 
   return (

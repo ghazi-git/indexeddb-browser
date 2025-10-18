@@ -109,6 +109,28 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
       }
     });
   });
+  // set the selected item on active store change
+  createEffect(() => {
+    const activeStore = activeObjectStore();
+    let dbIndex = -1;
+    let storeIndex = -1;
+    if (activeStore) {
+      const { dbName, storeName } = activeStore;
+      untrack(() => {
+        dbIndex = tree.databases.findIndex((db) => db.name === dbName);
+        storeIndex =
+          tree.databases[dbIndex]?.objectStores.findIndex(
+            (st) => st.name === storeName,
+          ) ?? -1;
+      });
+    }
+    if (dbIndex >= 0 && storeIndex >= 0) {
+      batch(() => {
+        setTree("selectedItem", [dbIndex, storeIndex]);
+        setTree("focusableItem", [dbIndex, storeIndex]);
+      });
+    }
+  });
 
   return (
     <DatabaseTreeContext.Provider
