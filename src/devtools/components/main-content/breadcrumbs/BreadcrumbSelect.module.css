@@ -45,6 +45,10 @@
     border: var(--border-size-1) solid var(--surface-4);
   }
 
+  option {
+    outline-offset: -1px;
+  }
+
   option[value="---"] {
     font-style: italic;
     font-weight: var(--font-weight-3);
