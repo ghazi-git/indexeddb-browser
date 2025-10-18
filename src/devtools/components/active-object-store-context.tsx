@@ -12,6 +12,7 @@ import {
   useContext,
 } from "solid-js";
 
+import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
 import { getStoreData } from "@/devtools/utils/dummy-data";
 
@@ -36,11 +37,27 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
     refetch();
   };
 
+  // if the user navigates away from the current origin, unset the active store
   const { origin } = useOriginContext();
   createEffect(() => {
     const activeStore = untrack(() => activeObjectStore());
     if (activeStore && origin()) {
       setActiveObjectStore(null);
+    }
+  });
+
+  // if the active store is no longer in the indexedDB (e.g. deleted), unset it
+  const { databases } = useIndexedDBContext();
+  createEffect(() => {
+    const dbs = databases();
+    const activeStore = untrack(() => activeObjectStore());
+    if (dbs && activeStore) {
+      const { dbName, storeName } = activeStore;
+      const db = dbs.find((db) => db.name === dbName);
+      const objStore = db?.objectStores.find((st) => st === storeName);
+      if (!objStore) {
+        setActiveObjectStore(null);
+      }
     }
   });
 
