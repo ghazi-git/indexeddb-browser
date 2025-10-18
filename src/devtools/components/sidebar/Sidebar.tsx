@@ -16,6 +16,7 @@ export default function Sidebar() {
     <aside
       class={styles.sidebar}
       classList={{ [styles.closed]: !sidebar.isOpen }}
+      inert={!sidebar.isOpen}
     >
       <SidebarHeader />
       <Switch>
