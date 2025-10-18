@@ -28,6 +28,7 @@ export default function DatabaseItem(props: DatabaseItemProps) {
       tree.selectedItem[1] === undefined
     );
   });
+  const hasStores = () => !!local.db.objectStores.length;
 
   let dbRef!: HTMLLIElement;
   const storeRefs: HTMLLIElement[] = [];
@@ -40,13 +41,11 @@ export default function DatabaseItem(props: DatabaseItemProps) {
       ref={dbRef}
       class={`${styles["database-item"]} ${local.class ?? ""}`}
       aria-selected={isSelected()}
-      aria-expanded={
-        local.db.objectStores.length ? local.db.isExpanded : undefined
-      }
+      aria-expanded={hasStores() ? local.db.isExpanded : undefined}
       tabindex={tabindex()}
       role="treeitem"
       onKeyDown={(event) => {
-        if (local.db.objectStores.length) {
+        if (hasStores()) {
           if (event.key === "ArrowRight") {
             if (local.db.isExpanded) {
               focusItem(local.dbIndex, 0);
@@ -66,13 +65,13 @@ export default function DatabaseItem(props: DatabaseItemProps) {
         class={styles.database}
         onClick={() => {
           setSelectedItem(local.dbIndex);
-          if (local.db.objectStores.length) {
+          if (hasStores()) {
             toggleExpandedDatabase(local.dbIndex);
           }
         }}
       >
         <Show
-          when={local.db.objectStores.length}
+          when={hasStores()}
           fallback={<div class={styles["no-object-stores"]} />}
         >
           <div class={styles.chevron}>
@@ -81,9 +80,11 @@ export default function DatabaseItem(props: DatabaseItemProps) {
             />
           </div>
         </Show>
-        <SingleLineText text={local.db.name} />
+        <SingleLineText
+          text={`${local.db.name}${hasStores() ? "" : " (empty)"}`}
+        />
       </div>
-      <Show when={local.db.objectStores.length}>
+      <Show when={hasStores()}>
         <ul role="group">
           <For each={local.db.objectStores}>
             {(objStore, objStoreIndex) => (
