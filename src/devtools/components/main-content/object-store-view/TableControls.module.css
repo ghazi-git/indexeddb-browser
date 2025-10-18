@@ -5,3 +5,7 @@
   align-items: center;
   gap: var(--size-2);
 }
+
+.controls input {
+  border: var(--border-size-1) solid var(--surface-3);
+}
