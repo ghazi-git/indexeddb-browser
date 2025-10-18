@@ -22,13 +22,13 @@ export default function Sidebar() {
         <Match when={databases.loading}>
           <SingleLineText
             class={styles["no-databases"]}
-            text="Loading databases..."
+            text="Checking for IndexedDBs..."
           />
         </Match>
         <Match when={databases.error}>
           <SingleLineText
             class={styles.error}
-            text="Unable to get the database list."
+            text="Unable to get the IndexedDB list."
           />
         </Match>
         <Match when={databases()}>
@@ -38,7 +38,7 @@ export default function Sidebar() {
               fallback={
                 <SingleLineText
                   class={styles["no-databases"]}
-                  text="No databases found"
+                  text="No IndexedDB found"
                 />
               }
             >

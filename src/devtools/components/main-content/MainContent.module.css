@@ -1,3 +1,37 @@
 .main-content {
   padding: var(--size-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--size-2);
+}
+
+.no-databases {
+  flex-grow: 1;
+  align-self: stretch;
+  text-align: center;
+  text-wrap: balance;
+  display: grid;
+  place-items: center;
+  font-size: var(--font-size-4);
+}
+
+.error {
+  color: var(--error-color);
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.header > button {
+  flex-shrink: 0;
+}
+
+.body {
+  flex-grow: 1;
+  align-self: stretch;
 }
