@@ -18,7 +18,7 @@
   transition-duration: 50ms;
 }
 
-.object-store[aria-selected="true"] {
+.object-store[data-active-store="true"] {
   background-color: var(--surface-4);
 }
 

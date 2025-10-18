@@ -91,6 +91,7 @@ export default function DatabaseItem(props: DatabaseItemProps) {
                 ref={(elt) => {
                   storeRefs[objStoreIndex()] = elt;
                 }}
+                dbName={local.db.name}
                 dbIndex={local.dbIndex}
                 objectStore={objStore}
                 objectStoreIndex={objStoreIndex()}

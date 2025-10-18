@@ -1,5 +1,6 @@
 import { createMemo, JSX, splitProps } from "solid-js";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import {
   ObjectStore,
   useDatabaseTreeContext,
@@ -12,10 +13,19 @@ import styles from "./ObjectStoreItem.module.css";
 export default function ObjectStoreItem(props: ObjectStoreItemProps) {
   const [local, rest] = splitProps(props, [
     "class",
+    "dbName",
     "dbIndex",
     "objectStore",
     "objectStoreIndex",
   ]);
+  const { activeObjectStore } = useActiveObjectStoreContext();
+  const isActiveStore = () => {
+    const activeStore = activeObjectStore();
+    return (
+      activeStore?.dbName === local.dbName &&
+      activeStore?.storeName === local.objectStore.name
+    );
+  };
   const { tree, setSelectedItem, focusItem } = useDatabaseTreeContext();
   const tabindex = createMemo(() => {
     const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
@@ -35,6 +45,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
   return (
     <li
       class={`${styles["object-store"]} ${local.class ?? ""}`}
+      data-active-store={isActiveStore()}
       aria-selected={isSelected()}
       onClick={() => {
         setSelectedItem(local.dbIndex, local.objectStoreIndex);
@@ -66,6 +77,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
 
 interface ObjectStoreItemProps
   extends Omit<JSX.LiHTMLAttributes<HTMLLIElement>, "children"> {
+  dbName: string;
   dbIndex: number;
   objectStore: ObjectStore;
   objectStoreIndex: number;

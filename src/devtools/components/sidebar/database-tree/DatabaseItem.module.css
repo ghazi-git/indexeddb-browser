@@ -38,8 +38,9 @@
   }
 }
 
-.database-item[aria-selected="true"] .database {
-  background-color: var(--surface-4);
+/* prettier-ignore */
+.database-item[aria-expanded="false"]:has(li[data-active-store="true"]) .database {
+  background-color: var(--surface-2);
 }
 
 .chevron {
