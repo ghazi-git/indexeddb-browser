@@ -32,12 +32,6 @@
   outline-offset: 1px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .database-item:focus-visible .database {
-    transition: outline-offset 50ms var(--ease-2);
-  }
-}
-
 /* prettier-ignore */
 .database-item[aria-expanded="false"]:has(li[data-active-store="true"]) .database {
   background-color: var(--surface-2);

@@ -45,7 +45,7 @@
     border: var(--border-size-1) solid var(--surface-4);
   }
 
-  option {
+  option:focus-visible {
     outline-offset: -1px;
   }
 

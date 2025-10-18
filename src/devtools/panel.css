@@ -98,3 +98,17 @@ ul {
 li {
   padding-inline-start: 0;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  :focus-visible {
+    transition: outline-offset 50ms var(--ease-2);
+  }
+
+  :not(:active):focus-visible {
+    transition-duration: 50ms;
+  }
+}
+
+:not(:active):focus-visible {
+  outline-offset: 2px;
+}

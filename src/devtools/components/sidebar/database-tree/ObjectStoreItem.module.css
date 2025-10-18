@@ -13,11 +13,6 @@
   background-color: var(--surface-2);
 }
 
-.object-store:focus-visible {
-  outline-offset: 2px;
-  transition-duration: 50ms;
-}
-
 .object-store[data-active-store="true"] {
   background-color: var(--surface-4);
 }
