@@ -104,7 +104,7 @@ interface ActiveObjectStoreContextType {
   refetchObjectStoreData: () => void;
 }
 
-type ActiveObjectStore = { dbName: string; storeName: string };
+export type ActiveObjectStore = { dbName: string; storeName: string };
 
 // only stores with a keyPath are displayed since the values stored are js
 // objects in this case. If no keyPath, the values can be anything, so

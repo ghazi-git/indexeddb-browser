@@ -7,9 +7,16 @@
   gap: var(--size-2);
 }
 
-.no-databases {
-  flex-grow: 1;
+.main-content > :not(:first-child) {
   align-self: stretch;
+}
+
+.main-content > :last-child {
+  flex-grow: 1;
+}
+
+.no-active-store,
+.no-databases {
   text-align: center;
   text-wrap: balance;
   display: grid;
@@ -29,9 +36,4 @@
 
 .header > button {
   flex-shrink: 0;
-}
-
-.body {
-  flex-grow: 1;
-  align-self: stretch;
 }

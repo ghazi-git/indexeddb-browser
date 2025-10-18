@@ -1,13 +1,17 @@
 import { Match, Show, Switch } from "solid-js";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import Breadcrumbs from "@/devtools/components/main-content/breadcrumbs/Breadcrumbs";
+import Table from "@/devtools/components/main-content/object-store-view/Table";
+import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import ShowSidebarButton from "@/devtools/components/main-content/ShowSidebarButton";
 
 import styles from "./MainContent.module.css";
 
 export default function MainContent() {
   const { databases } = useIndexedDBContext();
+  const { activeObjectStore } = useActiveObjectStoreContext();
 
   return (
     <main class={styles["main-content"]}>
@@ -37,7 +41,22 @@ export default function MainContent() {
                 </div>
               }
             >
-              <div class={styles.body}>Some Content</div>
+              <Show
+                when={activeObjectStore()}
+                fallback={
+                  <div class={styles["no-active-store"]}>
+                    Select an object store using the header or the sidebar to
+                    view its data.
+                  </div>
+                }
+              >
+                {(activeStore) => (
+                  <>
+                    <TableControls activeStore={activeStore()} />
+                    <Table />
+                  </>
+                )}
+              </Show>
             </Show>
           )}
         </Match>
