@@ -1,0 +1,33 @@
+.popover-trigger {
+  border: var(--border-size-1) solid var(--surface-3);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--size-1);
+}
+
+.popover-trigger.open {
+  background-color: var(--surface-2);
+}
+
+.popover-trigger svg {
+  inline-size: var(--size-3);
+  block-size: auto;
+  margin-block-start: 1px;
+}
+
+.popover {
+  inset: auto;
+  inset-block-start: calc(anchor(bottom) + var(--size-1));
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
+  inset-inline-end: anchor(right);
+  min-inline-size: var(--size-14);
+  max-inline-size: var(--size-15);
+  max-block-size: 200px;
+  overflow-block: auto;
+  padding: var(--size-1) var(--size-2);
+  background-color: var(--surface-2);
+  border: var(--border-size-1) solid var(--surface-3);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-3);
+}

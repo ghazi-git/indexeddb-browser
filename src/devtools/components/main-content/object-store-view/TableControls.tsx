@@ -1,5 +1,5 @@
 import { ActiveObjectStore } from "@/devtools/components/active-object-store-context";
-import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import ColumnsButton from "@/devtools/components/main-content/object-store-view/ColumnsButton";
 
 import styles from "./TableControls.module.css";
 
@@ -12,7 +12,7 @@ export default function TableControls(props: {
         type="text"
         placeholder={`Search ${props.activeStore.storeName}`}
       />
-      <UnstyledButton>Columns</UnstyledButton>
+      <ColumnsButton />
     </div>
   );
 }
