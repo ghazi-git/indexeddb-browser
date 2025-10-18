@@ -1,15 +1,18 @@
 import {
   Accessor,
   createContext,
+  createEffect,
   createResource,
   createSignal,
   FlowProps,
   Resource,
   Setter,
   Signal,
+  untrack,
   useContext,
 } from "solid-js";
 
+import { useOriginContext } from "@/devtools/components/origin-context";
 import { getStoreData } from "@/devtools/utils/dummy-data";
 
 const ActiveObjectStoreContext = createContext<ActiveObjectStoreContextType>();
@@ -32,6 +35,14 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
   const refetchObjectStoreData = () => {
     refetch();
   };
+
+  const { origin } = useOriginContext();
+  createEffect(() => {
+    const activeStore = untrack(() => activeObjectStore());
+    if (activeStore && origin()) {
+      setActiveObjectStore(null);
+    }
+  });
 
   return (
     <ActiveObjectStoreContext.Provider
@@ -86,7 +97,7 @@ type ActiveObjectStore = { dbName: string; storeName: string };
 type ObjectStoreData =
   | {
       canDisplay: true;
-      keypath: IDBValidKey;
+      keypath: string | string[];
       /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       data: Record<string, any>[];
     }
