@@ -2,10 +2,8 @@ import {
   Accessor,
   createContext,
   createEffect,
-  createResource,
   createSignal,
   FlowProps,
-  Resource,
   Setter,
   Signal,
   untrack,
@@ -14,7 +12,6 @@ import {
 
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
-import { getStoreData } from "@/devtools/utils/dummy-data";
 
 const ActiveObjectStoreContext = createContext<ActiveObjectStoreContextType>();
 
@@ -31,11 +28,6 @@ export function useActiveObjectStoreContext() {
 
 export function ActiveObjectStoreContextProvider(props: FlowProps) {
   const [activeObjectStore, setActiveObjectStore] = createActiveObjectStore();
-
-  const [objectStore, { refetch }] = createObjStoreResource(activeObjectStore);
-  const refetchObjectStoreData = () => {
-    refetch();
-  };
 
   // if the user navigates away from the current origin, unset the active store
   const { origin } = useOriginContext();
@@ -66,8 +58,6 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
       value={{
         activeObjectStore,
         setActiveObjectStore,
-        objectStore,
-        refetchObjectStoreData,
       }}
     >
       {props.children}
@@ -86,40 +76,9 @@ function createActiveObjectStore(): Signal<ActiveObjectStore | null> {
   return [accessor, setter];
 }
 
-function createObjStoreResource(
-  activeObjStore: Accessor<ActiveObjectStore | null>,
-) {
-  return createResource(
-    activeObjStore,
-    ({ dbName, storeName }: ActiveObjectStore) => {
-      return getStoreData(dbName, storeName) as Promise<ObjectStoreData>;
-    },
-  );
-}
-
 interface ActiveObjectStoreContextType {
   activeObjectStore: Accessor<ActiveObjectStore | null>;
   setActiveObjectStore: Setter<ActiveObjectStore | null>;
-  objectStore: Resource<ObjectStoreData>;
-  refetchObjectStoreData: () => void;
 }
 
 export type ActiveObjectStore = { dbName: string; storeName: string };
-
-// only stores with a keyPath are displayed since the values stored are js
-// objects in this case. If no keyPath, the values can be anything, so
-// recommend using the native indexedDB viewer
-// todo handle store not found (maybe deleted) or maybe handle together
-//  with error in general
-type ObjectStoreData =
-  | {
-      canDisplay: true;
-      keypath: string | string[];
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      data: Record<string, any>[];
-    }
-  | {
-      canDisplay: false;
-      keypath: null;
-      data: null;
-    };
