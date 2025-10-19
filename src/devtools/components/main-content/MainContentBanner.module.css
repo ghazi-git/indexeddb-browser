@@ -1,0 +1,11 @@
+.banner {
+  text-align: center;
+  text-wrap: balance;
+  display: grid;
+  place-items: center;
+  font-size: var(--font-size-4);
+}
+
+.error {
+  color: var(--error-color);
+}

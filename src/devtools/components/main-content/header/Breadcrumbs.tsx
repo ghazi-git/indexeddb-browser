@@ -12,8 +12,8 @@ import {
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import BreadcrumbSelect, {
   EMPTY_VALUE,
-} from "@/devtools/components/main-content/breadcrumbs/BreadcrumbSelect";
-import ReloadStore from "@/devtools/components/main-content/breadcrumbs/ReloadStore";
+} from "@/devtools/components/main-content/header/BreadcrumbSelect";
+import ReloadStore from "@/devtools/components/main-content/header/ReloadStore";
 import AngleRightIcon from "@/devtools/components/svg-icons/AngleRightIcon";
 import { IndexedDB } from "@/devtools/utils/dummy-data";
 
