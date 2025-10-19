@@ -81,4 +81,8 @@ interface ActiveObjectStoreContextType {
   setActiveObjectStore: Setter<ActiveObjectStore | null>;
 }
 
-export type ActiveObjectStore = { dbName: string; storeName: string };
+export type ActiveObjectStore = {
+  dbName: string;
+  dbVersion: number;
+  storeName: string;
+};
