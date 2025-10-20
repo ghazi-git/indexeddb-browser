@@ -1,0 +1,8 @@
+.checkbox-cell {
+  cursor: pointer;
+}
+
+.centered-checkbox {
+  display: grid;
+  place-items: center;
+}

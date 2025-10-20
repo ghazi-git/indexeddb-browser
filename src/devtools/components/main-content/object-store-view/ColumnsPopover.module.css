@@ -3,21 +3,16 @@
   inset-block-start: calc(anchor(bottom) + var(--size-1));
   /* stylelint-disable-next-line declaration-property-value-no-unknown */
   inset-inline-end: anchor(right);
-  min-inline-size: var(--size-14);
-  max-inline-size: var(--size-15);
+  min-inline-size: var(--size-13);
+  max-inline-size: min(var(--size-15), calc(100vi - var(--size-3)));
   min-block-size: var(--size-12);
-  max-block-size: var(--size-13);
+  max-block-size: min(var(--size-15), calc(100vb - 80px));
   overflow-block: auto;
-  padding: var(--size-1) var(--size-2);
+  padding: var(--size-2);
   background-color: var(--surface-2);
   border: var(--border-size-1) solid var(--surface-3);
   border-radius: var(--radius-2);
-  box-shadow: var(--shadow-3);
-}
-
-.centered-message {
-  display: grid;
-  place-items: center;
+  box-shadow: 0 0 10px rgb(0 0 0 / 25%);
 }
 
 .error {

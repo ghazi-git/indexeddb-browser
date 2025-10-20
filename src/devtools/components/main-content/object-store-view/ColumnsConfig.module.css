@@ -1,0 +1,20 @@
+.columns-config th,
+.columns-config td {
+  text-align: start;
+}
+
+.column {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--size-2);
+}
+
+.key-icon svg {
+  inline-size: var(--size-3);
+  block-size: auto;
+}
+
+.column-name {
+  max-inline-size: var(--size-13);
+}
