@@ -25,7 +25,7 @@ export function useTableContext() {
 
 export function TableContextProvider(props: FlowProps) {
   const { activeObjectStore } = useActiveObjectStoreContext();
-  const { query, fetchTableData } = createTableDataQuery();
+  const { query, setQuery, fetchTableData } = createTableDataQuery();
   const loadTableData = () => {
     const activeStore = activeObjectStore();
     if (activeStore) {
@@ -37,8 +37,34 @@ export function TableContextProvider(props: FlowProps) {
   // get the obj store data when activeObjectStore is updated
   createEffect(() => loadTableData());
 
+  const setColumnVisibility = (columnName: string, isVisible: boolean) => {
+    if (query?.data?.columns) {
+      query.data.columns.forEach((column, index) => {
+        if (column.name === columnName) {
+          setQuery("data", "columns", index, "isVisible", isVisible);
+        }
+      });
+    }
+  };
+  const setColumnAsTimestamp = (columnName: string, isTimestamp: boolean) => {
+    if (query?.data?.columns) {
+      query.data.columns.forEach((column, index) => {
+        if (column.name === columnName) {
+          setQuery("data", "columns", index, "isTimestamp", isTimestamp);
+        }
+      });
+    }
+  };
+
   return (
-    <TableContext.Provider value={{ query, refetch: loadTableData }}>
+    <TableContext.Provider
+      value={{
+        query,
+        refetch: loadTableData,
+        setColumnVisibility,
+        setColumnAsTimestamp,
+      }}
+    >
       {props.children}
     </TableContext.Provider>
   );
@@ -47,4 +73,6 @@ export function TableContextProvider(props: FlowProps) {
 interface TableContextType {
   query: Query;
   refetch: () => void;
+  setColumnVisibility: (columnName: string, isVisible: boolean) => void;
+  setColumnAsTimestamp: (columnName: string, isTimestamp: boolean) => void;
 }

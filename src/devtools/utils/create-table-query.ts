@@ -77,13 +77,13 @@ export function createTableDataQuery() {
     }
   }
 
-  return { query, fetchTableData };
+  return { query, setQuery, fetchTableData };
 }
 
 function getColumns(keypath: string[], rows: TableRow[]) {
   // determine column names based on the first 10 rows
   const first10Rows = rows.slice(0, 10);
-  const uniqueColumns = new Set(...first10Rows.flatMap(Object.keys));
+  const uniqueColumns = new Set(first10Rows.flatMap(Object.keys));
 
   // order columns: keys first according to the keypath ordering,
   // then the rest alphabetically
