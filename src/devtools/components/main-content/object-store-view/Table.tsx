@@ -1,50 +1,38 @@
+import { createGrid, GridOptions } from "ag-grid-community";
+import { createEffect, createSignal, onMount } from "solid-js";
+
+import { TableRow } from "@/devtools/utils/create-table-query";
+
 import styles from "./Table.module.css";
 
-export default function Table() {
+export default function Table(props: { gridOptions: GridOptions<TableRow> }) {
+  const theme = createThemeSignal();
+  let tableContainer: HTMLDivElement;
+  createEffect(() => {
+    createGrid(tableContainer, props.gridOptions);
+  });
+
   return (
-    <div class={styles.table}>
-      <table style={{ "inline-size": "100%" }}>
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>firstName</th>
-            <th>lastName</th>
-            <th>yearOfBirth</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>John</td>
-            <td>Doe</td>
-            <td>1965</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jane</td>
-            <td>Doe</td>
-            <td>1981</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Jenna</td>
-            <td>Drake</td>
-            <td>1985</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>James</td>
-            <td>Hopkins</td>
-            <td>1979</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>Bob</td>
-            <td>Jefferson</td>
-            <td>1976</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div
+      ref={(elt) => {
+        tableContainer = elt;
+      }}
+      class={styles.table}
+      data-ag-theme-mode={theme()}
+    />
   );
+}
+
+function createThemeSignal() {
+  const [theme, setTheme] = createSignal<"light" | "dark">("light");
+  onMount(() => {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", ({ matches: isDark }) => {
+        const systemTheme = isDark ? "dark" : "light";
+        setTheme(systemTheme);
+      });
+  });
+
+  return theme;
 }

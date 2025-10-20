@@ -5,10 +5,10 @@ import Breadcrumbs from "@/devtools/components/main-content/header/Breadcrumbs";
 import MainContentHeader from "@/devtools/components/main-content/header/MainContentHeader";
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import MainContentContainer from "@/devtools/components/main-content/MainContentContainer";
-import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { TableContextProvider } from "@/devtools/components/main-content/object-store-view/table-context";
 import { TableSearchContextProvider } from "@/devtools/components/main-content/object-store-view/table-search-context";
 import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
+import TableStateWrapper from "@/devtools/components/main-content/object-store-view/TableStateWrapper";
 import { IndexedDB } from "@/devtools/utils/dummy-data";
 
 export default function ObjectStoreView(props: { databases: IndexedDB[] }) {
@@ -32,7 +32,7 @@ export default function ObjectStoreView(props: { databases: IndexedDB[] }) {
           {(activeStore) => (
             <TableSearchContextProvider>
               <TableControls activeStore={activeStore()} />
-              <Table />
+              <TableStateWrapper />
             </TableSearchContextProvider>
           )}
         </Show>
