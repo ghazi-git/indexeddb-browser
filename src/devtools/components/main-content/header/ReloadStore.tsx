@@ -1,23 +1,23 @@
-import { createSignal, Show } from "solid-js";
+import { Show } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import RefreshIcon from "@/devtools/components/svg-icons/RefreshIcon";
 
 import styles from "./ReloadStore.module.css";
 
 export default function ReloadStore() {
-  const [loading, setLoading] = createSignal(false);
+  const { query, refetch } = useTableContext();
   return (
     <UnstyledButton
       class={styles.reload}
-      title={loading() ? "Reloading data..." : "Reload store data"}
-      loading={loading()}
+      title={query.isLoading ? "Reloading data..." : "Reload store data"}
+      loading={query.isLoading}
       onClick={() => {
-        setLoading(true);
-        setTimeout(() => setLoading(false), 1000);
+        refetch();
       }}
     >
-      <Show when={!loading()}>
+      <Show when={!query.isLoading}>
         <RefreshIcon />
       </Show>
     </UnstyledButton>
