@@ -135,7 +135,7 @@ function getColumns(keypath: string[], rows: TableRow[]) {
 }
 
 const DATE_1990 = new Date("1990-01-01").getTime();
-function isTimestamp(value: TableColumnValue) {
+export function isTimestamp(value: TableColumnValue) {
   return Number.isInteger(value) && value >= DATE_1990;
 }
 

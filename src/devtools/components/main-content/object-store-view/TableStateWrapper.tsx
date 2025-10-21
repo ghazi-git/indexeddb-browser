@@ -12,6 +12,10 @@ import { useTableContext } from "@/devtools/components/main-content/object-store
 import { TableSearchContextProvider } from "@/devtools/components/main-content/object-store-view/table-search-context";
 import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import { TableData, TableRow } from "@/devtools/utils/create-table-query";
+import {
+  TableCellRenderer,
+  TimestampRenderer,
+} from "@/devtools/utils/table-cell-renderer";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -44,6 +48,7 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
       headerTooltip: column.isTimestamp
         ? "Column values are timestamps formatted as a datetime"
         : "",
+      cellRenderer: column.isTimestamp ? TimestampRenderer : TableCellRenderer,
     }));
     return {
       rowData: props.tableData.rows,

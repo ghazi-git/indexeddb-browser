@@ -1,3 +1,31 @@
 .table {
   padding-inline: var(--size-2);
 }
+
+.table [role="gridcell"] {
+  padding-inline: 0;
+  user-select: all;
+}
+
+.table [role="columnheader"] {
+  padding-inline: var(--size-2);
+}
+
+.table [role="gridcell"]::selection {
+  background: transparent;
+}
+
+.table-cell {
+  padding-inline: var(--size-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blue {
+  color: var(--brand);
+}
+
+.nullish {
+  color: var(--text-2);
+  font-style: italic;
+}

@@ -10,16 +10,7 @@ import styles from "./ColumnsConfig.module.css";
 
 export default function ColumnsConfig(props: { tableData: TableData }) {
   return (
-    <Show
-      when={props.tableData.canDisplay}
-      fallback={
-        <div>
-          This object store has no keypath. This <i>usually</i> means that it
-          has data not suitable for display in a table. Use the native IndexedDB
-          viewer instead.
-        </div>
-      }
-    >
+    <>
       <table class={styles["columns-config"]}>
         <thead>
           <tr>
@@ -34,7 +25,10 @@ export default function ColumnsConfig(props: { tableData: TableData }) {
           </For>
         </tbody>
       </table>
-    </Show>
+      <small class={styles.hint}>
+        Any column value formatted as datetime is in UTC
+      </small>
+    </>
   );
 }
 

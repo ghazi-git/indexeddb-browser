@@ -18,3 +18,7 @@
 .column-name {
   max-inline-size: var(--size-13);
 }
+
+.hint {
+  padding-inline: var(--size-1);
+}
