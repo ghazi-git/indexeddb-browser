@@ -1,5 +1,6 @@
 import {
   AllCommunityModule,
+  ColDef,
   GridOptions,
   ModuleRegistry,
 } from "ag-grid-community";
@@ -37,13 +38,18 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
     if (!props.tableData.canDisplay) return undefined;
     if (props.tableData.rows.length === 0) return null;
 
-    const columnDefs = props.tableData.columns.map(({ name }) => ({
-      field: name,
+    const columnDefs: ColDef[] = props.tableData.columns.map((column) => ({
+      field: column.name,
+      headerName: column.isTimestamp ? `${column.name} ⏱` : column.name,
+      headerTooltip: column.isTimestamp
+        ? "Column values are timestamps formatted as a datetime"
+        : "",
     }));
     return {
       rowData: props.tableData.rows,
       columnDefs,
       defaultColDef: { flex: 1 },
+      tooltipShowDelay: 1000,
     };
   };
 
