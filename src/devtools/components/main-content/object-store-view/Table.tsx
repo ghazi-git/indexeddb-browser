@@ -1,15 +1,22 @@
-import { createGrid, GridOptions } from "ag-grid-community";
+import { createGrid, GridApi, GridOptions } from "ag-grid-community";
 import { createEffect, createSignal, onMount } from "solid-js";
 
+import { useTableSearchContext } from "@/devtools/components/main-content/object-store-view/table-search-context";
 import { TableRow } from "@/devtools/utils/create-table-query";
 
 import styles from "./Table.module.css";
 
 export default function Table(props: { gridOptions: GridOptions<TableRow> }) {
   const theme = createThemeSignal();
+  let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
+  onMount(() => {
+    gridApi = createGrid(tableContainer, props.gridOptions);
+  });
+
+  const { searchTerm } = useTableSearchContext();
   createEffect(() => {
-    createGrid(tableContainer, props.gridOptions);
+    gridApi.setGridOption("quickFilterText", searchTerm());
   });
 
   return (

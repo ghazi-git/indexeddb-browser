@@ -13,6 +13,8 @@ import { TableSearchContextProvider } from "@/devtools/components/main-content/o
 import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import { TableData, TableRow } from "@/devtools/utils/create-table-query";
 import {
+  convertTimestampToString,
+  convertToString,
   TableCellRenderer,
   TimestampRenderer,
 } from "@/devtools/utils/table-cell-renderer";
@@ -49,12 +51,20 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
         ? "Column values are timestamps formatted as a datetime"
         : "",
       cellRenderer: column.isTimestamp ? TimestampRenderer : TableCellRenderer,
+      getQuickFilterText: (params) => {
+        if (column.isTimestamp) {
+          return convertTimestampToString(params.value).text;
+        } else {
+          return convertToString(params.value).text;
+        }
+      },
     }));
     return {
       rowData: props.tableData.rows,
       columnDefs,
       defaultColDef: { flex: 1 },
       tooltipShowDelay: 1000,
+      cacheQuickFilter: true,
     };
   };
 
