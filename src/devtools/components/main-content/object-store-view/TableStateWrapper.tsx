@@ -8,6 +8,8 @@ import { Match, Switch } from "solid-js";
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
+import { TableSearchContextProvider } from "@/devtools/components/main-content/object-store-view/table-search-context";
+import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import { TableData, TableRow } from "@/devtools/utils/create-table-query";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -21,7 +23,7 @@ export default function TableStateWrapper() {
         <MainContentBanner>Loading object store data ...</MainContentBanner>
       </Match>
       <Match when={query.isError}>
-        <MainContentBanner>{query.errorMsg}</MainContentBanner>
+        <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>
       </Match>
       <Match when={query.data}>
         {(data) => <GridOptionsWrapper tableData={data()} />}
@@ -62,7 +64,12 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
         </MainContentBanner>
       </Match>
       <Match when={gridOptions()}>
-        {(options) => <Table gridOptions={options()} />}
+        {(options) => (
+          <TableSearchContextProvider>
+            <TableControls />
+            <Table gridOptions={options()} />
+          </TableSearchContextProvider>
+        )}
       </Match>
     </Switch>
   );

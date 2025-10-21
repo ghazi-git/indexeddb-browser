@@ -45,15 +45,15 @@ function ColumnConfig(props: { column: TableColumn }) {
     <tr>
       <td>
         <div class={styles.column}>
+          <SingleLineText
+            text={props.column.name}
+            class={styles["column-name"]}
+          />
           <Show when={props.column.isKey}>
             <div class={styles["key-icon"]} title="Key column">
               <KeyIcon />
             </div>
           </Show>
-          <SingleLineText
-            text={props.column.name}
-            class={styles["column-name"]}
-          />
         </div>
       </td>
       <CheckboxCell

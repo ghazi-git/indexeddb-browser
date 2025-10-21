@@ -1,4 +1,4 @@
-import { JSX, Match, Switch } from "solid-js";
+import { JSX, Show } from "solid-js";
 
 import ColumnsConfig from "@/devtools/components/main-content/object-store-view/ColumnsConfig";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
@@ -10,17 +10,9 @@ export default function ColumnsPopover(props: ColumnsPopoverProps) {
 
   return (
     <div class={styles.popover} popover {...props}>
-      <Switch>
-        <Match when={query.isLoading && !query.data}>
-          <div>Loading table data...</div>
-        </Match>
-        <Match when={query.isError && !query.data}>
-          <div class={styles.error}>{query.errorMsg}</div>
-        </Match>
-        <Match when={query.data}>
-          {(data) => <ColumnsConfig tableData={data()} />}
-        </Match>
-      </Switch>
+      <Show when={query.data}>
+        {(data) => <ColumnsConfig tableData={data()} />}
+      </Show>
     </div>
   );
 }

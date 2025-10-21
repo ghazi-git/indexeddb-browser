@@ -6,8 +6,6 @@ import MainContentHeader from "@/devtools/components/main-content/header/MainCon
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import MainContentContainer from "@/devtools/components/main-content/MainContentContainer";
 import { TableContextProvider } from "@/devtools/components/main-content/object-store-view/table-context";
-import { TableSearchContextProvider } from "@/devtools/components/main-content/object-store-view/table-search-context";
-import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import TableStateWrapper from "@/devtools/components/main-content/object-store-view/TableStateWrapper";
 import { IndexedDB } from "@/devtools/utils/dummy-data";
 
@@ -29,12 +27,7 @@ export default function ObjectStoreView(props: { databases: IndexedDB[] }) {
             </MainContentBanner>
           }
         >
-          {(activeStore) => (
-            <TableSearchContextProvider>
-              <TableControls activeStore={activeStore()} />
-              <TableStateWrapper />
-            </TableSearchContextProvider>
-          )}
+          <TableStateWrapper />
         </Show>
       </MainContentContainer>
     </TableContextProvider>
