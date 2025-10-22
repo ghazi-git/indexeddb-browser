@@ -9,7 +9,7 @@ import { Match, Switch } from "solid-js";
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
-import { TableSearchContextProvider } from "@/devtools/components/main-content/object-store-view/table-search-context";
+import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
 import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import { TableData, TableRow } from "@/devtools/utils/create-table-query";
 import {
@@ -109,10 +109,10 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
       </Match>
       <Match when={initialGridOptions()}>
         {(options) => (
-          <TableSearchContextProvider>
+          <TableSettingsContextProvider>
             <TableControls />
             <Table initialGridOptions={options()} />
-          </TableSearchContextProvider>
+          </TableSettingsContextProvider>
         )}
       </Match>
     </Switch>
