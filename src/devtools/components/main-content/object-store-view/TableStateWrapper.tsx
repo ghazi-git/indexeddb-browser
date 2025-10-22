@@ -1,9 +1,4 @@
-import {
-  AllCommunityModule,
-  ColDef,
-  GridOptions,
-  ModuleRegistry,
-} from "ag-grid-community";
+import { ColDef, GridOptions } from "ag-grid-community";
 import { Match, Switch, untrack } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
@@ -21,8 +16,6 @@ import {
   TableCellRenderer,
   TimestampRenderer,
 } from "@/devtools/utils/table-cell-renderer";
-
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function TableStateWrapper() {
   const { query } = useTableContext();
