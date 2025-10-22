@@ -24,6 +24,7 @@ export default function Table(props: TableProps) {
         ({
           field: column.name,
           headerName: column.isTimestamp ? `${column.name} ⏱` : column.name,
+          hide: !column.isVisible,
           headerTooltip: column.isTimestamp
             ? "Column values are timestamps formatted as a datetime"
             : "",
@@ -69,11 +70,15 @@ export default function Table(props: TableProps) {
     });
   });
 
+  // update table settings
   createEffect(() => {
     gridApi.setGridOption("quickFilterText", settings.searchTerm);
   });
   createEffect(() => {
     gridApi.setGridOption("pagination", settings.pagination);
+  });
+  createEffect(() => {
+    gridApi.setGridOption("columnDefs", columnDefs());
   });
 
   return (
