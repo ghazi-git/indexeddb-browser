@@ -20,6 +20,9 @@ export default function Table(props: {
   createEffect(() => {
     gridApi.setGridOption("quickFilterText", settings.searchTerm);
   });
+  createEffect(() => {
+    gridApi.setGridOption("pagination", settings.pagination);
+  });
 
   return (
     <div

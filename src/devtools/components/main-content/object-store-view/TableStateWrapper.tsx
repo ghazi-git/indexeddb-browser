@@ -4,12 +4,15 @@ import {
   GridOptions,
   ModuleRegistry,
 } from "ag-grid-community";
-import { Match, Switch } from "solid-js";
+import { Match, Switch, untrack } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
-import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import {
+  TableSettingsContextProvider,
+  useTableSettingsContext,
+} from "@/devtools/components/main-content/object-store-view/table-settings-context";
 import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
 import { TableData, TableRow } from "@/devtools/utils/create-table-query";
 import {
@@ -33,13 +36,19 @@ export default function TableStateWrapper() {
         <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>
       </Match>
       <Match when={query.data}>
-        {(data) => <GridOptionsWrapper tableData={data()} />}
+        {(data) => (
+          <TableSettingsContextProvider>
+            <GridOptionsWrapper tableData={data()} />
+          </TableSettingsContextProvider>
+        )}
       </Match>
     </Switch>
   );
 }
 
 function GridOptionsWrapper(props: { tableData: TableData }) {
+  const { settings } = useTableSettingsContext();
+  const initialPagination = untrack(() => settings.pagination);
   const initialGridOptions = (): GridOptions<TableRow> | undefined | null => {
     if (!props.tableData.canDisplay) return undefined;
     if (props.tableData.rows.length === 0) return null;
@@ -85,7 +94,7 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
       defaultColDef: { flex: 1 },
       tooltipShowDelay: 1000,
       cacheQuickFilter: true,
-      pagination: true,
+      pagination: initialPagination,
       paginationPageSizeSelector: [20, 100, 500, 1000],
       paginationPageSize: 20,
     };
@@ -109,10 +118,10 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
       </Match>
       <Match when={initialGridOptions()}>
         {(options) => (
-          <TableSettingsContextProvider>
+          <>
             <TableControls />
             <Table initialGridOptions={options()} />
-          </TableSettingsContextProvider>
+          </>
         )}
       </Match>
     </Switch>

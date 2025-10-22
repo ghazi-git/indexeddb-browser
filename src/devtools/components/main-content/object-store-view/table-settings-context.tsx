@@ -14,20 +14,30 @@ export function useTableSettingsContext() {
 }
 
 export function TableSettingsContextProvider(props: FlowProps) {
-  const [settings, setSettings] = createStore({
+  const [settings, setSettings] = createStore<TableSettings>({
     searchTerm: "",
+    pagination: true,
   });
 
   const setSearchTerm = (term: string) => setSettings("searchTerm", term);
+  const togglePagination = (value: boolean) => setSettings("pagination", value);
 
   return (
-    <TableSettingsContext.Provider value={{ settings, setSearchTerm }}>
+    <TableSettingsContext.Provider
+      value={{ settings, setSearchTerm, togglePagination }}
+    >
       {props.children}
     </TableSettingsContext.Provider>
   );
 }
 
 interface TableSettingsContextType {
-  settings: { searchTerm: string };
+  settings: TableSettings;
   setSearchTerm: (term: string) => void;
+  togglePagination: (value: boolean) => void;
+}
+
+interface TableSettings {
+  searchTerm: string;
+  pagination: boolean;
 }

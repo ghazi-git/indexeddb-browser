@@ -2,6 +2,7 @@ import { createSignal } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import ColumnsConfig from "@/devtools/components/main-content/object-store-view/ColumnsConfig";
+import PaginationSetting from "@/devtools/components/main-content/object-store-view/PaginationSetting";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
 
 import styles from "./TableSettingsButton.module.css";
@@ -27,6 +28,7 @@ export default function TableSettingsButton() {
         }}
       >
         <ColumnsConfig />
+        <PaginationSetting />
       </div>
     </>
   );
