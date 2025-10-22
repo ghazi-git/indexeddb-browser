@@ -1,21 +1,11 @@
-import { ColDef, GridOptions } from "ag-grid-community";
-import { Match, Switch, untrack } from "solid-js";
+import { Match, Switch } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
-import {
-  TableSettingsContextProvider,
-  useTableSettingsContext,
-} from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
 import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
-import { TableData, TableRow } from "@/devtools/utils/create-table-query";
-import {
-  convertTimestampToString,
-  convertToString,
-  TableCellRenderer,
-  TimestampRenderer,
-} from "@/devtools/utils/table-cell-renderer";
+import { TableData } from "@/devtools/utils/create-table-query";
 
 export default function TableStateWrapper() {
   const { query } = useTableContext();
@@ -29,73 +19,23 @@ export default function TableStateWrapper() {
         <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>
       </Match>
       <Match when={query.data}>
-        {(data) => (
-          <TableSettingsContextProvider>
-            <GridOptionsWrapper tableData={data()} />
-          </TableSettingsContextProvider>
-        )}
+        {(data) => <TableWrapper tableData={data()} />}
       </Match>
     </Switch>
   );
 }
 
-function GridOptionsWrapper(props: { tableData: TableData }) {
-  const { settings } = useTableSettingsContext();
-  const initialPagination = untrack(() => settings.pagination);
-  const initialGridOptions = (): GridOptions<TableRow> | undefined | null => {
+function TableWrapper(props: { tableData: TableData }) {
+  const table = () => {
     if (!props.tableData.canDisplay) return undefined;
     if (props.tableData.rows.length === 0) return null;
 
-    const columnDefs: ColDef[] = props.tableData.columns.map(
-      (column) =>
-        ({
-          field: column.name,
-          headerName: column.isTimestamp ? `${column.name} ⏱` : column.name,
-          headerTooltip: column.isTimestamp
-            ? "Column values are timestamps formatted as a datetime"
-            : "",
-          cellRenderer: column.isTimestamp
-            ? TimestampRenderer
-            : TableCellRenderer,
-          valueGetter: (params) => {
-            const value = params.data[params.colDef.field!];
-            if (column.isTimestamp) {
-              return convertTimestampToString(value).text;
-            } else {
-              return convertToString(value).text;
-            }
-          },
-          filter: "agTextColumnFilter",
-          filterParams: {
-            buttons: ["reset"],
-            filterOptions: [
-              "contains",
-              "notContains",
-              "equals",
-              "notEqual",
-              "startsWith",
-              "endsWith",
-              "blank",
-              "notBlank",
-            ],
-          },
-        }) as ColDef,
-    );
-    return {
-      rowData: props.tableData.rows,
-      columnDefs,
-      defaultColDef: { flex: 1 },
-      tooltipShowDelay: 1000,
-      cacheQuickFilter: true,
-      pagination: initialPagination,
-      paginationPageSizeSelector: [20, 100, 500, 1000],
-      paginationPageSize: 20,
-    };
+    return { columns: props.tableData.columns, rows: props.tableData.rows };
   };
 
   return (
     <Switch>
-      <Match when={initialGridOptions() === undefined}>
+      <Match when={table() === undefined}>
         <MainContentBanner>
           <span>
             This object store has no keypath. This <i>usually</i> means that it
@@ -104,17 +44,17 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
           </span>
         </MainContentBanner>
       </Match>
-      <Match when={initialGridOptions() === null}>
+      <Match when={table() === null}>
         <MainContentBanner>
           This object store has no data yet.
         </MainContentBanner>
       </Match>
-      <Match when={initialGridOptions()}>
-        {(options) => (
-          <>
+      <Match when={table()}>
+        {(t) => (
+          <TableSettingsContextProvider>
             <TableControls />
-            <Table initialGridOptions={options()} />
-          </>
+            <Table rows={t().rows} columns={t().columns} />
+          </TableSettingsContextProvider>
         )}
       </Match>
     </Switch>

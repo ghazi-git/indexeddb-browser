@@ -1,22 +1,74 @@
-import { createGrid, GridApi, GridOptions } from "ag-grid-community";
+import { ColDef, createGrid, GridApi } from "ag-grid-community";
 import { createEffect, createSignal, onMount } from "solid-js";
 
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
-import { TableRow } from "@/devtools/utils/create-table-query";
+import { TableColumn, TableRow } from "@/devtools/utils/create-table-query";
+import {
+  convertTimestampToString,
+  convertToString,
+  TableCellRenderer,
+  TimestampRenderer,
+} from "@/devtools/utils/table-cell-renderer";
 
 import styles from "./Table.module.css";
 
-export default function Table(props: {
-  initialGridOptions: GridOptions<TableRow>;
-}) {
+export default function Table(props: TableProps) {
   const theme = createThemeSignal();
   let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
-  onMount(() => {
-    gridApi = createGrid(tableContainer, props.initialGridOptions);
-  });
 
   const { settings } = useTableSettingsContext();
+  const columnDefs = (): ColDef[] => {
+    return props.columns.map(
+      (column) =>
+        ({
+          field: column.name,
+          headerName: column.isTimestamp ? `${column.name} ⏱` : column.name,
+          headerTooltip: column.isTimestamp
+            ? "Column values are timestamps formatted as a datetime"
+            : "",
+          cellRenderer: column.isTimestamp
+            ? TimestampRenderer
+            : TableCellRenderer,
+          valueGetter: (params) => {
+            const value = params.data[params.colDef.field!];
+            if (column.isTimestamp) {
+              return convertTimestampToString(value).text;
+            } else {
+              return convertToString(value).text;
+            }
+          },
+          filter: "agTextColumnFilter",
+          filterParams: {
+            buttons: ["reset"],
+            filterOptions: [
+              "contains",
+              "notContains",
+              "equals",
+              "notEqual",
+              "startsWith",
+              "endsWith",
+              "blank",
+              "notBlank",
+            ],
+          },
+        }) as ColDef,
+    );
+  };
+
+  onMount(() => {
+    gridApi = createGrid(tableContainer, {
+      rowData: props.rows,
+      columnDefs: columnDefs(),
+      defaultColDef: { flex: 1 },
+      tooltipShowDelay: 1000,
+      cacheQuickFilter: true,
+      pagination: settings.pagination,
+      paginationPageSizeSelector: [20, 100, 500, 1000],
+      paginationPageSize: 20,
+    });
+  });
+
   createEffect(() => {
     gridApi.setGridOption("quickFilterText", settings.searchTerm);
   });
@@ -47,4 +99,9 @@ function createThemeSignal() {
   });
 
   return theme;
+}
+
+interface TableProps {
+  columns: TableColumn[];
+  rows: TableRow[];
 }
