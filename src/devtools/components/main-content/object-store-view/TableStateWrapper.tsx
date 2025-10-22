@@ -40,7 +40,7 @@ export default function TableStateWrapper() {
 }
 
 function GridOptionsWrapper(props: { tableData: TableData }) {
-  const gridOptions = (): GridOptions<TableRow> | undefined | null => {
+  const initialGridOptions = (): GridOptions<TableRow> | undefined | null => {
     if (!props.tableData.canDisplay) return undefined;
     if (props.tableData.rows.length === 0) return null;
 
@@ -93,7 +93,7 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
 
   return (
     <Switch>
-      <Match when={gridOptions() === undefined}>
+      <Match when={initialGridOptions() === undefined}>
         <MainContentBanner>
           <span>
             This object store has no keypath. This <i>usually</i> means that it
@@ -102,16 +102,16 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
           </span>
         </MainContentBanner>
       </Match>
-      <Match when={gridOptions() === null}>
+      <Match when={initialGridOptions() === null}>
         <MainContentBanner>
           This object store has no data yet.
         </MainContentBanner>
       </Match>
-      <Match when={gridOptions()}>
+      <Match when={initialGridOptions()}>
         {(options) => (
           <TableSearchContextProvider>
             <TableControls />
-            <Table gridOptions={options()} />
+            <Table initialGridOptions={options()} />
           </TableSearchContextProvider>
         )}
       </Match>

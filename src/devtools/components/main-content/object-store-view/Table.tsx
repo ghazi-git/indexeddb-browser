@@ -6,12 +6,14 @@ import { TableRow } from "@/devtools/utils/create-table-query";
 
 import styles from "./Table.module.css";
 
-export default function Table(props: { gridOptions: GridOptions<TableRow> }) {
+export default function Table(props: {
+  initialGridOptions: GridOptions<TableRow>;
+}) {
   const theme = createThemeSignal();
   let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
   onMount(() => {
-    gridApi = createGrid(tableContainer, props.gridOptions);
+    gridApi = createGrid(tableContainer, props.initialGridOptions);
   });
 
   const { searchTerm } = useTableSearchContext();
