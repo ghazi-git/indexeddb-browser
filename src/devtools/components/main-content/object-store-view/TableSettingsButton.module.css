@@ -1,8 +1,26 @@
+.popover-trigger {
+  border: var(--border-size-1) solid var(--surface-3);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--size-1);
+}
+
+.popover-trigger.open {
+  background-color: var(--surface-2);
+}
+
+.popover-trigger svg {
+  inline-size: var(--size-3);
+  block-size: auto;
+  margin-block-start: 1px;
+}
+
 .popover {
   inset: auto;
-  inset-block-start: calc(anchor(bottom) + var(--size-1));
+  inset-block-start: calc(anchor(end) + var(--size-1));
   /* stylelint-disable-next-line declaration-property-value-no-unknown */
-  inset-inline-end: anchor(right);
+  inset-inline-end: anchor(end);
   min-inline-size: var(--size-13);
   max-inline-size: min(var(--size-15), calc(100vi - var(--size-3)));
   min-block-size: var(--size-12);

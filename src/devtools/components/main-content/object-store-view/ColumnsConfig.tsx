@@ -4,11 +4,14 @@ import CheckboxCell from "@/devtools/components/main-content/object-store-view/C
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import KeyIcon from "@/devtools/components/svg-icons/KeyIcon";
-import { TableColumn, TableData } from "@/devtools/utils/create-table-query";
+import { TableColumn } from "@/devtools/utils/create-table-query";
 
 import styles from "./ColumnsConfig.module.css";
 
-export default function ColumnsConfig(props: { tableData: TableData }) {
+export default function ColumnsConfig() {
+  const { query } = useTableContext();
+  const columns = () => query.data!.columns as TableColumn[];
+
   return (
     <>
       <table class={styles["columns-config"]}>
@@ -20,13 +23,13 @@ export default function ColumnsConfig(props: { tableData: TableData }) {
           </tr>
         </thead>
         <tbody>
-          <For each={props.tableData.columns}>
+          <For each={columns()}>
             {(column) => <ColumnConfig column={column} />}
           </For>
         </tbody>
       </table>
       <small class={styles.hint}>
-        Any column value formatted as datetime is in UTC
+        * Any column value formatted as datetime is in UTC
       </small>
     </>
   );

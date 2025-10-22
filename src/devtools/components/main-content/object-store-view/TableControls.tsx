@@ -1,6 +1,6 @@
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
-import ColumnsButton from "@/devtools/components/main-content/object-store-view/ColumnsButton";
 import { useTableSearchContext } from "@/devtools/components/main-content/object-store-view/table-search-context";
+import TableSettingsButton from "@/devtools/components/main-content/object-store-view/TableSettingsButton";
 
 import styles from "./TableControls.module.css";
 
@@ -18,7 +18,7 @@ export default function TableControls() {
           setSearchTerm(event.target.value);
         }}
       />
-      <ColumnsButton />
+      <TableSettingsButton />
     </div>
   );
 }
