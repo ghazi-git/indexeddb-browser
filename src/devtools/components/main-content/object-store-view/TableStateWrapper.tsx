@@ -4,7 +4,9 @@ import MainContentBanner from "@/devtools/components/main-content/MainContentBan
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
-import TableControls from "@/devtools/components/main-content/object-store-view/TableControls";
+import TableSearch from "@/devtools/components/main-content/object-store-view/TableSearch";
+import TableSettingsButton from "@/devtools/components/main-content/object-store-view/TableSettingsButton";
+import TableSettingsWrapper from "@/devtools/components/main-content/object-store-view/TableSettingsWrapper";
 import { TableData } from "@/devtools/utils/create-table-query";
 
 export default function TableStateWrapper() {
@@ -52,7 +54,10 @@ function TableWrapper(props: { tableData: TableData }) {
       <Match when={table()}>
         {(t) => (
           <TableSettingsContextProvider>
-            <TableControls />
+            <TableSettingsWrapper>
+              <TableSearch />
+              <TableSettingsButton />
+            </TableSettingsWrapper>
             <Table rows={t().rows} columns={t().columns} />
           </TableSettingsContextProvider>
         )}

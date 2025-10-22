@@ -16,7 +16,7 @@ export default function TableSettingsButton() {
         class={`${styles["popover-trigger"]} ${isOpen() ? styles.open : ""}`}
         popovertarget="columns-popover"
       >
-        Columns
+        Table Settings
         <TriangleIcon orientation={isOpen() ? "up" : "down"} />
       </UnstyledButton>
       <div
