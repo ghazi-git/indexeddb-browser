@@ -1,5 +1,19 @@
 .table {
   padding-inline: var(--size-2);
+  container-type: inline-size;
+
+  @container (max-width: 35rem) {
+    /* stylelint-disable selector-pseudo-class-no-unknown */
+    :global(.ag-paging-panel) {
+      gap: var(--size-3);
+    }
+
+    :global(.ag-paging-description > :first-child),
+    :global(.ag-picker-field .ag-label) {
+      display: none;
+    }
+    /* stylelint-enable selector-pseudo-class-no-unknown */
+  }
 }
 
 .table [role="gridcell"] {

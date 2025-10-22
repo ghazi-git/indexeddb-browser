@@ -85,6 +85,9 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
       defaultColDef: { flex: 1 },
       tooltipShowDelay: 1000,
       cacheQuickFilter: true,
+      pagination: true,
+      paginationPageSizeSelector: [20, 100, 500, 1000],
+      paginationPageSize: 20,
     };
   };
 
