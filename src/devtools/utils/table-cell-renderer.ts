@@ -7,15 +7,40 @@ export class TimestampRenderer implements ICellRendererComp {
 
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");
+    this.gui.innerText = params.value;
     this.gui.classList.add(styles["table-cell"]);
 
-    const val = convertTimestampToString(params.value);
-    if (["number", "boolean", "bigint"].includes(val.type)) {
-      this.gui.classList.add(styles.blue);
-    } else if (val.type === "nullish") {
+    const originalValue = params.data[params.colDef!.field!];
+    if (originalValue === null || originalValue === undefined) {
       this.gui.classList.add(styles.nullish);
     }
-    this.gui.innerText = val.text;
+  }
+
+  getGui() {
+    return this.gui;
+  }
+
+  destroy() {}
+
+  refresh() {
+    return true;
+  }
+}
+
+export class TableCellRenderer implements ICellRendererComp {
+  gui!: HTMLDivElement;
+
+  init(params: ICellRendererParams) {
+    this.gui = document.createElement("div");
+    this.gui.innerText = params.value;
+    this.gui.setAttribute("dir", "auto");
+    this.gui.classList.add(styles["table-cell"]);
+    const originalValue = params.data[params.colDef!.field!];
+    if (["number", "boolean", "bigint"].includes(typeof originalValue)) {
+      this.gui.classList.add(styles.blue);
+    } else if (originalValue === null || originalValue === undefined) {
+      this.gui.classList.add(styles.nullish);
+    }
   }
 
   getGui() {
@@ -38,33 +63,6 @@ export function convertTimestampToString(val: ANY): ConvertedValue {
     return convertToString(val);
   } else {
     return { text: convertDateToString(dt), type: "date" };
-  }
-}
-
-export class TableCellRenderer implements ICellRendererComp {
-  gui!: HTMLDivElement;
-
-  init(params: ICellRendererParams) {
-    this.gui = document.createElement("div");
-    this.gui.setAttribute("dir", "auto");
-    this.gui.classList.add(styles["table-cell"]);
-    const val = convertToString(params.value);
-    if (["number", "boolean", "bigint"].includes(val.type)) {
-      this.gui.classList.add(styles.blue);
-    } else if (val.type === "nullish") {
-      this.gui.classList.add(styles.nullish);
-    }
-    this.gui.innerText = val.text;
-  }
-
-  getGui() {
-    return this.gui;
-  }
-
-  destroy() {}
-
-  refresh() {
-    return true;
   }
 }
 

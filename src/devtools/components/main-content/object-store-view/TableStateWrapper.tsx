@@ -3,7 +3,6 @@ import {
   ColDef,
   GridOptions,
   ModuleRegistry,
-  ValueGetterParams,
 } from "ag-grid-community";
 import { Match, Switch } from "solid-js";
 
@@ -56,6 +55,14 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
           cellRenderer: column.isTimestamp
             ? TimestampRenderer
             : TableCellRenderer,
+          valueGetter: (params) => {
+            const value = params.data[params.colDef.field!];
+            if (column.isTimestamp) {
+              return convertTimestampToString(value).text;
+            } else {
+              return convertToString(value).text;
+            }
+          },
           filter: "agTextColumnFilter",
           filterParams: {
             buttons: ["reset"],
@@ -69,21 +76,6 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
               "blank",
               "notBlank",
             ],
-          },
-          filterValueGetter: (params: ValueGetterParams) => {
-            const value = params.getValue(params.colDef.field!);
-            if (column.isTimestamp) {
-              return convertTimestampToString(value).text;
-            } else {
-              return convertToString(value).text;
-            }
-          },
-          getQuickFilterText: (params) => {
-            if (column.isTimestamp) {
-              return convertTimestampToString(params.value).text;
-            } else {
-              return convertToString(params.value).text;
-            }
           },
         }) as ColDef,
     );
