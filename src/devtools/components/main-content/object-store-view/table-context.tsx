@@ -55,6 +55,17 @@ export function TableContextProvider(props: FlowProps) {
       });
     }
   };
+  const updateColumnOrder = (columnName: string, newIndex: number) => {
+    const oldIndex = query?.data?.columns?.findIndex(
+      (col) => col.name === columnName,
+    );
+    if (oldIndex !== undefined && oldIndex >= -1 && oldIndex != newIndex) {
+      setQuery("data", "columns", (columns) => {
+        const column = columns!.splice(oldIndex, 1)[0];
+        return columns!.toSpliced(newIndex, 0, column);
+      });
+    }
+  };
 
   return (
     <TableContext.Provider
@@ -63,6 +74,7 @@ export function TableContextProvider(props: FlowProps) {
         refetch: loadTableData,
         setColumnVisibility,
         setColumnAsTimestamp,
+        updateColumnOrder,
       }}
     >
       {props.children}
@@ -75,4 +87,5 @@ interface TableContextType {
   refetch: () => void;
   setColumnVisibility: (columnName: string, isVisible: boolean) => void;
   setColumnAsTimestamp: (columnName: string, isTimestamp: boolean) => void;
+  updateColumnOrder: (columnName: string, newIndex: number) => void;
 }

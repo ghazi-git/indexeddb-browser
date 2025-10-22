@@ -1,6 +1,12 @@
-import { ColDef, createGrid, GridApi } from "ag-grid-community";
+import {
+  ColDef,
+  ColumnMovedEvent,
+  createGrid,
+  GridApi,
+} from "ag-grid-community";
 import { createEffect, createSignal, onMount } from "solid-js";
 
+import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
 import { TableColumn, TableRow } from "@/devtools/utils/create-table-query";
 import {
@@ -57,6 +63,7 @@ export default function Table(props: TableProps) {
     );
   };
 
+  const { updateColumnOrder } = useTableContext();
   onMount(() => {
     gridApi = createGrid(tableContainer, {
       rowData: props.rows,
@@ -67,6 +74,13 @@ export default function Table(props: TableProps) {
       pagination: settings.pagination,
       paginationPageSizeSelector: [20, 100, 500, 1000],
       paginationPageSize: 20,
+      suppressDragLeaveHidesColumns: true,
+      onColumnMoved(event: ColumnMovedEvent) {
+        const colName = event.column?.getColId();
+        if (colName && event.finished) {
+          updateColumnOrder(colName, event.toIndex!);
+        }
+      },
     });
   });
 
