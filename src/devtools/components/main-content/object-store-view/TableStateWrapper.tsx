@@ -3,6 +3,7 @@ import {
   ColDef,
   GridOptions,
   ModuleRegistry,
+  ValueGetterParams,
 } from "ag-grid-community";
 import { Match, Switch } from "solid-js";
 
@@ -44,21 +45,48 @@ function GridOptionsWrapper(props: { tableData: TableData }) {
     if (!props.tableData.canDisplay) return undefined;
     if (props.tableData.rows.length === 0) return null;
 
-    const columnDefs: ColDef[] = props.tableData.columns.map((column) => ({
-      field: column.name,
-      headerName: column.isTimestamp ? `${column.name} ⏱` : column.name,
-      headerTooltip: column.isTimestamp
-        ? "Column values are timestamps formatted as a datetime"
-        : "",
-      cellRenderer: column.isTimestamp ? TimestampRenderer : TableCellRenderer,
-      getQuickFilterText: (params) => {
-        if (column.isTimestamp) {
-          return convertTimestampToString(params.value).text;
-        } else {
-          return convertToString(params.value).text;
-        }
-      },
-    }));
+    const columnDefs: ColDef[] = props.tableData.columns.map(
+      (column) =>
+        ({
+          field: column.name,
+          headerName: column.isTimestamp ? `${column.name} ⏱` : column.name,
+          headerTooltip: column.isTimestamp
+            ? "Column values are timestamps formatted as a datetime"
+            : "",
+          cellRenderer: column.isTimestamp
+            ? TimestampRenderer
+            : TableCellRenderer,
+          filter: "agTextColumnFilter",
+          filterParams: {
+            buttons: ["reset"],
+            filterOptions: [
+              "contains",
+              "notContains",
+              "equals",
+              "notEqual",
+              "startsWith",
+              "endsWith",
+              "blank",
+              "notBlank",
+            ],
+          },
+          filterValueGetter: (params: ValueGetterParams) => {
+            const value = params.getValue(params.colDef.field!);
+            if (column.isTimestamp) {
+              return convertTimestampToString(value).text;
+            } else {
+              return convertToString(value).text;
+            }
+          },
+          getQuickFilterText: (params) => {
+            if (column.isTimestamp) {
+              return convertTimestampToString(params.value).text;
+            } else {
+              return convertToString(params.value).text;
+            }
+          },
+        }) as ColDef,
+    );
     return {
       rowData: props.tableData.rows,
       columnDefs,
