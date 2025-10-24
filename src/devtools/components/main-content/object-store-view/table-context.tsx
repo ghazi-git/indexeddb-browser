@@ -10,6 +10,7 @@ import { useActiveObjectStoreContext } from "@/devtools/components/active-object
 import {
   createTableDataQuery,
   Query,
+  TableColumnDatatype,
 } from "@/devtools/utils/create-table-query";
 
 const TableContext = createContext<TableContextType>();
@@ -46,13 +47,17 @@ export function TableContextProvider(props: FlowProps) {
       });
     }
   };
-  const setColumnAsTimestamp = (columnName: string, isTimestamp: boolean) => {
+  const setColumnDatatype = (
+    columnName: string,
+    datatype: TableColumnDatatype,
+  ) => {
     if (query?.data?.columns) {
-      query.data.columns.forEach((column, index) => {
-        if (column.name === columnName) {
-          setQuery("data", "columns", index, "isTimestamp", isTimestamp);
-        }
-      });
+      const index = query.data.columns.findIndex(
+        (col) => col.name === columnName,
+      );
+      if (index >= 0) {
+        setQuery("data", "columns", index, "datatype", datatype);
+      }
     }
   };
   const updateColumnOrder = (columnName: string, newIndex: number) => {
@@ -73,7 +78,7 @@ export function TableContextProvider(props: FlowProps) {
         query,
         refetch: loadTableData,
         setColumnVisibility,
-        setColumnAsTimestamp,
+        setColumnDatatype,
         updateColumnOrder,
       }}
     >
@@ -86,6 +91,9 @@ interface TableContextType {
   query: Query;
   refetch: () => void;
   setColumnVisibility: (columnName: string, isVisible: boolean) => void;
-  setColumnAsTimestamp: (columnName: string, isTimestamp: boolean) => void;
+  setColumnDatatype: (
+    columnName: string,
+    datatype: TableColumnDatatype,
+  ) => void;
   updateColumnOrder: (columnName: string, newIndex: number) => void;
 }

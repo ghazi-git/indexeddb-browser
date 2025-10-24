@@ -91,7 +91,7 @@ function getColumns(keypath: string[], rows: TableRow[]) {
     name: key,
     isKey: true,
     isVisible: true,
-    isTimestamp: false,
+    datatype: "raw_data",
   }));
   const collator = new Intl.Collator(undefined, { sensitivity: "base" });
   keypath.forEach((key) => {
@@ -103,7 +103,7 @@ function getColumns(keypath: string[], rows: TableRow[]) {
       name,
       isKey: false,
       isVisible: true,
-      isTimestamp: false,
+      datatype: "raw_data",
     }));
   const columns = keyColumns.concat(otherColumns);
 
@@ -123,10 +123,16 @@ function getColumns(keypath: string[], rows: TableRow[]) {
   for (const column of columns) {
     const columnData = nonNullishData[column.name];
     if (columnData.length) {
-      const timestamps = columnData.filter((v) => isTimestamp(v));
-      const percentage = (timestamps.length / columnData.length) * 100;
-      if (percentage >= 90) {
-        column.isTimestamp = true;
+      if (hasHighPercentage(columnData, getStrings(columnData))) {
+        column.datatype = "string";
+      } else if (hasHighPercentage(columnData, getTimestamps(columnData))) {
+        column.datatype = "timestamp";
+      } else if (hasHighPercentage(columnData, getNumbers(columnData))) {
+        column.datatype = "number";
+      } else if (hasHighPercentage(columnData, getBigInts(columnData))) {
+        column.datatype = "bigint";
+      } else if (hasHighPercentage(columnData, getDates(columnData))) {
+        column.datatype = "date";
       }
     }
   }
@@ -134,9 +140,55 @@ function getColumns(keypath: string[], rows: TableRow[]) {
   return columns;
 }
 
+function getStrings(colData: TableColumnValue[]) {
+  return colData.filter((v) => isString(v));
+}
+
+export function isString(value: TableColumnValue) {
+  return typeof value === "string";
+}
+
+function getTimestamps(colData: TableColumnValue[]) {
+  return colData.filter((v) => isTimestamp(v));
+}
+
 const DATE_1990 = new Date("1990-01-01").getTime();
 export function isTimestamp(value: TableColumnValue) {
   return Number.isInteger(value) && value >= DATE_1990;
+}
+
+function getDates(colData: TableColumnValue[]) {
+  return colData.filter((v) => isDate(v));
+}
+
+export function isDate(value: TableColumnValue) {
+  return (
+    Object.prototype.toString.call(value) === "[object Date]" &&
+    !isNaN(value.getTime())
+  );
+}
+
+function getNumbers(colData: TableColumnValue[]) {
+  return colData.filter((v) => isNumber(v));
+}
+
+export function isNumber(value: TableColumnValue) {
+  return typeof value === "number";
+}
+
+function getBigInts(colData: TableColumnValue[]) {
+  return colData.filter((v) => isBigint(v));
+}
+
+export function isBigint(value: TableColumnValue) {
+  return typeof value === "bigint";
+}
+
+function hasHighPercentage(
+  colData: TableColumnValue[],
+  colDataOfType: TableColumnValue[],
+) {
+  return colDataOfType.length / colData.length >= 0.9;
 }
 
 interface QueryIdle {
@@ -197,6 +249,13 @@ export interface TableColumn {
   name: string;
   isKey: boolean;
   isVisible: boolean;
-  // timestamp fields are formatted as dates
-  isTimestamp: boolean;
+  datatype: TableColumnDatatype;
 }
+
+export type TableColumnDatatype =
+  | "timestamp"
+  | "date"
+  | "number"
+  | "string"
+  | "bigint"
+  | "raw_data";

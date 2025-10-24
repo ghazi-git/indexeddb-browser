@@ -2,67 +2,90 @@ import type { ICellRendererComp, ICellRendererParams } from "ag-grid-community";
 
 import styles from "@/devtools/components/main-content/object-store-view/Table.module.css";
 
-export class TimestampRenderer implements ICellRendererComp {
+abstract class TableCellRenderer implements ICellRendererComp {
   gui!: HTMLDivElement;
 
+  getGui() {
+    return this.gui;
+  }
+
+  destroy() {}
+
+  refresh() {
+    return true;
+  }
+}
+
+export class NullishStringRenderer extends TableCellRenderer {
+  init(params: ICellRendererParams) {
+    this.gui = document.createElement("div");
+    this.gui.innerText = params.valueFormatted as string;
+    const value = params.value;
+    if (value === null || value === undefined) {
+      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
+    } else {
+      this.gui.setAttribute("dir", "auto");
+      this.gui.className = styles["table-cell"];
+    }
+  }
+}
+
+export class NullishNumberRenderer extends TableCellRenderer {
+  init(params: ICellRendererParams) {
+    this.gui = document.createElement("div");
+    this.gui.innerText = params.valueFormatted as string;
+    const value = params.value;
+    if (value === null || value === undefined) {
+      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
+    } else {
+      this.gui.className = `${styles["table-cell"]} ${styles.blue}`;
+    }
+  }
+}
+
+export class NullishBigintRenderer extends TableCellRenderer {
+  init(params: ICellRendererParams) {
+    this.gui = document.createElement("div");
+    this.gui.innerText = params.valueFormatted as string;
+    const value = params.value;
+    if (value === null || value === undefined) {
+      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
+    } else {
+      this.gui.className = `${styles["table-cell"]} ${styles.green}`;
+    }
+  }
+}
+
+export class NullishDateRenderer extends TableCellRenderer {
+  init(params: ICellRendererParams) {
+    this.gui = document.createElement("div");
+    this.gui.innerText = params.valueFormatted as string;
+    const value = params.value;
+    if (value === null || value === undefined) {
+      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
+    } else {
+      this.gui.className = styles["table-cell"];
+    }
+  }
+}
+
+export class RawDataRenderer extends TableCellRenderer {
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");
     this.gui.innerText = params.value;
-    this.gui.classList.add(styles["table-cell"]);
-
     const originalValue = params.data[params.colDef!.field!];
     if (originalValue === null || originalValue === undefined) {
-      this.gui.classList.add(styles.nullish);
+      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
+    } else if (
+      typeof originalValue === "number" ||
+      typeof originalValue === "boolean"
+    ) {
+      this.gui.className = `${styles["table-cell"]} ${styles.blue}`;
+    } else if (typeof originalValue === "bigint") {
+      this.gui.className = `${styles["table-cell"]} ${styles.green}`;
+    } else {
+      this.gui.className = styles["table-cell"];
     }
-  }
-
-  getGui() {
-    return this.gui;
-  }
-
-  destroy() {}
-
-  refresh() {
-    return true;
-  }
-}
-
-export class TableCellRenderer implements ICellRendererComp {
-  gui!: HTMLDivElement;
-
-  init(params: ICellRendererParams) {
-    this.gui = document.createElement("div");
-    this.gui.innerText = params.value;
-    this.gui.setAttribute("dir", "auto");
-    this.gui.classList.add(styles["table-cell"]);
-    const originalValue = params.data[params.colDef!.field!];
-    if (["number", "boolean", "bigint"].includes(typeof originalValue)) {
-      this.gui.classList.add(styles.blue);
-    } else if (originalValue === null || originalValue === undefined) {
-      this.gui.classList.add(styles.nullish);
-    }
-  }
-
-  getGui() {
-    return this.gui;
-  }
-
-  destroy() {}
-
-  refresh() {
-    return true;
-  }
-}
-
-export function convertTimestampToString(val: ANY): ConvertedValue {
-  if (val === null || val === undefined) {
-    return { text: String(val), type: "nullish" };
-  }
-  const dt = new Date(val);
-  if (isNaN(dt.getTime())) {
-    return convertToString(val);
-  } else {
-    return { text: convertDateToString(dt), type: "date" };
   }
 }
 
@@ -95,7 +118,7 @@ export function convertToString(val: ANY): ConvertedValue {
   }
 }
 
-function convertDateToString(dt: Date) {
+export function convertDateToString(dt: Date) {
   // all dates are formatted in UTC
   return dt.toISOString().replace("T", " ").replace("Z", "");
 }

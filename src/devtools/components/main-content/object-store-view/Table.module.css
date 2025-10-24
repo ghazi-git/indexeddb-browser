@@ -39,6 +39,10 @@
   color: var(--brand);
 }
 
+.green {
+  color: var(--success-color);
+}
+
 .nullish {
   color: var(--text-2);
   font-style: italic;

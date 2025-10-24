@@ -1,10 +1,14 @@
 import { For, Show } from "solid-js";
 
 import CheckboxCell from "@/devtools/components/main-content/object-store-view/CheckboxCell";
+import ColumnDatatypeSelect from "@/devtools/components/main-content/object-store-view/ColumnDatatypeSelect";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import KeyIcon from "@/devtools/components/svg-icons/KeyIcon";
-import { TableColumn } from "@/devtools/utils/create-table-query";
+import {
+  TableColumn,
+  TableColumnDatatype,
+} from "@/devtools/utils/create-table-query";
 
 import styles from "./ColumnsConfig.module.css";
 
@@ -19,7 +23,7 @@ export default function ColumnsConfig() {
           <tr>
             <th>Column</th>
             <th>Visible</th>
-            <th>Timestamp</th>
+            <th>Datatype</th>
           </tr>
         </thead>
         <tbody>
@@ -36,7 +40,7 @@ export default function ColumnsConfig() {
 }
 
 function ColumnConfig(props: { column: TableColumn }) {
-  const { setColumnVisibility, setColumnAsTimestamp } = useTableContext();
+  const { setColumnVisibility, setColumnDatatype } = useTableContext();
 
   return (
     <tr>
@@ -59,12 +63,15 @@ function ColumnConfig(props: { column: TableColumn }) {
           setColumnVisibility(props.column.name, event.target.checked);
         }}
       />
-      <CheckboxCell
-        checked={props.column.isTimestamp}
-        onChange={(event) => {
-          setColumnAsTimestamp(props.column.name, event.target.checked);
-        }}
-      />
+      <td>
+        <ColumnDatatypeSelect
+          value={props.column.datatype}
+          onChange={(event) => {
+            const datatype = event.target.value as TableColumnDatatype;
+            setColumnDatatype(props.column.name, datatype);
+          }}
+        />
+      </td>
     </tr>
   );
 }
