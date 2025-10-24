@@ -1,9 +1,10 @@
-import { JSX } from "solid-js";
+import { createUniqueId, JSX } from "solid-js";
 
 import styles from "./CheckboxCell.module.css";
 
 export default function CheckboxCell(props: CheckboxCellProps) {
   let ref!: HTMLInputElement;
+  const id = createUniqueId();
 
   return (
     <td
@@ -13,7 +14,13 @@ export default function CheckboxCell(props: CheckboxCellProps) {
       }}
     >
       <span class={styles["centered-checkbox"]}>
-        <input ref={ref} type="checkbox" {...props} />
+        <input
+          id={id}
+          ref={ref}
+          type="checkbox"
+          {...props}
+          aria-label="Column Visibility"
+        />
       </span>
     </td>
   );

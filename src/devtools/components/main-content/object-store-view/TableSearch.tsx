@@ -8,6 +8,8 @@ export default function TableSearch() {
   const { settings, setSearchTerm } = useTableSettingsContext();
   return (
     <input
+      id="quick-filter"
+      aria-label="Table Search"
       class={styles.input}
       type="text"
       placeholder={`Search ${activeObjectStore()?.storeName ?? ""}`}

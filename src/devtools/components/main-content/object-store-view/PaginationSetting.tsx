@@ -8,6 +8,7 @@ export default function PaginationSetting() {
   return (
     <label class={styles.pagination}>
       <input
+        id="enable-pagination"
         type="checkbox"
         checked={settings.pagination}
         onChange={(event) => {
