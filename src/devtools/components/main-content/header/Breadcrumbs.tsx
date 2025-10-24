@@ -84,6 +84,8 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
   return (
     <div class={styles.breadcrumbs}>
       <BreadcrumbSelect
+        id="db-selector"
+        aria-label="IndexedDB Selector"
         options={dbOptions()}
         value={selectedDB()?.name ?? EMPTY_VALUE}
         onChange={(event) => {
@@ -108,6 +110,8 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
             <AngleRightIcon />
           </div>
           <BreadcrumbSelect
+            id="store-selector"
+            aria-label="Object Store Selector"
             options={storeOptions()}
             value={selectedStore()}
             onChange={(event) => {

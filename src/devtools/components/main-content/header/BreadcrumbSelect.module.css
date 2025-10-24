@@ -35,7 +35,7 @@
   &::picker(select) {
     /* stylelint-disable-next-line declaration-property-value-no-unknown */
     appearance: base-select;
-    inset-inline-start: calc(anchor(left) - 21px);
+    inset-inline-start: calc(anchor(start) - 21px);
     min-inline-size: var(--size-12);
     background-color: var(--surface-2);
     border-radius: var(--radius-2);
