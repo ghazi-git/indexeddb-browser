@@ -91,6 +91,25 @@ export default function Table(props: TableProps) {
             return convertToString(value).text;
           }
         },
+        getQuickFilterText: (params) => {
+          const value = params.value;
+          if (column.datatype === "number") {
+            return String(value);
+          } else if (
+            column.datatype === "timestamp" ||
+            column.datatype === "date"
+          ) {
+            return value ? convertDateToString(value) : String(value);
+          } else if (column.datatype === "bigint") {
+            if (value === null || value === undefined) {
+              return String(value);
+            } else {
+              return `${value}n`;
+            }
+          } else {
+            return value;
+          }
+        },
         filter: filter,
         filterParams: {
           buttons: ["reset"],
