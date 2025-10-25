@@ -129,12 +129,6 @@ export default function Table(props: TableProps) {
         string: {
           baseDataType: "text",
           extendsDataType: "text",
-          valueParser: (params) => {
-            if (params.newValue === "null") return null;
-            if (params.newValue === "undefined") return undefined;
-
-            return params.newValue;
-          },
           valueFormatter: (params) => String(params.value),
         },
         // the custom number type allows for handling null/undefined the same
@@ -142,30 +136,11 @@ export default function Table(props: TableProps) {
         customNumber: {
           baseDataType: "number",
           extendsDataType: "number",
-          valueParser: (params) => {
-            if (params.newValue === "null") return null;
-            if (params.newValue === "undefined" || params.newValue === "") {
-              return undefined;
-            }
-
-            const nb = Number(params.newValue);
-            return isNaN(nb) ? undefined : nb;
-          },
           valueFormatter: (params) => String(params.value),
         },
         dateTime: {
           baseDataType: "dateTime",
           extendsDataType: "dateTime",
-          valueParser: (params) => {
-            if (params.newValue === "null") return null;
-            if (params.newValue === "undefined") return undefined;
-
-            // convert from `yyyy-mm-dd hh:mm:ss.sss`
-            const dtParts = params.newValue.split(" ");
-            return dtParts.length === 2
-              ? new Date(`${dtParts.join("T")}Z`)
-              : undefined;
-          },
           valueFormatter: (params) => {
             // format as yyyy-mm-dd hh:mm:ss.sss
             const value = params.value;
@@ -175,17 +150,6 @@ export default function Table(props: TableProps) {
         bigint: {
           baseDataType: "object",
           extendsDataType: "object",
-          valueParser: (params) => {
-            const value = params.newValue;
-            if (value === "null") return null;
-            if (value === "undefined" || value === "") return undefined;
-
-            if (value.endsWith("n")) {
-              return convertToBigint(value.slice(0, value.length - 1));
-            } else {
-              return convertToBigint(value);
-            }
-          },
           valueFormatter: (params) => {
             const value = params.value as bigint | undefined | null;
             if (value === null || value === undefined) {
