@@ -17,7 +17,14 @@ export default function ColumnDatatypeSelect(props: ColumnDatatypeProps) {
   const id = createUniqueId();
 
   return (
-    <select id={id} class={styles.datatype} aria-label="Datatype Selector">
+    <select
+      id={id}
+      class={styles.datatype}
+      aria-label="Datatype Selector"
+      onChange={(e) => {
+        props.onChange(e);
+      }}
+    >
       <For each={options}>
         {({ label, value }) => (
           <option value={value} selected={value === props.value}>
