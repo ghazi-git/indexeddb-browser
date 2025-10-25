@@ -10,6 +10,7 @@ import { useTableContext } from "@/devtools/components/main-content/object-store
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
 import {
   isBigint,
+  isBoolean,
   isDate,
   isNumber,
   isString,
@@ -20,6 +21,7 @@ import {
   convertDateToString,
   convertToString,
   NullishBigintRenderer,
+  NullishBooleanRenderer,
   NullishDateRenderer,
   NullishNumberRenderer,
   NullishStringRenderer,
@@ -47,6 +49,8 @@ export default function Table(props: TableProps) {
         column.datatype === "timestamp"
       ) {
         filterOptions = DATE_FILTER_OPTIONS;
+      } else if (column.datatype === "boolean") {
+        filterOptions = BOOLEAN_FILTER_OPTIONS;
       }
       const bigIntComparator = (
         valueA?: bigint | null,
@@ -85,6 +89,8 @@ export default function Table(props: TableProps) {
             return isBigint(value) || value === null ? value : undefined;
           } else if (column.datatype === "date") {
             return isDate(value) || value === null ? value : undefined;
+          } else if (column.datatype === "boolean") {
+            return isBoolean(value) || value === null ? value : undefined;
           } else {
             // convert raw data value to string so that sort, column filter
             // and quick filter work the same as a text column
@@ -93,7 +99,7 @@ export default function Table(props: TableProps) {
         },
         getQuickFilterText: (params) => {
           const value = params.value;
-          if (column.datatype === "number") {
+          if (column.datatype === "number" || column.datatype === "boolean") {
             return String(value);
           } else if (
             column.datatype === "timestamp" ||
@@ -219,6 +225,8 @@ function getCellDatatype(column: TableColumn) {
     return "customNumber";
   } else if (column.datatype === "bigint") {
     return "bigint";
+  } else if (column.datatype === "boolean") {
+    return "boolean";
   } else if (column.datatype === "timestamp" || column.datatype === "date") {
     return "dateTime";
   } else if (column.datatype === "string") {
@@ -233,6 +241,8 @@ function getCellRenderer(column: TableColumn) {
     return NullishNumberRenderer;
   } else if (column.datatype === "bigint") {
     return NullishBigintRenderer;
+  } else if (column.datatype === "boolean") {
+    return NullishBooleanRenderer;
   } else if (column.datatype === "timestamp" || column.datatype === "date") {
     return NullishDateRenderer;
   } else if (column.datatype === "string") {
@@ -312,6 +322,34 @@ const BIGINT_FILTER_OPTIONS: FilterOptionDef[] = [
   },
 ];
 
+const BOOLEAN_FILTER_OPTIONS: (FilterOptionDef | string)[] = [
+  "empty",
+  {
+    displayKey: "true",
+    displayName: "True",
+    numberOfInputs: 0,
+    predicate: (_, cellValue) => cellValue === true,
+  },
+  {
+    displayKey: "false",
+    displayName: "False",
+    numberOfInputs: 0,
+    predicate: (_, cellValue) => cellValue === false,
+  },
+  {
+    displayKey: "blankBoolean",
+    displayName: "Blank",
+    numberOfInputs: 0,
+    predicate: (_, cellValue) => cellValue !== true && cellValue !== false,
+  },
+  {
+    displayKey: "notBlankBoolean",
+    displayName: "Not blank",
+    numberOfInputs: 0,
+    predicate: (_, cellValue) => cellValue === true || cellValue === false,
+  },
+];
+
 function isEqualBigint(cellValue: string, filterValue: string) {
   const bigintFilterValue = getBigintValue(filterValue);
   const bigintCellValue = getBigintValue(cellValue);
@@ -381,7 +419,8 @@ function createThemeSignal() {
 interface FilterOptionDef {
   displayKey: string;
   displayName: string;
-  predicate: (filterValues: string[], celValue: string) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  predicate: (filterValues: any[], celValue: any) => boolean;
   numberOfInputs?: 0 | 1 | 2;
 }
 

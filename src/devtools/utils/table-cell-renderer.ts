@@ -69,6 +69,19 @@ export class NullishDateRenderer extends TableCellRenderer {
   }
 }
 
+export class NullishBooleanRenderer extends TableCellRenderer {
+  init(params: ICellRendererParams) {
+    this.gui = document.createElement("div");
+    const value = params.value;
+    this.gui.innerText = String(value);
+    if (value === null || value === undefined) {
+      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
+    } else {
+      this.gui.className = `${styles["table-cell"]} ${styles.blue}`;
+    }
+  }
+}
+
 export class RawDataRenderer extends TableCellRenderer {
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");

@@ -9,6 +9,7 @@ export default function ColumnDatatypeSelect(props: ColumnDatatypeProps) {
     { label: "String", value: "string" },
     { label: "Number", value: "number" },
     { label: "BigInt", value: "bigint" },
+    { label: "Boolean", value: "boolean" },
     { label: "Timestamp", value: "timestamp" },
     { label: "Date", value: "date" },
     { label: "Raw Data", value: "raw_data" },

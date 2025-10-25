@@ -107,11 +107,10 @@ function getColumns(keypath: string[], rows: TableRow[]) {
     }));
   const columns = keyColumns.concat(otherColumns);
 
-  // Auto-detect timestamp columns based on non-null data in the first 100
-  // rows. At least 90%, of the column data should be a timestamp.
-  // A timestamp is an integer value that is greater than the timestamp
-  // for 1990. Users will be able to manually set a column as timestamp
-  // from the UI in case auto-detection doesn't work
+  // Auto-detect columns datatypes based on non-null data in the first 100
+  // rows. At least 90%, of the column data should match the datatype.
+  // Users will be able to manually set the column datatype from the UI
+  // in case auto-detection doesn't work as expected
   const first100Rows = rows.slice(0, 100);
   const columnNames = columns.map(({ name }) => name);
   const nonNullishData: Record<string, TableColumnValue[]> = {};
@@ -129,6 +128,8 @@ function getColumns(keypath: string[], rows: TableRow[]) {
         column.datatype = "timestamp";
       } else if (hasHighPercentage(columnData, getNumbers(columnData))) {
         column.datatype = "number";
+      } else if (hasHighPercentage(columnData, getBooleans(columnData))) {
+        column.datatype = "boolean";
       } else if (hasHighPercentage(columnData, getBigInts(columnData))) {
         column.datatype = "bigint";
       } else if (hasHighPercentage(columnData, getDates(columnData))) {
@@ -174,6 +175,14 @@ function getNumbers(colData: TableColumnValue[]) {
 
 export function isNumber(value: TableColumnValue) {
   return typeof value === "number";
+}
+
+function getBooleans(colData: TableColumnValue[]) {
+  return colData.filter((v) => isBoolean(v));
+}
+
+export function isBoolean(value: TableColumnValue) {
+  return typeof value === "boolean";
 }
 
 function getBigInts(colData: TableColumnValue[]) {
@@ -258,4 +267,5 @@ export type TableColumnDatatype =
   | "number"
   | "string"
   | "bigint"
+  | "boolean"
   | "raw_data";
