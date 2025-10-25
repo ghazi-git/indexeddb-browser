@@ -41,42 +41,60 @@ const BIGINT_FILTER_OPTIONS: FilterOptionDef[] = [
     displayKey: "equalsBigint",
     displayName: "Equals",
     predicate: ([filterValue], cellValue) => {
-      return isEqualBigint(cellValue, filterValue);
+      const [cValue, fValue] = castValues(cellValue, filterValue);
+      if (cValue === null || fValue === null) return false;
+
+      return cValue === fValue;
     },
   },
   {
     displayKey: "DoesNotEqualBigint",
     displayName: "Does not equal",
     predicate: ([filterValue], cellValue) => {
-      return !isEqualBigint(cellValue, filterValue);
+      const [cValue, fValue] = castValues(cellValue, filterValue);
+      if (cValue === null || fValue === null) return false;
+
+      return cValue !== fValue;
     },
   },
   {
     displayKey: "greaterThanBigint",
     displayName: "Greater than",
     predicate: ([filterValue], cellValue) => {
-      return greaterThanBigint(cellValue, filterValue);
+      const [cValue, fValue] = castValues(cellValue, filterValue);
+      if (cValue === null || fValue === null) return false;
+
+      return cValue > fValue;
     },
   },
   {
     displayKey: "greaterThanOrEqualBigint",
     displayName: "Greater than or equal to",
     predicate: ([filterValue], cellValue) => {
-      return !lessThanBigint(cellValue, filterValue);
+      const [cValue, fValue] = castValues(cellValue, filterValue);
+      if (cValue === null || fValue === null) return false;
+
+      return cValue >= fValue;
     },
   },
   {
     displayKey: "lessThanBigint",
     displayName: "Less than",
     predicate: ([filterValue], cellValue) => {
-      return lessThanBigint(cellValue, filterValue);
+      const [cValue, fValue] = castValues(cellValue, filterValue);
+      if (cValue === null || fValue === null) return false;
+
+      return cValue < fValue;
     },
   },
   {
     displayKey: "lessThanOrEqualBigint",
     displayName: "Less than or equal to",
     predicate: ([filterValue], cellValue) => {
-      return !greaterThanBigint(cellValue, filterValue);
+      const [cValue, fValue] = castValues(cellValue, filterValue);
+      if (cValue === null || fValue === null) return false;
+
+      return cValue <= fValue;
     },
   },
   {
@@ -93,30 +111,10 @@ const BIGINT_FILTER_OPTIONS: FilterOptionDef[] = [
   },
 ];
 
-function isEqualBigint(cellValue: string, filterValue: string) {
-  const bigintFilterValue = getBigintValue(filterValue);
-  const bigintCellValue = getBigintValue(cellValue);
-  return bigintFilterValue === bigintCellValue;
-}
-
-function greaterThanBigint(cellValue: string, filterValue: string) {
-  // null and undefined are treated the same
+function castValues(cellValue: string, filterValue: string) {
   const bigintCellValue = getBigintValue(cellValue) ?? null;
   const bigintFilterValue = getBigintValue(filterValue) ?? null;
-  if (bigintCellValue === null && bigintFilterValue === null) return false;
-  if (bigintCellValue === null) return false;
-  if (bigintFilterValue === null) return true;
-  return bigintCellValue > bigintFilterValue;
-}
-
-function lessThanBigint(cellValue: string, filterValue: string) {
-  // null and undefined are treated the same
-  const bigintCellValue = getBigintValue(cellValue) ?? null;
-  const bigintFilterValue = getBigintValue(filterValue) ?? null;
-  if (bigintCellValue === null && bigintFilterValue === null) return false;
-  if (bigintCellValue === null) return true;
-  if (bigintFilterValue === null) return false;
-  return bigintCellValue < bigintFilterValue;
+  return [bigintCellValue, bigintFilterValue];
 }
 
 function blank(cellValue: string) {
