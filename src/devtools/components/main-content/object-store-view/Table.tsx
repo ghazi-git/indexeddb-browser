@@ -36,9 +36,12 @@ export default function Table(props: TableProps) {
   const { settings } = useTableSettingsContext();
   const columnDefs = (): ColDef[] => {
     return props.columns.map((column) => {
-      let filterOptions: undefined | string[];
+      const filter = column.datatype === "bigint" ? "agTextColumnFilter" : true;
+      let filterOptions: undefined | (string | FilterOptionDef)[];
       if (column.datatype === "number") {
         filterOptions = NUMBER_FILTER_OPTIONS;
+      } else if (column.datatype === "bigint") {
+        filterOptions = BIGINT_FILTER_OPTIONS;
       } else if (
         column.datatype === "date" ||
         column.datatype === "timestamp"
@@ -88,10 +91,11 @@ export default function Table(props: TableProps) {
             return convertToString(value).text;
           }
         },
-        filter: true,
+        filter: filter,
         filterParams: {
           buttons: ["reset"],
           filterOptions,
+          trimInput: column.datatype === "bigint" ? true : undefined,
         },
         comparator: column.datatype === "bigint" ? bigIntComparator : undefined,
       } as ColDef;
@@ -175,14 +179,6 @@ export default function Table(props: TableProps) {
             const value = params.newValue;
             if (value === "null") return null;
             if (value === "undefined" || value === "") return undefined;
-
-            const convertToBigint = (v: string) => {
-              try {
-                return BigInt(v);
-              } catch {
-                return undefined;
-              }
-            };
 
             if (value.endsWith("n")) {
               return convertToBigint(value.slice(0, value.length - 1));
@@ -276,6 +272,115 @@ const NUMBER_FILTER_OPTIONS = [
 
 const DATE_FILTER_OPTIONS = ["greaterThan", "lessThan", "blank", "notBlank"];
 
+const BIGINT_FILTER_OPTIONS: FilterOptionDef[] = [
+  {
+    displayKey: "equalsBigint",
+    displayName: "Equals",
+    predicate: ([filterValue], cellValue) => {
+      return isEqualBigint(cellValue, filterValue);
+    },
+  },
+  {
+    displayKey: "DoesNotEqualBigint",
+    displayName: "Does not equal",
+    predicate: ([filterValue], cellValue) => {
+      return !isEqualBigint(cellValue, filterValue);
+    },
+  },
+  {
+    displayKey: "greaterThanBigint",
+    displayName: "Greater than",
+    predicate: ([filterValue], cellValue) => {
+      return greaterThanBigint(cellValue, filterValue);
+    },
+  },
+  {
+    displayKey: "greaterThanOrEqualBigint",
+    displayName: "Greater than or equal to",
+    predicate: ([filterValue], cellValue) => {
+      return !lessThanBigint(cellValue, filterValue);
+    },
+  },
+  {
+    displayKey: "lessThanBigint",
+    displayName: "Less than",
+    predicate: ([filterValue], cellValue) => {
+      return lessThanBigint(cellValue, filterValue);
+    },
+  },
+  {
+    displayKey: "lessThanOrEqualBigint",
+    displayName: "Less than or equal to",
+    predicate: ([filterValue], cellValue) => {
+      return !greaterThanBigint(cellValue, filterValue);
+    },
+  },
+  {
+    displayKey: "blankBigint",
+    displayName: "Blank",
+    numberOfInputs: 0,
+    predicate: (_, cellValue) => blank(cellValue),
+  },
+  {
+    displayKey: "notBlankBigint",
+    displayName: "Not blank",
+    numberOfInputs: 0,
+    predicate: (_, cellValue) => !blank(cellValue),
+  },
+];
+
+function isEqualBigint(cellValue: string, filterValue: string) {
+  const bigintFilterValue = getBigintValue(filterValue);
+  const bigintCellValue = getBigintValue(cellValue);
+  return bigintFilterValue === bigintCellValue;
+}
+
+function greaterThanBigint(cellValue: string, filterValue: string) {
+  // null and undefined are treated the same
+  const bigintCellValue = getBigintValue(cellValue) ?? null;
+  const bigintFilterValue = getBigintValue(filterValue) ?? null;
+  if (bigintCellValue === null && bigintFilterValue === null) return false;
+  if (bigintCellValue === null) return false;
+  if (bigintFilterValue === null) return true;
+  return bigintCellValue > bigintFilterValue;
+}
+
+function lessThanBigint(cellValue: string, filterValue: string) {
+  // null and undefined are treated the same
+  const bigintCellValue = getBigintValue(cellValue) ?? null;
+  const bigintFilterValue = getBigintValue(filterValue) ?? null;
+  if (bigintCellValue === null && bigintFilterValue === null) return false;
+  if (bigintCellValue === null) return true;
+  if (bigintFilterValue === null) return false;
+  return bigintCellValue < bigintFilterValue;
+}
+
+function blank(cellValue: string) {
+  const cellValueBigint = getBigintValue(cellValue) ?? null;
+  return cellValueBigint === null;
+}
+
+function getBigintValue(value: string): bigint | null | undefined {
+  // distinguish null from undefined to be able to filter on null or undefined
+  // values individually
+  if (value === "null") return null;
+  if (value === "undefined" || value === "") return undefined;
+
+  const val =
+    value.length >= 2 && value.endsWith("n")
+      ? value.slice(0, value.length - 1)
+      : value;
+  return convertToBigint(val);
+}
+
+function convertToBigint(v: string) {
+  try {
+    return BigInt(v);
+  } catch {
+    return undefined;
+  }
+}
+
 function createThemeSignal() {
   const [theme, setTheme] = createSignal<"light" | "dark">("light");
   onMount(() => {
@@ -288,6 +393,13 @@ function createThemeSignal() {
   });
 
   return theme;
+}
+
+interface FilterOptionDef {
+  displayKey: string;
+  displayName: string;
+  predicate: (filterValues: string[], celValue: string) => boolean;
+  numberOfInputs?: 0 | 1 | 2;
 }
 
 interface TableProps {
