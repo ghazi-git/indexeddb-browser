@@ -70,6 +70,11 @@ export default function Table(props: TableProps) {
   const { updateColumnOrder } = useTableContext();
   onMount(() => {
     gridApi = createGrid(tableContainer, {
+      rowSelection: {
+        mode: "singleRow",
+        checkboxes: false,
+        enableClickSelection: true,
+      },
       rowData: props.rows,
       columnDefs: columnDefs(),
       autoSizeStrategy: autosizeStrategy(),
