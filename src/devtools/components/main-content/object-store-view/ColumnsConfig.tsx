@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 
 import CheckboxCell from "@/devtools/components/main-content/object-store-view/CheckboxCell";
 import ColumnDatatypeSelect from "@/devtools/components/main-content/object-store-view/ColumnDatatypeSelect";
+import ColumnsDatatypeNotes from "@/devtools/components/main-content/object-store-view/ColumnsDatatypeNotes";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import KeyIcon from "@/devtools/components/svg-icons/KeyIcon";
@@ -17,8 +18,8 @@ export default function ColumnsConfig() {
   const columns = () => query.data!.columns as TableColumn[];
 
   return (
-    <>
-      <table class={styles["columns-config"]}>
+    <div class={styles["columns-config"]}>
+      <table>
         <thead>
           <tr>
             <th>Column</th>
@@ -32,10 +33,8 @@ export default function ColumnsConfig() {
           </For>
         </tbody>
       </table>
-      <small class={styles.hint}>
-        * Any column value formatted as datetime is in UTC
-      </small>
-    </>
+      <ColumnsDatatypeNotes />
+    </div>
   );
 }
 

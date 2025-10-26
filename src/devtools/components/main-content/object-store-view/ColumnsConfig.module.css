@@ -1,3 +1,8 @@
+.columns-config,
+.columns-config table {
+  margin-block-end: var(--size-2);
+}
+
 .columns-config th,
 .columns-config td {
   text-align: start;
@@ -17,8 +22,4 @@
 
 .column-name {
   max-inline-size: var(--size-13);
-}
-
-.hint {
-  padding-inline: var(--size-1);
 }

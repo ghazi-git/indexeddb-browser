@@ -1,0 +1,13 @@
+.notes {
+  background-color: var(--surface-3);
+  padding-inline: var(--size-3);
+}
+
+.notes ul {
+  padding-inline: var(--size-4);
+  list-style: disc;
+}
+
+.notes code {
+  font-size: var(--font-size-0);
+}
