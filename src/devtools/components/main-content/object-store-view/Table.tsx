@@ -3,6 +3,8 @@ import {
   ColumnMovedEvent,
   createGrid,
   GridApi,
+  SizeColumnsToContentStrategy,
+  SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
 import { createEffect, createSignal, onMount } from "solid-js";
 
@@ -47,13 +49,30 @@ export default function Table(props: TableProps) {
       }
     });
   };
+  const autosizeStrategy = ():
+    | SizeColumnsToFitGridStrategy
+    | SizeColumnsToContentStrategy => {
+    if (settings.autosizeColumns === "fit-cell-contents") {
+      return {
+        type: "fitCellContents",
+        defaultMinWidth: 50,
+        defaultMaxWidth: 1000,
+      };
+    } else {
+      return {
+        type: "fitGridWidth",
+        defaultMinWidth: 100,
+        defaultMaxWidth: 500,
+      };
+    }
+  };
 
   const { updateColumnOrder } = useTableContext();
   onMount(() => {
     gridApi = createGrid(tableContainer, {
       rowData: props.rows,
       columnDefs: columnDefs(),
-      defaultColDef: { flex: 1 },
+      autoSizeStrategy: autosizeStrategy(),
       tooltipShowDelay: 1000,
       cacheQuickFilter: true,
       pagination: settings.pagination,
@@ -107,6 +126,16 @@ export default function Table(props: TableProps) {
   });
   createEffect(() => {
     gridApi.setGridOption("columnDefs", columnDefs());
+  });
+  createEffect(() => {
+    if (settings.autosizeColumns === "fit-cell-contents") {
+      gridApi.autoSizeAllColumns({
+        defaultMinWidth: 50,
+        defaultMaxWidth: 1000,
+      });
+    } else {
+      gridApi.sizeColumnsToFit({ defaultMinWidth: 100, defaultMaxWidth: 500 });
+    }
   });
 
   return (

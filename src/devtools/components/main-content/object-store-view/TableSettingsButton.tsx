@@ -1,6 +1,7 @@
 import { createSignal } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import ColumnsAutosize from "@/devtools/components/main-content/object-store-view/ColumnsAutosize";
 import ColumnsConfig from "@/devtools/components/main-content/object-store-view/ColumnsConfig";
 import PaginationSetting from "@/devtools/components/main-content/object-store-view/PaginationSetting";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
@@ -28,6 +29,7 @@ export default function TableSettingsButton() {
         }}
       >
         <ColumnsConfig />
+        <ColumnsAutosize />
         <PaginationSetting />
       </div>
     </>
