@@ -20,11 +20,13 @@ export interface TableColumn {
   datatype: TableColumnDatatype;
 }
 
-export type TableColumnDatatype =
-  | "timestamp"
-  | "date"
-  | "number"
-  | "string"
-  | "bigint"
-  | "boolean"
-  | "raw_data";
+export const TABLE_COLUMN_DATATYPES = [
+  "timestamp",
+  "date",
+  "number",
+  "string",
+  "bigint",
+  "boolean",
+  "raw_data",
+] as const;
+export type TableColumnDatatype = (typeof TABLE_COLUMN_DATATYPES)[number];
