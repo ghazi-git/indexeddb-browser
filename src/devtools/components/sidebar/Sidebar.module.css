@@ -22,6 +22,12 @@
   min-inline-size: 100px;
 }
 
+@media (width >= 768px) {
+  .sidebar:not(.closed) {
+    min-inline-size: var(--sidebar-inline-size);
+  }
+}
+
 .sidebar.closed {
   inline-size: 0;
   border-inline-end: none;
