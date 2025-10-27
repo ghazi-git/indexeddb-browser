@@ -10,8 +10,8 @@ import { useActiveObjectStoreContext } from "@/devtools/components/active-object
 import {
   createTableDataQuery,
   Query,
-  TableColumnDatatype,
 } from "@/devtools/utils/create-table-query";
+import { TableColumnDatatype } from "@/devtools/utils/types";
 
 const TableContext = createContext<TableContextType>();
 

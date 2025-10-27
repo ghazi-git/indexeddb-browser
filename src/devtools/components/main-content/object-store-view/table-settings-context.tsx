@@ -1,6 +1,8 @@
 import { createContext, FlowProps, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
+import { AutosizeColumns } from "@/devtools/utils/types";
+
 const TableSettingsContext = createContext<TableSettingsContextType>();
 
 export function useTableSettingsContext() {
@@ -47,5 +49,3 @@ interface TableSettings {
   pagination: boolean;
   autosizeColumns: AutosizeColumns;
 }
-
-export type AutosizeColumns = "fit-grid-width" | "fit-cell-contents";

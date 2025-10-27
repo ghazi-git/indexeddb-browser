@@ -1,7 +1,8 @@
 import { ColDef } from "ag-grid-community";
 
-import { isNumber, TableColumn } from "@/devtools/utils/create-table-query";
+import { isNumber } from "@/devtools/utils/create-table-query";
 import { NullishNumberRenderer } from "@/devtools/utils/table-cell-renderer";
+import { TableColumn } from "@/devtools/utils/types";
 
 export function getNumberColdef(column: TableColumn): ColDef {
   return {

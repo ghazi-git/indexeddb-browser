@@ -1,10 +1,10 @@
 import { ColDef } from "ag-grid-community";
 
-import { TableColumn } from "@/devtools/utils/create-table-query";
 import {
   convertToString,
   RawDataRenderer,
 } from "@/devtools/utils/table-cell-renderer";
+import { TableColumn } from "@/devtools/utils/types";
 
 export function getRawDataColdef(column: TableColumn): ColDef {
   return {

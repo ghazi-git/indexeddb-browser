@@ -1,7 +1,7 @@
 import { createStore } from "solid-js/store";
 
-import { ActiveObjectStore } from "@/devtools/components/active-object-store-context";
 import { getStoreData } from "@/devtools/utils/dummy-data";
+import { ActiveObjectStore, TableColumn } from "@/devtools/utils/types";
 
 export function createTableDataQuery() {
   const [query, setQuery] = createStore<Query>({
@@ -250,18 +250,3 @@ export type TableData =
 export type TableRow = Record<string, TableColumnValue>;
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 type TableColumnValue = any;
-export interface TableColumn {
-  name: string;
-  isKey: boolean;
-  isVisible: boolean;
-  datatype: TableColumnDatatype;
-}
-
-export type TableColumnDatatype =
-  | "timestamp"
-  | "date"
-  | "number"
-  | "string"
-  | "bigint"
-  | "boolean"
-  | "raw_data";

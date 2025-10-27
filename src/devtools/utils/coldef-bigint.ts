@@ -1,8 +1,8 @@
 import { ColDef } from "ag-grid-community";
 
-import { isBigint, TableColumn } from "@/devtools/utils/create-table-query";
+import { isBigint } from "@/devtools/utils/create-table-query";
 import { NullishBigintRenderer } from "@/devtools/utils/table-cell-renderer";
-import { FilterOptionDef } from "@/devtools/utils/types";
+import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 
 export function getBigintColdef(column: TableColumn): ColDef {
   return {

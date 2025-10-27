@@ -12,6 +12,7 @@ import {
 
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
+import { ActiveObjectStore } from "@/devtools/utils/types";
 
 const ActiveObjectStoreContext = createContext<ActiveObjectStoreContextType>();
 
@@ -80,8 +81,3 @@ interface ActiveObjectStoreContextType {
   activeObjectStore: Accessor<ActiveObjectStore | null>;
   setActiveObjectStore: Setter<ActiveObjectStore | null>;
 }
-
-export type ActiveObjectStore = {
-  dbName: string;
-  storeName: string;
-};

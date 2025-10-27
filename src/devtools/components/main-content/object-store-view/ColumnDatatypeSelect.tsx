@@ -1,6 +1,6 @@
 import { createUniqueId, For, JSX } from "solid-js";
 
-import { TableColumnDatatype } from "@/devtools/utils/create-table-query";
+import { TableColumnDatatype } from "@/devtools/utils/types";
 
 import styles from "./ColumnDatatypeSelect.module.css";
 

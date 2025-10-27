@@ -1,10 +1,11 @@
 import { ColDef } from "ag-grid-community";
 
-import { isDate, TableColumn } from "@/devtools/utils/create-table-query";
+import { isDate } from "@/devtools/utils/create-table-query";
 import {
   convertDateToString,
   NullishDateRenderer,
 } from "@/devtools/utils/table-cell-renderer";
+import { TableColumn } from "@/devtools/utils/types";
 
 export function getDateColdef(column: TableColumn): ColDef {
   return {

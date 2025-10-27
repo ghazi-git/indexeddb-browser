@@ -6,10 +6,7 @@ import ColumnsDatatypeNotes from "@/devtools/components/main-content/object-stor
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import KeyIcon from "@/devtools/components/svg-icons/KeyIcon";
-import {
-  TableColumn,
-  TableColumnDatatype,
-} from "@/devtools/utils/create-table-query";
+import { TableColumn, TableColumnDatatype } from "@/devtools/utils/types";
 
 import styles from "./ColumnsConfig.module.css";
 

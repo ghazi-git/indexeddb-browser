@@ -1,8 +1,8 @@
 import { ColDef } from "ag-grid-community";
 
-import { isBoolean, TableColumn } from "@/devtools/utils/create-table-query";
+import { isBoolean } from "@/devtools/utils/create-table-query";
 import { NullishBooleanRenderer } from "@/devtools/utils/table-cell-renderer";
-import { FilterOptionDef } from "@/devtools/utils/types";
+import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 
 export function getBooleanColdef(column: TableColumn): ColDef {
   return {

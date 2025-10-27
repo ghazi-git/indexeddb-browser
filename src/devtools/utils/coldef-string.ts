@@ -1,7 +1,8 @@
 import { ColDef } from "ag-grid-community";
 
-import { isString, TableColumn } from "@/devtools/utils/create-table-query";
+import { isString } from "@/devtools/utils/create-table-query";
 import { NullishStringRenderer } from "@/devtools/utils/table-cell-renderer";
+import { TableColumn } from "@/devtools/utils/types";
 
 export function getStringColdef(column: TableColumn): ColDef {
   return {
