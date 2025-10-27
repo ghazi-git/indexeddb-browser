@@ -132,10 +132,13 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
       );
       if (dbIndex >= 0 && storeIndex >= 0) {
         batch(() => {
+          setTree("databases", dbIndex, "isExpanded", true);
           setTree("selectedItem", [dbIndex, storeIndex]);
           setTree("focusableItem", [dbIndex, storeIndex]);
         });
       }
+    } else {
+      setTree("databases", 0, "isExpanded", true);
     }
   });
 
@@ -180,7 +183,6 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
 }
 
 function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
-  // todo restore last selected DB per origin to restore it when user comes back
   const initialData: Database[] = databases.map((db) => ({
     ref: null,
     name: db.name,
@@ -190,9 +192,6 @@ function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
       name,
     })),
   }));
-  if (initialData[0].objectStores.length) {
-    initialData[0].isExpanded = true;
-  }
   return {
     databases: initialData,
     selectedItem: null,

@@ -4,7 +4,6 @@ import {
   createEffect,
   createSignal,
   FlowProps,
-  Setter,
   Signal,
   untrack,
   useContext,
@@ -12,6 +11,10 @@ import {
 
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
+import {
+  getLastViewedStore,
+  saveLastViewedStore,
+} from "@/devtools/utils/saved-settings";
 import { ActiveObjectStore } from "@/devtools/utils/types";
 
 const ActiveObjectStoreContext = createContext<ActiveObjectStoreContextType>();
@@ -28,14 +31,26 @@ export function useActiveObjectStoreContext() {
 }
 
 export function ActiveObjectStoreContextProvider(props: FlowProps) {
-  const [activeObjectStore, setActiveObjectStore] = createActiveObjectStore();
+  const [activeObjectStore, _setActiveStore] = createActiveObjectStore();
+
+  const setActiveObjectStore = (activeStore: ActiveObjectStore) => {
+    _setActiveStore(activeStore);
+    const currentOrigin = untrack(() => origin());
+    if (currentOrigin) {
+      saveLastViewedStore(
+        currentOrigin,
+        activeStore.dbName,
+        activeStore.storeName,
+      );
+    }
+  };
 
   // if the user navigates away from the current origin, unset the active store
   const { origin } = useOriginContext();
   createEffect(() => {
     const activeStore = untrack(() => activeObjectStore());
     if (activeStore && origin()) {
-      setActiveObjectStore(null);
+      _setActiveStore(null);
     }
   });
 
@@ -49,7 +64,20 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
       const db = dbs.find((db) => db.name === dbName);
       const objStore = db?.objectStores.find((st) => st === storeName);
       if (!objStore) {
-        setActiveObjectStore(null);
+        _setActiveStore(null);
+      }
+    } else if (dbs) {
+      const currentOrigin = untrack(() => origin());
+      if (currentOrigin) {
+        const lastViewedStore = getLastViewedStore(currentOrigin);
+        // check the last viewed db still exists in the databases list
+        if (lastViewedStore) {
+          const { dbName, storeName } = lastViewedStore;
+          const indexeddb = dbs.find((db) => db.name === dbName);
+          if (indexeddb && indexeddb.objectStores.includes(storeName)) {
+            _setActiveStore(lastViewedStore);
+          }
+        }
       }
     }
   });
@@ -79,5 +107,5 @@ function createActiveObjectStore(): Signal<ActiveObjectStore | null> {
 
 interface ActiveObjectStoreContextType {
   activeObjectStore: Accessor<ActiveObjectStore | null>;
-  setActiveObjectStore: Setter<ActiveObjectStore | null>;
+  setActiveObjectStore: (activeStore: ActiveObjectStore) => void;
 }
