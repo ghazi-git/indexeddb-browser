@@ -95,21 +95,20 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
     if (item) {
       const [dbIndex, storeIndex] = item;
       if (storeIndex !== undefined) {
-        const { activeStore, dbName, dbVersion, storeName } = untrack(() => {
+        const { activeStore, dbName, storeName } = untrack(() => {
           return {
             activeStore: activeObjectStore(),
             dbName: tree.databases[dbIndex].name,
-            dbVersion: tree.databases[dbIndex].version,
             storeName: tree.databases[dbIndex].objectStores[storeIndex].name,
           };
         });
         if (activeStore === null) {
-          setActiveObjectStore({ dbName, dbVersion, storeName });
+          setActiveObjectStore({ dbName, storeName });
         } else if (
           activeStore.dbName !== dbName ||
           activeStore.storeName !== storeName
         ) {
-          setActiveObjectStore({ dbName, dbVersion, storeName });
+          setActiveObjectStore({ dbName, storeName });
         }
       }
     }
@@ -185,7 +184,6 @@ function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
   const initialData: Database[] = databases.map((db) => ({
     ref: null,
     name: db.name,
-    version: db.version,
     isExpanded: false,
     objectStores: db.objectStores.map((name) => ({
       ref: null,

@@ -31,11 +31,7 @@ export function createTableDataQuery() {
       isError: false,
     }));
     try {
-      const response = await getStoreData(
-        params.dbName,
-        params.dbVersion,
-        params.storeName,
-      );
+      const response = await getStoreData(params.dbName, params.storeName);
       let data: TableData;
       if (response.canDisplay) {
         const columns = getColumns(response.keypath, response.data);

@@ -83,6 +83,5 @@ interface ActiveObjectStoreContextType {
 
 export type ActiveObjectStore = {
   dbName: string;
-  dbVersion: number;
   storeName: string;
 };

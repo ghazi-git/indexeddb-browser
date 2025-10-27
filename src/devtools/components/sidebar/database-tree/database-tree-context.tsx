@@ -36,7 +36,6 @@ export interface DatabaseTreeStore {
 export interface Database {
   ref: HTMLLIElement | null;
   name: string;
-  version: number;
   isExpanded: boolean;
   objectStores: ObjectStore[];
 }

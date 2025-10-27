@@ -29,7 +29,6 @@ export function IndexedDBContextProvider(props: FlowProps) {
         const dbs: IndexedDB[] = getDatabases()
           .map((db) => ({
             name: db.name,
-            version: db.version,
             objectStores: db.objectStores.toSorted(collator.compare),
           }))
           .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
