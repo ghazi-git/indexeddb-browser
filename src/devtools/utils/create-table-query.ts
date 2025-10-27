@@ -1,6 +1,10 @@
 import { createStore } from "solid-js/store";
 
 import { getStoreData } from "@/devtools/utils/dummy-data";
+import {
+  getColumnsConfig,
+  saveColumnsConfig,
+} from "@/devtools/utils/saved-settings";
 import { ActiveObjectStore, TableColumn } from "@/devtools/utils/types";
 
 export function createTableDataQuery() {
@@ -13,7 +17,7 @@ export function createTableDataQuery() {
     isError: false,
   });
 
-  async function fetchTableData(params: ActiveObjectStore) {
+  async function fetchTableData(params: QueryParams) {
     // todo still need to handle the actual flow of calling eval to get
     //  the databases or data and then polling to check if the response
     //  is ready. Also, will need to:
@@ -34,7 +38,25 @@ export function createTableDataQuery() {
       const response = await getStoreData(params.dbName, params.storeName);
       let data: TableData;
       if (response.canDisplay) {
-        const columns = getColumns(response.keypath, response.data);
+        let columns = getColumns(response.keypath, response.data);
+        if (params.origin) {
+          const savedColumns = getColumnsConfig(
+            params.origin,
+            params.dbName,
+            params.storeName,
+          );
+          if (canUseSavedColumns(columns, savedColumns)) {
+            columns = savedColumns;
+          } else {
+            // savedColumns are out of date, remove them from storage
+            saveColumnsConfig(
+              params.origin,
+              params.dbName,
+              params.storeName,
+              [],
+            );
+          }
+        }
         data = {
           canDisplay: true,
           keypath: response.keypath,
@@ -196,6 +218,28 @@ function hasHighPercentage(
   return colDataOfType.length / colData.length >= 0.9;
 }
 
+function canUseSavedColumns(
+  columnsFromSource: TableColumn[],
+  savedColumns: TableColumn[],
+) {
+  // can use the saved columns when they have the same names as the source
+  // columns and have the same columns marked as keys
+  const sourceNames = new Set(columnsFromSource.map((c) => c.name));
+  const savedNames = new Set(savedColumns.map((c) => c.name));
+  const sourceKeyNames = new Set(
+    columnsFromSource.filter((c) => c.isKey).map((c) => c.name),
+  );
+  const savedKeyNames = new Set(
+    savedColumns.filter((c) => c.isKey).map((c) => c.name),
+  );
+  return (
+    sourceNames.size === savedNames.size &&
+    sourceNames.isSubsetOf(savedNames) &&
+    sourceKeyNames.size === savedKeyNames.size &&
+    sourceKeyNames.isSubsetOf(savedKeyNames)
+  );
+}
+
 interface QueryIdle {
   status: "idle";
   data: null;
@@ -233,6 +277,10 @@ interface QueryError {
 }
 
 export type Query = QueryIdle | QueryLoading | QuerySuccess | QueryError;
+
+interface QueryParams extends ActiveObjectStore {
+  origin: string | null;
+}
 
 export type TableData =
   | {

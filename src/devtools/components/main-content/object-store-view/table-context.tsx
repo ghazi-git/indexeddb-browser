@@ -7,10 +7,12 @@ import {
 } from "solid-js";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
+import { useOriginContext } from "@/devtools/components/origin-context";
 import {
   createTableDataQuery,
   Query,
 } from "@/devtools/utils/create-table-query";
+import { saveColumnsConfig } from "@/devtools/utils/saved-settings";
 import { TableColumnDatatype } from "@/devtools/utils/types";
 
 const TableContext = createContext<TableContextType>();
@@ -25,26 +27,40 @@ export function useTableContext() {
 }
 
 export function TableContextProvider(props: FlowProps) {
+  const { origin } = useOriginContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
   const { query, setQuery, fetchTableData } = createTableDataQuery();
   const loadTableData = () => {
     const activeStore = activeObjectStore();
     if (activeStore) {
       untrack(() => {
-        fetchTableData(activeStore);
+        fetchTableData({ ...activeStore, origin: origin() });
       });
     }
   };
   // get the obj store data when activeObjectStore is updated
   createEffect(() => loadTableData());
 
+  const _saveColumnsToLocalStorage = () => {
+    const currentOrigin = origin();
+    const activeStore = activeObjectStore();
+    if (currentOrigin && activeStore) {
+      saveColumnsConfig(
+        currentOrigin,
+        activeStore.dbName,
+        activeStore.storeName,
+        query.data!.columns!,
+      );
+    }
+  };
+
   const setColumnVisibility = (columnName: string, isVisible: boolean) => {
     if (query?.data?.columns) {
-      query.data.columns.forEach((column, index) => {
-        if (column.name === columnName) {
-          setQuery("data", "columns", index, "isVisible", isVisible);
-        }
-      });
+      const index = query.data.columns.findIndex((c) => c.name === columnName);
+      if (index >= 0) {
+        setQuery("data", "columns", index, "isVisible", isVisible);
+        _saveColumnsToLocalStorage();
+      }
     }
   };
   const setColumnDatatype = (
@@ -57,6 +73,7 @@ export function TableContextProvider(props: FlowProps) {
       );
       if (index >= 0) {
         setQuery("data", "columns", index, "datatype", datatype);
+        _saveColumnsToLocalStorage();
       }
     }
   };
@@ -69,6 +86,7 @@ export function TableContextProvider(props: FlowProps) {
         const column = columns!.splice(oldIndex, 1)[0];
         return columns!.toSpliced(newIndex, 0, column);
       });
+      _saveColumnsToLocalStorage();
     }
   };
 
