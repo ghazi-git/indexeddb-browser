@@ -61,7 +61,7 @@ function getOrigin() {
       "location.origin",
       (result: string, isException) => {
         if (isException) {
-          reject("Unable to determine the inspected window origin.");
+          reject(new Error("Unable to determine the inspected window origin."));
         } else {
           resolve(result);
         }
