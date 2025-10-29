@@ -3,7 +3,7 @@ import styles from "./ColumnsDatatypeNotes.module.css";
 export default function ColumnsDatatypeNotes() {
   return (
     <details class={styles.notes}>
-      <summary>Notes on columns datatypes</summary>
+      <summary>Notes about the table</summary>
 
       <ul>
         <li>
