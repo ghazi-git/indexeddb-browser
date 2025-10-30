@@ -20,10 +20,9 @@ export function triggerIndexedDBsFetching(requestID: string) {
 }
 
 function getDatabasesRequestCode(requestID: string) {
+  const serializedRequestID = JSON.stringify(requestID);
   return `
-(async () => {
-  processDatabasesRequest("${requestID}")
-})()
+processDatabasesRequest(${serializedRequestID})
 
 ${processDatabasesRequest.toString()}
 ${markRequestInProgress.toString()}
