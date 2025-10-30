@@ -1,7 +1,6 @@
 @import url("open-props/style");
 @import url("open-props/normalize");
 @import url("buttons.css");
-@import url("solid-notifications/index.css");
 
 html {
   --brand-0: #d0def7;
