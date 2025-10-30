@@ -15,7 +15,7 @@ import BreadcrumbSelect, {
 } from "@/devtools/components/main-content/header/BreadcrumbSelect";
 import ReloadStore from "@/devtools/components/main-content/header/ReloadStore";
 import AngleRightIcon from "@/devtools/components/svg-icons/AngleRightIcon";
-import { IndexedDB } from "@/devtools/utils/dummy-data";
+import { IndexedDB } from "@/devtools/utils/types";
 
 import styles from "./Breadcrumbs.module.css";
 

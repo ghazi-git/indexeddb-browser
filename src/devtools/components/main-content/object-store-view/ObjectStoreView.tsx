@@ -7,7 +7,7 @@ import MainContentBanner from "@/devtools/components/main-content/MainContentBan
 import MainContentContainer from "@/devtools/components/main-content/MainContentContainer";
 import { TableContextProvider } from "@/devtools/components/main-content/object-store-view/table-context";
 import TableStateWrapper from "@/devtools/components/main-content/object-store-view/TableStateWrapper";
-import { IndexedDB } from "@/devtools/utils/dummy-data";
+import { IndexedDB } from "@/devtools/utils/types";
 
 export default function ObjectStoreView(props: { databases: IndexedDB[] }) {
   const { activeObjectStore } = useActiveObjectStoreContext();

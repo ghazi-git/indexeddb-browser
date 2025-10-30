@@ -10,7 +10,7 @@ import {
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
 import DatabaseItem from "@/devtools/components/sidebar/database-tree/DatabaseItem";
 import styles from "@/devtools/components/sidebar/database-tree/DatabaseTree.module.css";
-import { IndexedDB } from "@/devtools/utils/dummy-data";
+import { IndexedDB } from "@/devtools/utils/types";
 
 /**
  * Sidebar Navigation

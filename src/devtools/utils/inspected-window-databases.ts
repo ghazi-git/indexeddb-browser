@@ -1,3 +1,5 @@
+import { IndexedDB } from "@/devtools/utils/types";
+
 export function triggerIndexedDBsFetching(requestID: string) {
   const code = getDatabasesRequestCode(requestID);
   return new Promise<void>((resolve, reject) => {
@@ -65,7 +67,7 @@ async function getIndexedDBs() {
 }
 
 function getObjectStores(dbName: string) {
-  return new Promise<IndexedDBInfo>((resolve) => {
+  return new Promise<IndexedDB>((resolve) => {
     const dbRequest = indexedDB.open(dbName);
     dbRequest.onsuccess = () => {
       const db = dbRequest.result;
@@ -80,10 +82,7 @@ function getObjectStores(dbName: string) {
   });
 }
 
-function markRequestAsSuccessful(
-  requestID: string,
-  indexedDBs: IndexedDBInfo[],
-) {
+function markRequestAsSuccessful(requestID: string, indexedDBs: IndexedDB[]) {
   if (!isRequestCanceled(requestID)) {
     window.__indexeddb_browser_databases = {
       requestID,
@@ -124,11 +123,6 @@ function isRequestCanceled(requestID: string) {
   );
 }
 
-export interface IndexedDBInfo {
-  name: string;
-  objectStores: string[];
-}
-
 // the below is just to avoid adding ts-ignores
 declare global {
   interface Window {
@@ -142,7 +136,7 @@ declare global {
       | {
           requestID: string;
           status: "success";
-          data: IndexedDBInfo[];
+          data: IndexedDB[];
           errorMsg: null;
         }
       | {

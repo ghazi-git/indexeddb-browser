@@ -1,4 +1,4 @@
-import { IndexedDBInfo } from "./inspected-window-databases";
+import { IndexedDB } from "@/devtools/utils/types";
 
 export async function fetchIndexedDBs(requestID: string) {
   let timeSinceStart = 0;
@@ -20,10 +20,10 @@ export async function fetchIndexedDBs(requestID: string) {
 
 function checkForDatabasesResponse(requestID: string) {
   const code = getDatabasesResponseCode(requestID);
-  return new Promise<IndexedDBInfo[] | undefined>((resolve, reject) => {
+  return new Promise<IndexedDB[] | undefined>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(
       code,
-      (result: IndexedDBInfo[] | undefined, exceptionInfo) => {
+      (result: IndexedDB[] | undefined, exceptionInfo) => {
         if (exceptionInfo) {
           console.error(
             "fetch-indexedDBs: failure to poll indexedDBs",

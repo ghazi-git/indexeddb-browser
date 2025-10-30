@@ -9,9 +9,9 @@ import {
 } from "solid-js";
 
 import { useOriginContext } from "@/devtools/components/origin-context";
-import { IndexedDB } from "@/devtools/utils/dummy-data";
 import { triggerIndexedDBsFetching } from "@/devtools/utils/inspected-window-databases";
 import { fetchIndexedDBs } from "@/devtools/utils/inspected-window-databases-polling";
+import { IndexedDB } from "@/devtools/utils/types";
 
 const IndexedDBContext = createContext<IndexedDBContextType>();
 

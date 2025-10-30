@@ -30,3 +30,8 @@ export const TABLE_COLUMN_DATATYPES = [
   "raw_data",
 ] as const;
 export type TableColumnDatatype = (typeof TABLE_COLUMN_DATATYPES)[number];
+
+export interface IndexedDB {
+  name: string;
+  objectStores: string[];
+}
