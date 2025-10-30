@@ -1,3 +1,5 @@
+import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
+
 export function triggerDataFetching(
   requestID: string,
   dbName: string,
@@ -8,10 +10,7 @@ export function triggerDataFetching(
     chrome.devtools.inspectedWindow.eval(code, (_, exceptionInfo) => {
       if (exceptionInfo) {
         console.error("fetch-data: failure to trigger fetching", exceptionInfo);
-        const msg =
-          "An unexpected error occurred. Please try fetching the data again " +
-          "by clicking the reload icon in the header.";
-        reject(new Error(msg));
+        reject(new Error(DATA_ERROR_MSG));
       } else {
         resolve();
       }
@@ -59,9 +58,7 @@ async function processDataRequest(
     }
   } catch (e) {
     console.error("fetch-data: failure", e);
-    const msg =
-      "An unexpected error occurred while fetching the object store data.";
-    markRequestAsFailed(requestID, msg);
+    markRequestAsFailed(requestID, DATA_ERROR_MSG);
     return;
   }
 
@@ -70,13 +67,8 @@ async function processDataRequest(
     markRequestAsSuccessful(requestID, response);
   } catch (e) {
     console.error("fetch-data: failure", e);
-    if (e instanceof Error) {
-      markRequestAsFailed(requestID, e.message);
-    } else {
-      const msg =
-        "An unexpected error occurred while fetching the object store data.";
-      markRequestAsFailed(requestID, msg);
-    }
+    const msg = e instanceof Error ? e.message : DATA_ERROR_MSG;
+    markRequestAsFailed(requestID, msg);
   }
 }
 
@@ -112,15 +104,12 @@ function getObjectStoreData(
 
       tx = db.transaction(storeName, "readonly");
       tx.onerror = () => {
-        const msg =
-          "An unexpected error occurred while fetching the object store data.";
-        reject(new Error(msg));
+        reject(new Error(DATA_ERROR_MSG));
         clearInterval(timerID);
         db.close();
       };
       tx.onabort = () => {
-        const msg = "Request timed out or canceled.";
-        reject(new Error(msg));
+        reject(new Error("Request timed out or canceled."));
         clearInterval(timerID);
         db.close();
       };
@@ -139,9 +128,7 @@ function getObjectStoreData(
 
       const getAllReq = objectStore.getAll();
       getAllReq.onerror = () => {
-        const msg =
-          "An unexpected error occurred while fetching the object store data.";
-        reject(new Error(msg));
+        reject(new Error(DATA_ERROR_MSG));
         clearInterval(timerID);
         db.close();
       };

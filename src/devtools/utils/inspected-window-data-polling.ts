@@ -1,4 +1,5 @@
 import { ObjectStoreResponse } from "@/devtools/utils/inspected-window-data";
+import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 
 export function checkForObjectStoreDataResponse(requestID: string) {
   const code = getDataResponseCode(requestID);
@@ -9,9 +10,7 @@ export function checkForObjectStoreDataResponse(requestID: string) {
         if (exceptionInfo) {
           const log = "fetch-data: failure to poll object store data";
           console.error(log, exceptionInfo);
-          let msg =
-            "An unexpected error occurred. Please try fetching the object " +
-            "store data again by clicking the reload icon in the header.";
+          let msg = DATA_ERROR_MSG;
           if (
             exceptionInfo.isError &&
             exceptionInfo.code === "E_PROTOCOLERROR"
