@@ -100,7 +100,6 @@ export function createTableDataQuery() {
       markQueryAsSuccessful(data);
       return data;
     } catch (e) {
-      console.error("query-error", e);
       const msg =
         e instanceof Error ? e.message : "An unexpected error occurred";
       markQueryAsFailed(msg);

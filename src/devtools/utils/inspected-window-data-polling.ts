@@ -9,9 +9,18 @@ export function checkForObjectStoreDataResponse(requestID: string) {
         if (exceptionInfo) {
           const log = "fetch-data: failure to poll object store data";
           console.error(log, exceptionInfo);
-          const msg =
+          let msg =
             "An unexpected error occurred. Please try fetching the object " +
             "store data again by clicking the reload icon in the header.";
+          if (
+            exceptionInfo.isError &&
+            exceptionInfo.code === "E_PROTOCOLERROR"
+          ) {
+            msg =
+              "The object store contains unsupported datatypes. Use the " +
+              "native IndexedDB viewer instead.";
+          }
+
           reject(new Error(msg));
         } else {
           resolve(result);
