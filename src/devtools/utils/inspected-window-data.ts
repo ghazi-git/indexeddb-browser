@@ -1,4 +1,7 @@
-import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
+import {
+  DATA_ERROR_MSG,
+  DATA_FETCH_TIMEOUT_IN_MS,
+} from "@/devtools/utils/inspected-window-helpers";
 import { ObjectStoreData, ObjectStoreResponse } from "@/devtools/utils/types";
 
 export function triggerDataFetching(
@@ -85,7 +88,7 @@ function getObjectStoreData(
     // aborts the transaction if it takes too long or the request was canceled
     if (
       isRequestCanceled(requestID) ||
-      Date.now() - startTime > TIMEOUT_IN_MS + 3000
+      Date.now() - startTime > DATA_FETCH_TIMEOUT_IN_MS + 3000
     ) {
       tx?.abort();
     }
@@ -191,8 +194,6 @@ function isRequestCanceled(requestID: string) {
     window.__indexeddb_browser_data.requestID !== requestID
   );
 }
-
-export const TIMEOUT_IN_MS = 30_000;
 
 // the below is just to avoid adding ts-ignores
 declare global {

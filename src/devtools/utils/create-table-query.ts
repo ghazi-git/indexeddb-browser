@@ -1,11 +1,11 @@
 import { createStore } from "solid-js/store";
 
-import {
-  TIMEOUT_IN_MS,
-  triggerDataFetching,
-} from "@/devtools/utils/inspected-window-data";
+import { triggerDataFetching } from "@/devtools/utils/inspected-window-data";
 import { checkForObjectStoreDataResponse } from "@/devtools/utils/inspected-window-data-polling";
-import { sleep } from "@/devtools/utils/inspected-window-helpers";
+import {
+  DATA_FETCH_TIMEOUT_IN_MS,
+  sleep,
+} from "@/devtools/utils/inspected-window-helpers";
 import {
   getColumnsConfig,
   saveColumnsConfig,
@@ -88,7 +88,7 @@ export function createTableDataQuery() {
       let timeSinceStart = 0;
       let iteration = 0;
       let response: ObjectStoreData | undefined;
-      while (timeSinceStart < TIMEOUT_IN_MS) {
+      while (timeSinceStart < DATA_FETCH_TIMEOUT_IN_MS) {
         const sleepTime = Math.min(5 * Math.pow(2, iteration), 1000);
         await sleep(sleepTime);
         response = await checkForObjectStoreDataResponse(requestID);

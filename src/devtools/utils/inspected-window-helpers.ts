@@ -9,3 +9,5 @@ export const DATABASES_ERROR_MSG =
 export const DATA_ERROR_MSG =
   "An unexpected error occurred. Please try fetching the object store data " +
   "again by clicking the reload icon in the header.";
+
+export const DATA_FETCH_TIMEOUT_IN_MS = 30_000;
