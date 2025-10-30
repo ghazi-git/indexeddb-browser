@@ -35,3 +35,23 @@ export interface IndexedDB {
   name: string;
   objectStores: string[];
 }
+
+export type IndexedDBResponse =
+  | {
+      requestID: string;
+      status: "in_progress";
+      data: null;
+      errorMsg: null;
+    }
+  | {
+      requestID: string;
+      status: "success";
+      data: IndexedDB[];
+      errorMsg: null;
+    }
+  | {
+      requestID: string;
+      status: "failure";
+      data: null;
+      errorMsg: string;
+    };

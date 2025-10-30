@@ -1,4 +1,5 @@
-import { IndexedDB } from "@/devtools/utils/types";
+import { DATABASES_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
+import { IndexedDB, IndexedDBResponse } from "@/devtools/utils/types";
 
 export function triggerIndexedDBsFetching(requestID: string) {
   const code = getDatabasesRequestCode(requestID);
@@ -9,11 +10,7 @@ export function triggerIndexedDBsFetching(requestID: string) {
           "fetch-indexedDBs: failure to trigger fetching",
           exceptionInfo,
         );
-        const msg =
-          "An unexpected error occurred. Please try " +
-          "fetching the databases again by clicking the reload icon in " +
-          "the sidebar header.";
-        reject(new Error(msg));
+        reject(new Error(DATABASES_ERROR_MSG));
       } else {
         resolve();
       }
@@ -44,8 +41,7 @@ async function processDatabasesRequest(requestID: string) {
     markRequestAsSuccessful(requestID, indexedDbs);
   } catch (e) {
     console.error("fetch-indexedDBs: failure", e);
-    const msg = "An unexpected error occurred while fetching the indexedDBs.";
-    markRequestAsFailed(requestID, msg);
+    markRequestAsFailed(requestID, DATABASES_ERROR_MSG);
   }
 }
 
@@ -126,24 +122,6 @@ function isRequestCanceled(requestID: string) {
 // the below is just to avoid adding ts-ignores
 declare global {
   interface Window {
-    __indexeddb_browser_databases?:
-      | {
-          requestID: string;
-          status: "in_progress";
-          data: null;
-          errorMsg: null;
-        }
-      | {
-          requestID: string;
-          status: "success";
-          data: IndexedDB[];
-          errorMsg: null;
-        }
-      | {
-          requestID: string;
-          status: "failure";
-          data: null;
-          errorMsg: string;
-        };
+    __indexeddb_browser_databases?: IndexedDBResponse;
   }
 }

@@ -6,7 +6,7 @@ import {
   triggerDataFetching,
 } from "@/devtools/utils/inspected-window-data";
 import { checkForObjectStoreDataResponse } from "@/devtools/utils/inspected-window-data-polling";
-import { sleep } from "@/devtools/utils/inspected-window-databases-polling";
+import { sleep } from "@/devtools/utils/inspected-window-helpers";
 import {
   getColumnsConfig,
   saveColumnsConfig,
