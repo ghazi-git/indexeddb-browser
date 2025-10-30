@@ -1,12 +1,12 @@
-import { ObjectStoreResponse } from "@/devtools/utils/inspected-window-data";
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
+import { ObjectStoreData } from "@/devtools/utils/types";
 
 export function checkForObjectStoreDataResponse(requestID: string) {
   const code = getDataResponseCode(requestID);
-  return new Promise<ObjectStoreResponse | undefined>((resolve, reject) => {
+  return new Promise<ObjectStoreData | undefined>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(
       code,
-      (result: ObjectStoreResponse | undefined, exceptionInfo) => {
+      (result: ObjectStoreData | undefined, exceptionInfo) => {
         if (exceptionInfo) {
           const log = "fetch-data: failure to poll object store data";
           console.error(log, exceptionInfo);

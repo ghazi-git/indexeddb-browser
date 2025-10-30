@@ -1,7 +1,6 @@
 import { createStore } from "solid-js/store";
 
 import {
-  ObjectStoreResponse,
   TIMEOUT_IN_MS,
   triggerDataFetching,
 } from "@/devtools/utils/inspected-window-data";
@@ -11,7 +10,11 @@ import {
   getColumnsConfig,
   saveColumnsConfig,
 } from "@/devtools/utils/saved-settings";
-import { ActiveObjectStore, TableColumn } from "@/devtools/utils/types";
+import {
+  ActiveObjectStore,
+  ObjectStoreData,
+  TableColumn,
+} from "@/devtools/utils/types";
 
 export function createTableDataQuery() {
   const [query, setQuery] = createStore<Query>({
@@ -84,7 +87,7 @@ export function createTableDataQuery() {
       await triggerDataFetching(requestID, dbName, storeName);
       let timeSinceStart = 0;
       let iteration = 0;
-      let response: ObjectStoreResponse | undefined;
+      let response: ObjectStoreData | undefined;
       while (timeSinceStart < TIMEOUT_IN_MS) {
         const sleepTime = Math.min(5 * Math.pow(2, iteration), 1000);
         await sleep(sleepTime);
@@ -100,7 +103,7 @@ export function createTableDataQuery() {
       // response received
       let data: TableData;
       if (response.canDisplay) {
-        let columns = getColumns(response.keypath, response.data);
+        let columns = getColumns(response.keypath, response.values);
         // load saved columns config
         if (origin) {
           const savedColumns = getColumnsConfig(origin, dbName, storeName);
@@ -112,7 +115,7 @@ export function createTableDataQuery() {
           }
         }
         const keypath = response.keypath;
-        data = { canDisplay: true, keypath, columns, rows: response.data };
+        data = { canDisplay: true, keypath, columns, rows: response.values };
       } else {
         data = { canDisplay: false, keypath: null, columns: null, rows: null };
       }

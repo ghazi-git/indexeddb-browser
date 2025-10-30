@@ -55,3 +55,38 @@ export type IndexedDBResponse =
       data: null;
       errorMsg: string;
     };
+
+export type ObjectStoreResponse =
+  | {
+      requestID: string;
+      status: "in_progress";
+      data: null;
+      errorMsg: null;
+    }
+  | {
+      requestID: string;
+      status: "success";
+      data: ObjectStoreData;
+      errorMsg: null;
+    }
+  | {
+      requestID: string;
+      status: "failure";
+      data: null;
+      errorMsg: string;
+    };
+
+export type ObjectStoreData =
+  | {
+      canDisplay: true;
+      keypath: string[];
+      values: StoreValue[];
+    }
+  | {
+      canDisplay: false;
+      keypath: null;
+      values: null;
+    };
+
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+type StoreValue = Record<string, any>;

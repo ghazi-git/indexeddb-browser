@@ -1,4 +1,5 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
+import { ObjectStoreData, ObjectStoreResponse } from "@/devtools/utils/types";
 
 export function triggerDataFetching(
   requestID: string,
@@ -90,7 +91,7 @@ function getObjectStoreData(
     }
   }, 1000);
 
-  return new Promise<ObjectStoreResponse>((resolve, reject) => {
+  return new Promise<ObjectStoreData>((resolve, reject) => {
     const dbRequest = indexedDB.open(dbName);
     dbRequest.onsuccess = () => {
       const db = dbRequest.result;
@@ -116,7 +117,7 @@ function getObjectStoreData(
 
       const objectStore = tx.objectStore(storeName);
       if (!objectStore.keyPath) {
-        resolve({ canDisplay: false, keypath: null, data: null });
+        resolve({ canDisplay: false, keypath: null, values: null });
         clearInterval(timerID);
         db.close();
         return;
@@ -133,7 +134,7 @@ function getObjectStoreData(
         db.close();
       };
       getAllReq.onsuccess = () => {
-        resolve({ canDisplay: true, keypath, data: getAllReq.result });
+        resolve({ canDisplay: true, keypath, values: getAllReq.result });
         clearInterval(timerID);
         db.close();
       };
@@ -150,7 +151,7 @@ function markRequestInProgress(requestID: string) {
   };
 }
 
-function markRequestAsSuccessful(requestID: string, data: ObjectStoreResponse) {
+function markRequestAsSuccessful(requestID: string, data: ObjectStoreData) {
   if (!isRequestCanceled(requestID)) {
     window.__indexeddb_browser_data = {
       requestID,
@@ -191,43 +192,11 @@ function isRequestCanceled(requestID: string) {
   );
 }
 
-export type ObjectStoreResponse =
-  | {
-      canDisplay: true;
-      keypath: string[];
-      data: StoreValue[];
-    }
-  | {
-      canDisplay: false;
-      keypath: null;
-      data: null;
-    };
-
 export const TIMEOUT_IN_MS = 30_000;
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-type StoreValue = Record<string, any>;
 
 // the below is just to avoid adding ts-ignores
 declare global {
   interface Window {
-    __indexeddb_browser_data?:
-      | {
-          requestID: string;
-          status: "in_progress";
-          data: null;
-          errorMsg: null;
-        }
-      | {
-          requestID: string;
-          status: "success";
-          data: ObjectStoreResponse;
-          errorMsg: null;
-        }
-      | {
-          requestID: string;
-          status: "failure";
-          data: null;
-          errorMsg: string;
-        };
+    __indexeddb_browser_data?: ObjectStoreResponse;
   }
 }
