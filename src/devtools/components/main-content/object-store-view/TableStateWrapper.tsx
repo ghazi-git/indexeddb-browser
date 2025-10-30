@@ -15,7 +15,7 @@ export default function TableStateWrapper() {
   return (
     <Switch>
       <Match when={query.isLoading}>
-        <MainContentBanner>Loading object store data ...</MainContentBanner>
+        <MainContentBanner>{query.loadingMsg}</MainContentBanner>
       </Match>
       <Match when={query.isError}>
         <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>

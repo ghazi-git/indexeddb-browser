@@ -19,6 +19,7 @@ export function createTableDataQuery() {
     data: null,
     errorMsg: null,
     isLoading: false,
+    loadingMsg: null,
     isSuccess: false,
     isError: false,
   });
@@ -28,6 +29,7 @@ export function createTableDataQuery() {
       data,
       errorMsg: null,
       isLoading: true,
+      loadingMsg: "Loading object store data ...",
       isSuccess: false,
       isError: false,
     }));
@@ -38,6 +40,7 @@ export function createTableDataQuery() {
       data,
       errorMsg: null,
       isLoading: false,
+      loadingMsg: null,
       isSuccess: true,
       isError: false,
     });
@@ -48,9 +51,25 @@ export function createTableDataQuery() {
       data,
       errorMsg: msg,
       isLoading: false,
+      loadingMsg: null,
       isSuccess: false,
       isError: true,
     }));
+  };
+  const setLoadingMsg = (timeSinceStart: number) => {
+    if (timeSinceStart > 20_000) {
+      setQuery(
+        "loadingMsg",
+        "This is taking longer than usual. Thank you for waiting.",
+      );
+    } else if (timeSinceStart > 10_000) {
+      setQuery(
+        "loadingMsg",
+        "Looks like there is a lot of data to fetch, thank you for your patience.",
+      );
+    } else if (timeSinceStart > 3_000) {
+      setQuery("loadingMsg", "Still working on it ...");
+    }
   };
 
   async function fetchTableData({
@@ -59,7 +78,6 @@ export function createTableDataQuery() {
     dbName,
     storeName,
   }: QueryParams) {
-    // todo still need to change the loading message as time goes on.
     markQueryAsLoading();
     try {
       // trigger the request and then check for the response
@@ -68,13 +86,14 @@ export function createTableDataQuery() {
       let iteration = 0;
       let response: ObjectStoreResponse | undefined;
       while (timeSinceStart < TIMEOUT_IN_MS) {
-        const sleepTime = 5 * Math.pow(2, iteration);
-        await sleep(Math.min(sleepTime, 1000));
+        const sleepTime = Math.min(5 * Math.pow(2, iteration), 1000);
+        await sleep(sleepTime);
         response = await checkForObjectStoreDataResponse(requestID);
         if (response) break;
 
         iteration++;
         timeSinceStart += sleepTime;
+        setLoadingMsg(timeSinceStart);
       }
       if (!response) throw new Error("Request timed out.");
 
@@ -257,6 +276,7 @@ interface QueryIdle {
   data: null;
   errorMsg: null;
   isLoading: false;
+  loadingMsg: null;
   isSuccess: false;
   isError: false;
 }
@@ -266,6 +286,7 @@ interface QueryLoading {
   data: TableData | null;
   errorMsg: null;
   isLoading: true;
+  loadingMsg: string;
   isSuccess: false;
   isError: false;
 }
@@ -275,6 +296,7 @@ interface QuerySuccess {
   data: TableData;
   errorMsg: null;
   isLoading: false;
+  loadingMsg: null;
   isSuccess: true;
   isError: false;
 }
@@ -285,6 +307,7 @@ interface QueryError {
   errorMsg: string;
   isLoading: false;
   isSuccess: false;
+  loadingMsg: null;
   isError: true;
 }
 

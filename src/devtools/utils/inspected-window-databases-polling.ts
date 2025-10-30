@@ -4,8 +4,8 @@ export async function fetchIndexedDBs(requestID: string) {
   let timeSinceStart = 0;
   let iteration = 0;
   while (timeSinceStart < 3_000) {
-    const sleepTime = 5 * Math.pow(2, iteration);
-    await sleep(Math.min(sleepTime, 500));
+    const sleepTime = Math.min(5 * Math.pow(2, iteration), 500);
+    await sleep(sleepTime);
     const data = await checkForDatabasesResponse(requestID);
     if (data) return data;
 
