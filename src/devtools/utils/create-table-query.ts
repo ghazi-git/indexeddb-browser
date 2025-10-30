@@ -1,6 +1,12 @@
 import { createStore } from "solid-js/store";
 
-import { getStoreData } from "@/devtools/utils/dummy-data";
+import {
+  ObjectStoreResponse,
+  TIMEOUT_IN_MS,
+  triggerDataFetching,
+} from "@/devtools/utils/inspected-window-data";
+import { checkForObjectStoreDataResponse } from "@/devtools/utils/inspected-window-data-polling";
+import { sleep } from "@/devtools/utils/inspected-window-databases-polling";
 import {
   getColumnsConfig,
   saveColumnsConfig,
@@ -16,16 +22,7 @@ export function createTableDataQuery() {
     isSuccess: false,
     isError: false,
   });
-
-  async function fetchTableData(params: QueryParams) {
-    // todo still need to handle the actual flow of calling eval to get
-    //  the databases or data and then polling to check if the response
-    //  is ready. Also, will need to:
-    //  track the count of objects to get and change the loading message.
-    //  create requestId (to handle concurrent requests)
-    //  ability to cancel a request (transaction.abort()), canceled state
-    //  set a polling timeout
-    //  delete data stored on the window object after use
+  const markQueryAsLoading = () => {
     setQuery(({ data }) => ({
       status: "loading",
       data,
@@ -34,63 +31,79 @@ export function createTableDataQuery() {
       isSuccess: false,
       isError: false,
     }));
+  };
+  const markQueryAsSuccessful = (data: TableData) => {
+    setQuery({
+      status: "success",
+      data,
+      errorMsg: null,
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    });
+  };
+  const markQueryAsFailed = (msg: string) => {
+    setQuery(({ data }) => ({
+      status: "error",
+      data,
+      errorMsg: msg,
+      isLoading: false,
+      isSuccess: false,
+      isError: true,
+    }));
+  };
+
+  async function fetchTableData({
+    requestID,
+    origin,
+    dbName,
+    storeName,
+  }: QueryParams) {
+    // todo still need to change the loading message as time goes on.
+    markQueryAsLoading();
     try {
-      const response = await getStoreData(params.dbName, params.storeName);
+      // trigger the request and then check for the response
+      await triggerDataFetching(requestID, dbName, storeName);
+      let timeSinceStart = 0;
+      let iteration = 0;
+      let response: ObjectStoreResponse | undefined;
+      while (timeSinceStart < TIMEOUT_IN_MS) {
+        const sleepTime = 5 * Math.pow(2, iteration);
+        await sleep(Math.min(sleepTime, 1000));
+        response = await checkForObjectStoreDataResponse(requestID);
+        if (response) break;
+
+        iteration++;
+        timeSinceStart += sleepTime;
+      }
+      if (!response) throw new Error("Request timed out.");
+
+      // response received
       let data: TableData;
       if (response.canDisplay) {
         let columns = getColumns(response.keypath, response.data);
-        if (params.origin) {
-          const savedColumns = getColumnsConfig(
-            params.origin,
-            params.dbName,
-            params.storeName,
-          );
+        // load saved columns config
+        if (origin) {
+          const savedColumns = getColumnsConfig(origin, dbName, storeName);
           if (canUseSavedColumns(columns, savedColumns)) {
             columns = savedColumns;
           } else {
             // savedColumns are out of date, remove them from storage
-            saveColumnsConfig(
-              params.origin,
-              params.dbName,
-              params.storeName,
-              [],
-            );
+            saveColumnsConfig(origin, dbName, storeName, []);
           }
         }
-        data = {
-          canDisplay: true,
-          keypath: response.keypath,
-          columns,
-          rows: response.data,
-        };
+        const keypath = response.keypath;
+        data = { canDisplay: true, keypath, columns, rows: response.data };
       } else {
-        data = {
-          canDisplay: false,
-          keypath: null,
-          columns: null,
-          rows: null,
-        };
+        data = { canDisplay: false, keypath: null, columns: null, rows: null };
       }
-      setQuery({
-        status: "success",
-        data,
-        errorMsg: null,
-        isLoading: false,
-        isSuccess: true,
-        isError: false,
-      });
+      markQueryAsSuccessful(data);
       return data;
     } catch (e) {
       console.error("query-error", e);
-      const msg = "An unexpected error occurred";
-      setQuery(({ data }) => ({
-        status: "error",
-        data,
-        errorMsg: msg,
-        isLoading: false,
-        isSuccess: false,
-        isError: true,
-      }));
+      const msg =
+        e instanceof Error ? e.message : "An unexpected error occurred";
+      markQueryAsFailed(msg);
       throw new Error(msg);
     }
   }
@@ -280,6 +293,7 @@ export type Query = QueryIdle | QueryLoading | QuerySuccess | QueryError;
 
 interface QueryParams extends ActiveObjectStore {
   origin: string | null;
+  requestID: string;
 }
 
 export type TableData =

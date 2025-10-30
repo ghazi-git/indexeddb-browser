@@ -34,7 +34,11 @@ export function TableContextProvider(props: FlowProps) {
     const activeStore = activeObjectStore();
     if (activeStore) {
       untrack(() => {
-        fetchTableData({ ...activeStore, origin: origin() });
+        fetchTableData({
+          ...activeStore,
+          origin: origin(),
+          requestID: generateRequestID(),
+        });
       });
     }
   };
@@ -103,6 +107,11 @@ export function TableContextProvider(props: FlowProps) {
       {props.children}
     </TableContext.Provider>
   );
+}
+
+function generateRequestID() {
+  const uuid = crypto.randomUUID();
+  return `request-${uuid.slice(0, 8)}`;
 }
 
 interface TableContextType {
