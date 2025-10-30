@@ -33,7 +33,7 @@ export default function MainContent() {
               <MainContentContainer>
                 <MainContentHeader />
                 <MainContentBanner>
-                  No IndexedDB found. Click the refresh icon in the sidebar to
+                  No IndexedDB found. Click the reload icon in the sidebar to
                   check again.
                 </MainContentBanner>
               </MainContentContainer>

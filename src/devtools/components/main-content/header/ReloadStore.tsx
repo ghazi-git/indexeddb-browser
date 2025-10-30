@@ -2,7 +2,7 @@ import { Show } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
-import RefreshIcon from "@/devtools/components/svg-icons/RefreshIcon";
+import ReloadIcon from "@/devtools/components/svg-icons/ReloadIcon";
 
 import styles from "./ReloadStore.module.css";
 
@@ -18,7 +18,7 @@ export default function ReloadStore() {
       }}
     >
       <Show when={!query.isLoading}>
-        <RefreshIcon />
+        <ReloadIcon />
       </Show>
     </UnstyledButton>
   );

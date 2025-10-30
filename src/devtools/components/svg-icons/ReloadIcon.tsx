@@ -1,6 +1,6 @@
 import { SVGProps } from "@/devtools/components/svg-icons/types";
 
-export default function RefreshIcon(props: SVGProps) {
+export default function ReloadIcon(props: SVGProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

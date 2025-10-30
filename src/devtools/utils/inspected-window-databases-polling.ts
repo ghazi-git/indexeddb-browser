@@ -14,7 +14,7 @@ export async function fetchIndexedDBs(requestID: string) {
   }
   const msg =
     "Fetching IndexedDBs timed out. You can try again by clicking " +
-    "the refresh icon in the sidebar header.";
+    "the reload icon in the sidebar header.";
   throw new Error(msg);
 }
 
@@ -31,7 +31,7 @@ function checkForDatabasesResponse(requestID: string) {
           );
           const msg =
             "An unexpected error occurred. Please try " +
-            "fetching the databases again by clicking the refresh icon in " +
+            "fetching the databases again by clicking the reload icon in " +
             "the sidebar header.";
           reject(new Error(msg));
         } else {

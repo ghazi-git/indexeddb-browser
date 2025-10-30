@@ -5,7 +5,7 @@ import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useSidebarContext } from "@/devtools/components/sidebar/sidebar-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import CloseSidebarIcon from "@/devtools/components/svg-icons/CloseSidebarIcon";
-import RefreshIcon from "@/devtools/components/svg-icons/RefreshIcon";
+import ReloadIcon from "@/devtools/components/svg-icons/ReloadIcon";
 
 import styles from "./SidebarHeader.module.css";
 
@@ -26,9 +26,9 @@ export default function SidebarHeader() {
       </UnstyledButton>
       <SingleLineText text="IndexedDBs" />
       <UnstyledButton
-        class={styles["refresh-icon"]}
+        class={styles["reload-icon"]}
         title={
-          databases.loading ? "Fetching database list" : "Refresh database list"
+          databases.loading ? "Fetching database list" : "Reload database list"
         }
         onClick={() => {
           refetchIndexedDBs();
@@ -36,7 +36,7 @@ export default function SidebarHeader() {
         loading={databases.loading}
       >
         <Show when={!databases.loading}>
-          <RefreshIcon />
+          <ReloadIcon />
         </Show>
       </UnstyledButton>
     </h1>
