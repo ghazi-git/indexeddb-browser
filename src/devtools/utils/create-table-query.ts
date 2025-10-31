@@ -7,7 +7,15 @@ import {
   DATA_FETCH_TIMEOUT_IN_MS,
   sleep,
 } from "@/devtools/utils/inspected-window-helpers";
-import { ActiveObjectStore, TableData } from "@/devtools/utils/types";
+import {
+  getColumnsConfig,
+  saveColumnsConfig,
+} from "@/devtools/utils/saved-settings";
+import {
+  ActiveObjectStore,
+  TableColumn,
+  TableData,
+} from "@/devtools/utils/types";
 
 export function createTableDataQuery() {
   const [query, setQuery] = createStore<Query>({
@@ -68,21 +76,23 @@ export function createTableDataQuery() {
     }
   };
 
-  async function fetchTableData({ requestID, dbName, storeName }: QueryParams) {
+  async function fetchTableData({
+    origin,
+    requestID,
+    dbName,
+    storeName,
+  }: QueryParams) {
     markQueryAsLoading();
-    // todo figure out how to allow override the auto-detected types
-    // if (origin) {
-    //   const savedColumns = getColumnsConfig(origin, dbName, storeName);
-    //   if (canUseSavedColumns(columns, savedColumns)) {
-    //     columns = savedColumns;
-    //   } else {
-    //     // savedColumns are out of date, remove them from storage
-    //     saveColumnsConfig(origin, dbName, storeName, []);
-    //   }
-    // }
+    let savedColumns: TableColumn[] | undefined;
+    if (origin) {
+      const cols = getColumnsConfig(origin, dbName, storeName);
+      if (cols.length) {
+        savedColumns = cols;
+      }
+    }
     try {
       // trigger the request and then check for the response
-      await triggerDataFetching(requestID, dbName, storeName);
+      await triggerDataFetching(requestID, dbName, storeName, savedColumns);
       let timeSinceStart = 0;
       let iteration = 0;
       let responseData: TableData | undefined;
@@ -107,6 +117,12 @@ export function createTableDataQuery() {
       }
       if (!responseData) throw new Error("Request timed out.");
 
+      if (origin && savedColumns) {
+        // if savedColumns were passed with the request, then update what's
+        // in local storage in case there are updates to the object store
+        const cols = responseData.columns ?? [];
+        saveColumnsConfig(origin, dbName, storeName, cols);
+      }
       markQueryAsSuccessful(responseData);
       return responseData;
     } catch (e) {
@@ -119,28 +135,6 @@ export function createTableDataQuery() {
 
   return { query, setQuery, fetchTableData };
 }
-
-// function canUseSavedColumns(
-//   columnsFromSource: TableColumn[],
-//   savedColumns: TableColumn[],
-// ) {
-//   // can use the saved columns when they have the same names as the source
-//   // columns and have the same columns marked as keys
-//   const sourceNames = new Set(columnsFromSource.map((c) => c.name));
-//   const savedNames = new Set(savedColumns.map((c) => c.name));
-//   const sourceKeyNames = new Set(
-//     columnsFromSource.filter((c) => c.isKey).map((c) => c.name),
-//   );
-//   const savedKeyNames = new Set(
-//     savedColumns.filter((c) => c.isKey).map((c) => c.name),
-//   );
-//   return (
-//     sourceNames.size === savedNames.size &&
-//     sourceNames.isSubsetOf(savedNames) &&
-//     sourceKeyNames.size === savedKeyNames.size &&
-//     sourceKeyNames.isSubsetOf(savedKeyNames)
-//   );
-// }
 
 interface QueryIdle {
   status: "idle";

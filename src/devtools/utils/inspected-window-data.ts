@@ -13,8 +13,9 @@ export function triggerDataFetching(
   requestID: string,
   dbName: string,
   storeName: string,
+  savedColumns: TableColumn[] | undefined,
 ) {
-  const code = getDataRequestCode(requestID, dbName, storeName);
+  const code = getDataRequestCode(requestID, dbName, storeName, savedColumns);
   return new Promise<void>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(code, (_, exceptionInfo) => {
       if (exceptionInfo) {
@@ -31,14 +32,16 @@ function getDataRequestCode(
   requestID: string,
   dbName: string,
   storeName: string,
+  savedColumns: TableColumn[] | undefined,
 ) {
   const serializedRequestID = JSON.stringify(requestID);
   const serializedDBName = JSON.stringify(dbName);
   const serializedStoreName = JSON.stringify(storeName);
+  const serializedColumns = JSON.stringify(savedColumns);
 
   return `
 (function() {
-  processDataRequest(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName})
+  processDataRequest(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns})
 
   ${processDataRequest.toString()}
   ${getObjectStoreData.toString()}
@@ -67,6 +70,7 @@ function getDataRequestCode(
   ${getObjects.toString()}
   ${isObject.toString()}
   ${hasHighPercentage.toString()}
+  ${canUseSavedColumns.toString()}
   ${convertStoreData.toString()}
 })()
 `;
@@ -76,6 +80,7 @@ async function processDataRequest(
   requestID: string,
   dbName: string,
   storeName: string,
+  savedColumns: TableColumn[] | undefined,
 ) {
   markRequestInProgress(requestID);
   // make sure the database exists to avoid creating a new one when opening
@@ -101,7 +106,10 @@ async function processDataRequest(
     const data = await getObjectStoreData(requestID, dbName, storeName);
     let resp: TableData;
     if (data.canDisplay) {
-      const columns = getColumns(data.keypath, data.values);
+      let columns = getColumns(data.keypath, data.values);
+      if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
+        columns = savedColumns;
+      }
       const keypath = data.keypath;
       const rows = convertStoreData(columns, data.values);
       resp = { canDisplay: true, keypath, columns, rows };
@@ -393,6 +401,28 @@ function hasHighPercentage(
   colDataOfType: TableColumnValue[],
 ) {
   return colDataOfType.length / colData.length >= 0.8;
+}
+
+function canUseSavedColumns(
+  columnsFromSource: TableColumn[],
+  savedColumns: TableColumn[],
+) {
+  // can use the saved columns when they have the same names as the source
+  // columns and have the same columns marked as keys
+  const sourceNames = new Set(columnsFromSource.map((c) => c.name));
+  const savedNames = new Set(savedColumns.map((c) => c.name));
+  const sourceKeyNames = new Set(
+    columnsFromSource.filter((c) => c.isKey).map((c) => c.name),
+  );
+  const savedKeyNames = new Set(
+    savedColumns.filter((c) => c.isKey).map((c) => c.name),
+  );
+  return (
+    sourceNames.size === savedNames.size &&
+    sourceNames.isSubsetOf(savedNames) &&
+    sourceKeyNames.size === savedKeyNames.size &&
+    sourceKeyNames.isSubsetOf(savedKeyNames)
+  );
 }
 
 /**
