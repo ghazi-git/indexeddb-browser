@@ -13,6 +13,23 @@ export type ActiveObjectStore = {
 };
 export type AutosizeColumns = "fit-grid-width" | "fit-cell-contents";
 
+export type TableData =
+  | {
+      canDisplay: true;
+      keypath: string[];
+      rows: TableRow[];
+      columns: TableColumn[];
+    }
+  | {
+      canDisplay: false;
+      keypath: null;
+      rows: null;
+      columns: null;
+    };
+export type TableRow = Record<string, TableColumnValue>;
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+export type TableColumnValue = any;
+
 export interface TableColumn {
   name: string;
   isKey: boolean;
@@ -28,6 +45,7 @@ export const TABLE_COLUMN_DATATYPES = [
   "bigint",
   "boolean",
   "raw_data",
+  "unsupported",
 ] as const;
 export type TableColumnDatatype = (typeof TABLE_COLUMN_DATATYPES)[number];
 
@@ -66,7 +84,7 @@ export type ObjectStoreResponse =
   | {
       requestID: string;
       status: "success";
-      data: ObjectStoreData;
+      data: TableData;
       errorMsg: null;
     }
   | {
@@ -80,13 +98,10 @@ export type ObjectStoreData =
   | {
       canDisplay: true;
       keypath: string[];
-      values: StoreValue[];
+      values: TableRow[];
     }
   | {
       canDisplay: false;
       keypath: null;
       values: null;
     };
-
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-type StoreValue = Record<string, any>;

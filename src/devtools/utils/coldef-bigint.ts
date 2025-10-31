@@ -1,6 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isBigint } from "@/devtools/utils/create-table-query";
+import { isBigint } from "@/devtools/utils/inspected-window-data";
 import { NullishBigintRenderer } from "@/devtools/utils/table-cell-renderer";
 import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 

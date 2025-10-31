@@ -7,7 +7,7 @@ import { TableSettingsContextProvider } from "@/devtools/components/main-content
 import TableSearch from "@/devtools/components/main-content/object-store-view/TableSearch";
 import TableSettingsButton from "@/devtools/components/main-content/object-store-view/TableSettingsButton";
 import TableSettingsWrapper from "@/devtools/components/main-content/object-store-view/TableSettingsWrapper";
-import { TableData } from "@/devtools/utils/create-table-query";
+import { TableData } from "@/devtools/utils/types";
 
 export default function TableStateWrapper() {
   const { query } = useTableContext();

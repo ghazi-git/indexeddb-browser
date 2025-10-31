@@ -1,6 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isBoolean } from "@/devtools/utils/create-table-query";
+import { isBoolean } from "@/devtools/utils/inspected-window-data";
 import { NullishBooleanRenderer } from "@/devtools/utils/table-cell-renderer";
 import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 

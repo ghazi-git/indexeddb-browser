@@ -1,6 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isDate } from "@/devtools/utils/create-table-query";
+import { isDate } from "@/devtools/utils/inspected-window-data";
 import {
   convertDateToString,
   NullishDateRenderer,

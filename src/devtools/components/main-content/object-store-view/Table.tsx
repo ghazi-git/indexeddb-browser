@@ -20,8 +20,7 @@ import {
 import { formatNumber, getNumberColdef } from "@/devtools/utils/coldef-number";
 import { getRawDataColdef } from "@/devtools/utils/coldef-rawdata";
 import { formatString, getStringColdef } from "@/devtools/utils/coldef-string";
-import { TableRow } from "@/devtools/utils/create-table-query";
-import { TableColumn } from "@/devtools/utils/types";
+import { TableColumn, TableRow } from "@/devtools/utils/types";
 
 import styles from "./Table.module.css";
 
