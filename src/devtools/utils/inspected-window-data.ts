@@ -1,7 +1,4 @@
-import {
-  DATA_ERROR_MSG,
-  DATA_FETCH_TIMEOUT_IN_MS,
-} from "@/devtools/utils/inspected-window-helpers";
+import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 import { ObjectStoreData, ObjectStoreResponse } from "@/devtools/utils/types";
 
 export function triggerDataFetching(
@@ -62,7 +59,10 @@ async function processDataRequest(
     }
   } catch (e) {
     console.error("fetch-data: failure", e);
-    markRequestAsFailed(requestID, DATA_ERROR_MSG);
+    const msg =
+      "An unexpected error occurred. Please try fetching the object store " +
+      "data again by clicking the reload icon in the header.";
+    markRequestAsFailed(requestID, msg);
     return;
   }
 
@@ -71,7 +71,11 @@ async function processDataRequest(
     markRequestAsSuccessful(requestID, response);
   } catch (e) {
     console.error("fetch-data: failure", e);
-    const msg = e instanceof Error ? e.message : DATA_ERROR_MSG;
+    const msg =
+      e instanceof Error
+        ? e.message
+        : "An unexpected error occurred. Please try fetching the object " +
+          "store data again by clicking the reload icon in the header.";
     markRequestAsFailed(requestID, msg);
   }
 }
@@ -88,7 +92,7 @@ function getObjectStoreData(
     // aborts the transaction if it takes too long or the request was canceled
     if (
       isRequestCanceled(requestID) ||
-      Date.now() - startTime > DATA_FETCH_TIMEOUT_IN_MS + 3000
+      Date.now() - startTime > 30_000 + 3_000
     ) {
       tx?.abort();
     }
@@ -108,7 +112,10 @@ function getObjectStoreData(
 
       tx = db.transaction(storeName, "readonly");
       tx.onerror = () => {
-        reject(new Error(DATA_ERROR_MSG));
+        const msg =
+          "An unexpected error occurred. Please try fetching the object store " +
+          "data again by clicking the reload icon in the header.";
+        reject(new Error(msg));
         clearInterval(timerID);
         db.close();
       };
@@ -132,7 +139,10 @@ function getObjectStoreData(
 
       const getAllReq = objectStore.getAll();
       getAllReq.onerror = () => {
-        reject(new Error(DATA_ERROR_MSG));
+        const msg =
+          "An unexpected error occurred. Please try fetching the object store " +
+          "data again by clicking the reload icon in the header.";
+        reject(new Error(msg));
         clearInterval(timerID);
         db.close();
       };

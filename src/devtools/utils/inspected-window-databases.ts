@@ -20,8 +20,9 @@ export function triggerIndexedDBsFetching(requestID: string) {
 
 function getDatabasesRequestCode(requestID: string) {
   const serializedRequestID = JSON.stringify(requestID);
+  const serializedErrorMsg = JSON.stringify(DATABASES_ERROR_MSG);
   return `
-processDatabasesRequest(${serializedRequestID})
+processDatabasesRequest(${serializedRequestID}, ${serializedErrorMsg})
 
 ${processDatabasesRequest.toString()}
 ${markRequestInProgress.toString()}
@@ -34,14 +35,14 @@ ${isRequestCanceled.toString()}
 `;
 }
 
-async function processDatabasesRequest(requestID: string) {
+async function processDatabasesRequest(requestID: string, errorMsg: string) {
   markRequestInProgress(requestID);
   try {
     const indexedDbs = await getIndexedDBs();
     markRequestAsSuccessful(requestID, indexedDbs);
   } catch (e) {
     console.error("fetch-indexedDBs: failure", e);
-    markRequestAsFailed(requestID, DATABASES_ERROR_MSG);
+    markRequestAsFailed(requestID, errorMsg);
   }
 }
 
