@@ -37,36 +37,38 @@ function getDataRequestCode(
   const serializedStoreName = JSON.stringify(storeName);
 
   return `
-processDataRequest(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName})
+(function() {
+  processDataRequest(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName})
 
-${processDataRequest.toString()}
-${getObjectStoreData.toString()}
-${markRequestInProgress.toString()}
-${markRequestAsSuccessful.toString()}
-${markRequestAsFailed.toString()}
-${cleanupData.toString()}
-${isRequestActive.toString()}
-${getColumns.toString()}
-${getStrings.toString()}
-${isString.toString()}
-${getTimestamps.toString()}
-${isTimestamp.toString()}
-${getDates.toString()}
-${isDate.toString()}
-${getNumbers.toString()}
-${isNumber.toString()}
-${getBooleans.toString()}
-${isBoolean.toString()}
-${getBigInts.toString()}
-${isBigint.toString()}
-${getMixed.toString()}
-${isMixed.toString()}
-${getArrays.toString()}
-${isArray.toString()}
-${getObjects.toString()}
-${isObject.toString()}
-${hasHighPercentage.toString()}
-${convertStoreData.toString()}
+  ${processDataRequest.toString()}
+  ${getObjectStoreData.toString()}
+  ${markRequestInProgress.toString()}
+  ${markRequestAsSuccessful.toString()}
+  ${markRequestAsFailed.toString()}
+  ${cleanupData.toString()}
+  ${isRequestActive.toString()}
+  ${getColumns.toString()}
+  ${getStrings.toString()}
+  ${isString.toString()}
+  ${getTimestamps.toString()}
+  ${isTimestamp.toString()}
+  ${getDates.toString()}
+  ${isDate.toString()}
+  ${getNumbers.toString()}
+  ${isNumber.toString()}
+  ${getBooleans.toString()}
+  ${isBoolean.toString()}
+  ${getBigInts.toString()}
+  ${isBigint.toString()}
+  ${getMixed.toString()}
+  ${isMixed.toString()}
+  ${getArrays.toString()}
+  ${isArray.toString()}
+  ${getObjects.toString()}
+  ${isObject.toString()}
+  ${hasHighPercentage.toString()}
+  ${convertStoreData.toString()}
+})()
 `;
 }
 

@@ -22,16 +22,18 @@ function getDatabasesRequestCode(requestID: string) {
   const serializedRequestID = JSON.stringify(requestID);
   const serializedErrorMsg = JSON.stringify(DATABASES_ERROR_MSG);
   return `
-processDatabasesRequest(${serializedRequestID}, ${serializedErrorMsg})
+(function() {
+  processDatabasesRequest(${serializedRequestID}, ${serializedErrorMsg})
 
-${processDatabasesRequest.toString()}
-${markRequestInProgress.toString()}
-${getIndexedDBs.toString()}
-${getObjectStores.toString()}
-${markRequestAsSuccessful.toString()}
-${markRequestAsFailed.toString()}
-${cleanupData.toString()}
-${isRequestActive.toString()}
+  ${processDatabasesRequest.toString()}
+  ${markRequestInProgress.toString()}
+  ${getIndexedDBs.toString()}
+  ${getObjectStores.toString()}
+  ${markRequestAsSuccessful.toString()}
+  ${markRequestAsFailed.toString()}
+  ${cleanupData.toString()}
+  ${isRequestActive.toString()}
+})()
 `;
 }
 
