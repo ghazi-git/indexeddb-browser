@@ -13,7 +13,13 @@ export default function ColumnsDatatypeNotes() {
         </li>
         <li>
           The "Raw Data" datatype shows data as it is stored in the object
-          store.
+          store. This is used when the column holds objects, arrays or a mix of
+          primitive datatypes.
+        </li>
+        <li>
+          The "Unsupported" datatype refers to a column holding data of a type
+          that is not supported by the extension (maps, sets, ...). The column
+          is hidden by default and its value is set to <code>undefined</code>.
         </li>
         <li>
           The other datatypes will show <code>undefined</code> if the value does
@@ -29,10 +35,6 @@ export default function ColumnsDatatypeNotes() {
         <li>
           Booleans and numbers are displayed in blue, while bigints are in green
           (similar to their display in the browser console).
-        </li>
-        <li>
-          Maps are displayed as <code>&lbrace;key =&gt; value&rbrace;</code>.
-          Sets are displayed as <code>&lbrace;value1,value2&rbrace;</code>.
         </li>
         <li>
           Column filtering excludes <code>null</code> and&nbsp;

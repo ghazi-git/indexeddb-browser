@@ -13,6 +13,7 @@ export default function ColumnDatatypeSelect(props: ColumnDatatypeProps) {
     { label: "Timestamp", value: "timestamp" },
     { label: "Date", value: "date" },
     { label: "Raw Data", value: "raw_data" },
+    { label: "Unsupported", value: "unsupported" },
   ];
   const id = createUniqueId();
 

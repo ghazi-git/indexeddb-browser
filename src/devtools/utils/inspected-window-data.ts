@@ -377,7 +377,7 @@ function getArrays(colData: TableColumnValue[]) {
   return colData.filter((v) => isArray(v));
 }
 
-function isArray(value: TableColumnValue) {
+export function isArray(value: TableColumnValue) {
   return Array.isArray(value);
 }
 
@@ -385,7 +385,7 @@ function getObjects(colData: TableColumnValue[]) {
   return colData.filter((v) => isObject(v));
 }
 
-function isObject(value: TableColumnValue) {
+export function isObject(value: TableColumnValue) {
   return Object.getPrototypeOf(value) === Object.prototype;
 }
 
@@ -399,9 +399,10 @@ function hasHighPercentage(
 /**
  * convert supported, but not json-serializable, datatypes (date, bigint)
  * to string values. Also, set the values for unsupported datatypes to
- * null.
+ * undefined.
  * This is to enable passing the data between the inspected window and
  * the extension without errors (only json-serializable values can be passed)
+ * https://developer.chrome.com/docs/extensions/reference/api/devtools/inspectedWindow#:~:text=The%20evaluated%20code%20may%20return%20a%20value%20that%20is%20passed%20to%20the%20extension%20callback.%20The%20returned%20value%20has%20to%20be%20a%20valid%20JSON%20object%20(it%20may%20contain%20only%20primitive%20JavaScript%20types%20and%20acyclic%20references%20to%20other%20JSON%20objects).
  */
 function convertStoreData(columns: TableColumn[], rows: TableRow[]) {
   const unsupportedColumns = columns.filter(
@@ -412,15 +413,23 @@ function convertStoreData(columns: TableColumn[], rows: TableRow[]) {
   if (unsupportedColumns.length || dateColumns.length || bigintColumns.length) {
     for (const row of rows) {
       for (const col of unsupportedColumns) {
-        row[col.name] = null;
+        row[col.name] = undefined;
       }
       for (const col of dateColumns) {
-        row[col.name] = row[col.name]?.toISOString() ?? null;
+        const val = row[col.name];
+        if (isDate(val)) {
+          row[col.name] = val.toISOString();
+        } else {
+          row[col.name] = val === null ? null : undefined;
+        }
       }
       for (const col of bigintColumns) {
-        row[col.name] = isBigint(row[col.name])
-          ? row[col.name].toString()
-          : null;
+        const val = row[col.name];
+        if (isBigint(val)) {
+          row[col.name] = val.toString();
+        } else {
+          row[col.name] = val === null ? null : undefined;
+        }
       }
     }
   }

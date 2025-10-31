@@ -1,6 +1,5 @@
 import { ColDef } from "ag-grid-community";
 
-import { isBigint } from "@/devtools/utils/inspected-window-data";
 import { NullishBigintRenderer } from "@/devtools/utils/table-cell-renderer";
 import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 
@@ -13,7 +12,9 @@ export function getBigintColdef(column: TableColumn): ColDef {
     cellRenderer: NullishBigintRenderer,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
-      return isBigint(value) || value === null ? value : undefined;
+      // data from the inspected window is either a bigint string or null
+      // or undefined
+      return value == null ? value : BigInt(value);
     },
     getQuickFilterText: (params) => formatBigint(params.value),
     filter: "agTextColumnFilter",

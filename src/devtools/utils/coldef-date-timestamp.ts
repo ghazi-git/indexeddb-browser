@@ -1,10 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isDate } from "@/devtools/utils/inspected-window-data";
-import {
-  convertDateToString,
-  NullishDateRenderer,
-} from "@/devtools/utils/table-cell-renderer";
+import { NullishDateRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";
 
 export function getDateColdef(column: TableColumn): ColDef {
@@ -16,7 +12,9 @@ export function getDateColdef(column: TableColumn): ColDef {
     cellRenderer: NullishDateRenderer,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
-      return isDate(value) || value === null ? value : undefined;
+      // data coming from the inspected window is either an ISO-formatted
+      // string or null or undefined
+      return value == null ? value : new Date(value);
     },
     getQuickFilterText: (params) => formatDate(params.value),
     filter: true,
@@ -56,6 +54,11 @@ export function getTimestampColdef(column: TableColumn): ColDef {
 
 export function formatDate(val: Date | null | undefined) {
   return val ? convertDateToString(val) : String(val);
+}
+
+function convertDateToString(dt: Date) {
+  // all dates are formatted in UTC
+  return dt.toISOString().replace("T", " ").replace("Z", "");
 }
 
 const DATE_FILTER_OPTIONS = ["greaterThan", "lessThan", "blank", "notBlank"];

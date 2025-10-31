@@ -1,10 +1,8 @@
 import { ColDef } from "ag-grid-community";
 
-import {
-  convertToString,
-  RawDataRenderer,
-} from "@/devtools/utils/table-cell-renderer";
-import { TableColumn } from "@/devtools/utils/types";
+import { isArray, isObject } from "@/devtools/utils/inspected-window-data";
+import { RawDataRenderer } from "@/devtools/utils/table-cell-renderer";
+import { TableColumn, TableColumnValue } from "@/devtools/utils/types";
 
 export function getRawDataColdef(column: TableColumn): ColDef {
   return {
@@ -15,7 +13,7 @@ export function getRawDataColdef(column: TableColumn): ColDef {
     cellRenderer: RawDataRenderer,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
-      return convertToString(value).text;
+      return convertToString(value);
     },
     getQuickFilterText: (params) => params.value,
     filter: true,
@@ -23,4 +21,16 @@ export function getRawDataColdef(column: TableColumn): ColDef {
       buttons: ["reset"],
     },
   };
+}
+
+function convertToString(val: TableColumnValue) {
+  if (val == null) return String(val);
+  if (isObject(val) || isArray(val)) {
+    try {
+      return JSON.stringify(val);
+    } catch (e) {
+      console.error("convert-to-string: failure to convert array to string", e);
+    }
+  }
+  return String(val);
 }
