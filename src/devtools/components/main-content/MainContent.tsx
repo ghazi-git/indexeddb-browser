@@ -21,7 +21,7 @@ export default function MainContent() {
         <MainContentContainer>
           <MainContentHeader />
           <MainContentBanner isError={true}>
-            Unable to get the IndexedDB list.
+            {databases.error.message || "Unable to get the IndexedDB list."}
           </MainContentBanner>
         </MainContentContainer>
       </Match>

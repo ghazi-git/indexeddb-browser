@@ -29,18 +29,22 @@ export function IndexedDBContextProvider(props: FlowProps) {
   // origin in the createEffect below
   const [requestID, setRequestID] = createSignal<string | undefined>();
   const [data] = createResource(requestID, (requestID) => {
-    return new Promise<IndexedDB[]>(async (resolve) => {
-      await triggerIndexedDBsFetching(requestID);
-      const indexedDBs = await fetchIndexedDBs(requestID);
-      // sort the DBs and their stores alphabetically
-      const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-      const dbs = indexedDBs
-        .map((db) => ({
-          name: db.name,
-          objectStores: db.objectStores.toSorted(collator.compare),
-        }))
-        .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
-      resolve(dbs);
+    return new Promise<IndexedDB[]>(async (resolve, reject) => {
+      try {
+        await triggerIndexedDBsFetching(requestID);
+        const indexedDBs = await fetchIndexedDBs(requestID);
+        // sort the DBs and their stores alphabetically
+        const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+        const dbs = indexedDBs
+          .map((db) => ({
+            name: db.name,
+            objectStores: db.objectStores.toSorted(collator.compare),
+          }))
+          .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
+        resolve(dbs);
+      } catch (e) {
+        reject(e);
+      }
     });
   });
 
