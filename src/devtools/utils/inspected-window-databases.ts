@@ -31,7 +31,7 @@ ${getObjectStores.toString()}
 ${markRequestAsSuccessful.toString()}
 ${markRequestAsFailed.toString()}
 ${cleanupData.toString()}
-${isRequestCanceled.toString()}
+${isRequestActive.toString()}
 `;
 }
 
@@ -80,7 +80,7 @@ function getObjectStores(dbName: string) {
 }
 
 function markRequestAsSuccessful(requestID: string, indexedDBs: IndexedDB[]) {
-  if (!isRequestCanceled(requestID)) {
+  if (isRequestActive(requestID)) {
     window.__indexeddb_browser_databases = {
       requestID,
       status: "success",
@@ -92,7 +92,7 @@ function markRequestAsSuccessful(requestID: string, indexedDBs: IndexedDB[]) {
 }
 
 function markRequestAsFailed(requestID: string, reason: string) {
-  if (!isRequestCanceled(requestID)) {
+  if (isRequestActive(requestID)) {
     window.__indexeddb_browser_databases = {
       requestID,
       status: "failure",
@@ -105,19 +105,16 @@ function markRequestAsFailed(requestID: string, reason: string) {
 
 function cleanupData(requestID: string) {
   setTimeout(() => {
-    if (!isRequestCanceled(requestID)) {
+    if (isRequestActive(requestID)) {
       delete window.__indexeddb_browser_databases;
     }
   }, 10_000);
 }
 
-function isRequestCanceled(requestID: string) {
-  // request is considered canceled when the user fetches indexedDBs again
+function isRequestActive(requestID: string) {
+  // request is considered active until the user fetches indexedDBs again
   // which changes the requestID
-  return (
-    !window.__indexeddb_browser_databases ||
-    window.__indexeddb_browser_databases.requestID !== requestID
-  );
+  return window.__indexeddb_browser_databases?.requestID === requestID;
 }
 
 // the below is just to avoid adding ts-ignores

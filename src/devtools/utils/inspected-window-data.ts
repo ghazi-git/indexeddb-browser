@@ -45,7 +45,7 @@ ${markRequestInProgress.toString()}
 ${markRequestAsSuccessful.toString()}
 ${markRequestAsFailed.toString()}
 ${cleanupData.toString()}
-${isRequestCanceled.toString()}
+${isRequestActive.toString()}
 ${getColumns.toString()}
 ${getStrings.toString()}
 ${isString.toString()}
@@ -129,7 +129,7 @@ function getObjectStoreData(
     // for requests to get a lot of data, we have this interval timer that
     // aborts the transaction if it takes too long or the request was canceled
     if (
-      isRequestCanceled(requestID) ||
+      !isRequestActive(requestID) ||
       Date.now() - startTime > 30_000 + 3_000
     ) {
       tx?.abort();
@@ -203,7 +203,7 @@ function markRequestInProgress(requestID: string) {
 }
 
 function markRequestAsSuccessful(requestID: string, data: TableData) {
-  if (!isRequestCanceled(requestID)) {
+  if (isRequestActive(requestID)) {
     window.__indexeddb_browser_data = {
       requestID,
       status: "success",
@@ -215,7 +215,7 @@ function markRequestAsSuccessful(requestID: string, data: TableData) {
 }
 
 function markRequestAsFailed(requestID: string, reason: string) {
-  if (!isRequestCanceled(requestID)) {
+  if (isRequestActive(requestID)) {
     window.__indexeddb_browser_data = {
       requestID,
       status: "failure",
@@ -228,19 +228,16 @@ function markRequestAsFailed(requestID: string, reason: string) {
 
 function cleanupData(requestID: string) {
   setTimeout(() => {
-    if (!isRequestCanceled(requestID)) {
+    if (isRequestActive(requestID)) {
       delete window.__indexeddb_browser_data;
     }
   }, 10_000);
 }
 
-function isRequestCanceled(requestID: string) {
-  // request is considered canceled when the user fetches data again
-  // or for another object store, and that changes the requestID
-  return (
-    !window.__indexeddb_browser_data ||
-    window.__indexeddb_browser_data.requestID !== requestID
-  );
+function isRequestActive(requestID: string) {
+  // request is considered until the user fetches data again or for another
+  // object store. These actions change the requestID
+  return window.__indexeddb_browser_data?.requestID === requestID;
 }
 
 function getColumns(keypath: string[], rows: TableRow[]) {
