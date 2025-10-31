@@ -3,6 +3,7 @@ import { createStore } from "solid-js/store";
 import { triggerDataFetching } from "@/devtools/utils/inspected-window-data";
 import { checkForObjectStoreDataResponse } from "@/devtools/utils/inspected-window-data-polling";
 import {
+  DATA_ERROR_MSG,
   DATA_FETCH_TIMEOUT_IN_MS,
   sleep,
 } from "@/devtools/utils/inspected-window-helpers";
@@ -87,23 +88,32 @@ export function createTableDataQuery() {
       await triggerDataFetching(requestID, dbName, storeName);
       let timeSinceStart = 0;
       let iteration = 0;
-      let response: ObjectStoreData | undefined;
+      let responseData: ObjectStoreData | undefined;
       while (timeSinceStart < DATA_FETCH_TIMEOUT_IN_MS) {
         const sleepTime = Math.min(5 * Math.pow(2, iteration), 1000);
         await sleep(sleepTime);
-        response = await checkForObjectStoreDataResponse(requestID);
-        if (response) break;
-
-        iteration++;
-        timeSinceStart += sleepTime;
-        setLoadingMsg(timeSinceStart);
+        const response = await checkForObjectStoreDataResponse();
+        if (response?.requestID === requestID) {
+          if (response.status === "success") {
+            responseData = response.data;
+            break;
+          } else if (response.status === "failure") {
+            throw new Error(response.errorMsg);
+          } else {
+            iteration++;
+            timeSinceStart += sleepTime;
+            setLoadingMsg(timeSinceStart);
+          }
+        } else {
+          throw new Error(DATA_ERROR_MSG);
+        }
       }
-      if (!response) throw new Error("Request timed out.");
+      if (!responseData) throw new Error("Request timed out.");
 
       // response received
       let data: TableData;
-      if (response.canDisplay) {
-        let columns = getColumns(response.keypath, response.values);
+      if (responseData.canDisplay) {
+        let columns = getColumns(responseData.keypath, responseData.values);
         // load saved columns config
         if (origin) {
           const savedColumns = getColumnsConfig(origin, dbName, storeName);
@@ -114,8 +124,9 @@ export function createTableDataQuery() {
             saveColumnsConfig(origin, dbName, storeName, []);
           }
         }
-        const keypath = response.keypath;
-        data = { canDisplay: true, keypath, columns, rows: response.values };
+        const keypath = responseData.keypath;
+        const rows = responseData.values;
+        data = { canDisplay: true, keypath, columns, rows };
       } else {
         data = { canDisplay: false, keypath: null, columns: null, rows: null };
       }

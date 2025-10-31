@@ -1,12 +1,11 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
-import { ObjectStoreData } from "@/devtools/utils/types";
+import { ObjectStoreResponse } from "@/devtools/utils/types";
 
-export function checkForObjectStoreDataResponse(requestID: string) {
-  const code = getDataResponseCode(requestID);
-  return new Promise<ObjectStoreData | undefined>((resolve, reject) => {
+export function checkForObjectStoreDataResponse() {
+  return new Promise<ObjectStoreResponse | undefined>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(
-      code,
-      (result: ObjectStoreData | undefined, exceptionInfo) => {
+      "window.__indexeddb_browser_data",
+      (result: ObjectStoreResponse | undefined, exceptionInfo) => {
         if (exceptionInfo) {
           const log = "fetch-data: failure to poll object store data";
           console.error(log, exceptionInfo);
@@ -27,21 +26,4 @@ export function checkForObjectStoreDataResponse(requestID: string) {
       },
     );
   });
-}
-
-function getDataResponseCode(requestID: string) {
-  function getData(requestID: string) {
-    if (
-      window.__indexeddb_browser_data?.requestID === requestID &&
-      window.__indexeddb_browser_data?.status === "success"
-    ) {
-      return window.__indexeddb_browser_data.data;
-    }
-  }
-
-  return `
-getData("${requestID}");
-
-${getData.toString()}
-`;
 }
