@@ -5,6 +5,7 @@ import {
   untrack,
   useContext,
 } from "solid-js";
+import { unwrap } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
@@ -45,15 +46,22 @@ export function TableContextProvider(props: FlowProps) {
   // get the obj store data when activeObjectStore is updated
   createEffect(() => loadTableData());
 
-  const _saveColumnsToLocalStorage = () => {
+  const _saveColumnsToLocalStorage = (
+    colIndex?: number,
+    newDatatype?: TableColumnDatatype,
+  ) => {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
+      const columns = unwrap(query.data!.columns!);
+      if (colIndex !== undefined && newDatatype) {
+        columns[colIndex].datatype = newDatatype;
+      }
       saveColumnsConfig(
         currentOrigin,
         activeStore.dbName,
         activeStore.storeName,
-        query.data!.columns!,
+        columns,
       );
     }
   };
@@ -76,8 +84,24 @@ export function TableContextProvider(props: FlowProps) {
         (col) => col.name === columnName,
       );
       if (index >= 0) {
-        setQuery("data", "columns", index, "datatype", datatype);
-        _saveColumnsToLocalStorage();
+        let getDataFromSource = false;
+        setQuery("data", "columns", index, "datatype", (prevDatatype) => {
+          getDataFromSource =
+            DATATYPES_FORCING_RELOAD.includes(prevDatatype) ||
+            DATATYPES_FORCING_RELOAD.includes(datatype);
+          // no need to update the datatype when we're going to reload
+          // the whole table in few moments
+          return getDataFromSource ? prevDatatype : datatype;
+        });
+        if (getDataFromSource) {
+          // when reloading the table, there is no change in datatype, but we
+          // still want the new datatype to be saved to local storage so we
+          // can convert the data to that type the next time we reload the table
+          _saveColumnsToLocalStorage(index, datatype);
+          loadTableData();
+        } else {
+          _saveColumnsToLocalStorage();
+        }
       }
     }
   };
@@ -113,6 +137,15 @@ function generateRequestID() {
   const uuid = crypto.randomUUID();
   return `request-${uuid.slice(0, 8)}`;
 }
+
+// list of datatypes whose data we manipulate in the inspected window before
+// passing it to the extension (make date and bigint json-serializable while
+// setting to undefined the data of unsupported datatypes)
+const DATATYPES_FORCING_RELOAD: TableColumnDatatype[] = [
+  "date",
+  "bigint",
+  "unsupported",
+];
 
 interface TableContextType {
   query: Query;

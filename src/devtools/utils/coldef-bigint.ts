@@ -14,7 +14,15 @@ export function getBigintColdef(column: TableColumn): ColDef {
       const value = params.data[params.colDef.field!];
       // data from the inspected window is either a bigint string or null
       // or undefined
-      return value == null ? value : BigInt(value);
+      if (value == null) {
+        return value;
+      } else {
+        try {
+          return BigInt(value);
+        } catch {
+          return undefined;
+        }
+      }
     },
     getQuickFilterText: (params) => formatBigint(params.value),
     filter: "agTextColumnFilter",

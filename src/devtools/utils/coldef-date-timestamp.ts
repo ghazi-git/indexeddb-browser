@@ -14,7 +14,16 @@ export function getDateColdef(column: TableColumn): ColDef {
       const value = params.data[params.colDef.field!];
       // data coming from the inspected window is either an ISO-formatted
       // string or null or undefined
-      return value == null ? value : new Date(value);
+      if (value == null) {
+        return value;
+      } else {
+        try {
+          const date = new Date(value);
+          return isNaN(date.getTime()) ? undefined : date;
+        } catch {
+          return undefined;
+        }
+      }
     },
     getQuickFilterText: (params) => formatDate(params.value),
     filter: true,
