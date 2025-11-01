@@ -33,7 +33,11 @@ export function getPaginationAndSizingSettings(
   origin: string,
   dbName: string,
   storeName: string,
-): { enablePagination: boolean; autosizeColumns: AutosizeColumns } | null {
+): {
+  enablePagination: boolean;
+  recordsCount: number | null;
+  autosizeColumns: AutosizeColumns;
+} | null {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
   const store = getStore(stores, dbName, storeName);
@@ -43,7 +47,13 @@ export function getPaginationAndSizingSettings(
     store.autosizeColumns === "fit-cell-contents"
       ? "fit-cell-contents"
       : "fit-grid-width";
-  return { enablePagination: !!store.enablePagination, autosizeColumns };
+  const recordsCount =
+    typeof store.recordsCount === "number" ? store.recordsCount : null;
+  return {
+    enablePagination: !!store.enablePagination,
+    recordsCount,
+    autosizeColumns,
+  };
 }
 
 export function savePaginationAndSizingSettings(
@@ -51,6 +61,7 @@ export function savePaginationAndSizingSettings(
   dbName: string,
   storeName: string,
   enablePagination: boolean,
+  recordsCount: number | null,
   autosizeColumns: AutosizeColumns,
 ) {
   const originSettings = getOriginSettings(origin);
@@ -58,12 +69,14 @@ export function savePaginationAndSizingSettings(
   const store = getStore(stores, dbName, storeName);
   if (store) {
     store.enablePagination = enablePagination;
+    store.recordsCount = recordsCount;
     store.autosizeColumns = autosizeColumns;
   } else {
     stores.push({
       dbName,
       storeName,
       enablePagination,
+      recordsCount,
       autosizeColumns,
       columns: [],
     });
@@ -121,6 +134,7 @@ export function saveColumnsConfig(
       storeName,
       enablePagination: DEFAULT_PAGINATION,
       autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
+      recordsCount: DEFAULT_RECORDS_COUNT,
       columns,
     });
   }
@@ -144,15 +158,22 @@ function getStore(
 function getStores(
   savedOriginSettings: SavedOriginSettings,
 ): SavedStoreSettings[] {
-  const stores: StoreSettings[] = [];
+  const stores: SavedStoreSettings[] = [];
   try {
     for (const store of savedOriginSettings.stores) {
-      const { dbName, storeName, enablePagination, autosizeColumns, columns } =
-        store;
+      const {
+        dbName,
+        storeName,
+        enablePagination,
+        recordsCount,
+        autosizeColumns,
+        columns,
+      } = store;
       stores.push({
         dbName,
         storeName,
         enablePagination,
+        recordsCount,
         autosizeColumns,
         columns,
       });
@@ -186,6 +207,7 @@ function saveOriginSettings(origin: string, settings: OriginSettings) {
 
 export const DEFAULT_PAGINATION = true;
 export const DEFAULT_AUTOSIZE_COLUMNS = "fit-grid-width";
+export const DEFAULT_RECORDS_COUNT = null;
 
 interface OriginSettings {
   lastViewedStore: ActiveObjectStore | null;
@@ -195,6 +217,7 @@ interface OriginSettings {
 interface StoreSettings extends ActiveObjectStore {
   enablePagination: boolean;
   autosizeColumns: AutosizeColumns;
+  recordsCount: number | null;
   columns: TableColumn[];
 }
 
@@ -210,6 +233,7 @@ interface SavedStoreSettings {
   dbName: ANY;
   storeName: ANY;
   enablePagination: ANY;
+  recordsCount: ANY;
   autosizeColumns: ANY;
   columns: ANY;
 }

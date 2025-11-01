@@ -6,6 +6,7 @@ import { useOriginContext } from "@/devtools/components/origin-context";
 import {
   DEFAULT_AUTOSIZE_COLUMNS,
   DEFAULT_PAGINATION,
+  DEFAULT_RECORDS_COUNT,
   getPaginationAndSizingSettings,
   savePaginationAndSizingSettings,
 } from "@/devtools/utils/saved-settings";
@@ -28,6 +29,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     searchTerm: "",
     pagination: DEFAULT_PAGINATION,
     autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
+    recordsCount: DEFAULT_RECORDS_COUNT,
   });
   const { origin } = useOriginContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
@@ -43,6 +45,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
       if (values) {
         batch(() => {
           setSettings("pagination", values.enablePagination);
+          setSettings("recordsCount", values.recordsCount);
           setSettings("autosizeColumns", values.autosizeColumns);
         });
       }
@@ -59,6 +62,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         activeStore.dbName,
         activeStore.storeName,
         settings.pagination,
+        settings.recordsCount,
         settings.autosizeColumns,
       );
     }
@@ -71,10 +75,20 @@ export function TableSettingsContextProvider(props: FlowProps) {
     setSettings("autosizeColumns", value);
     _saveToLocalStorage();
   };
+  const setRecordsCount = (value: number | null) => {
+    setSettings("recordsCount", value);
+    _saveToLocalStorage();
+  };
 
   return (
     <TableSettingsContext.Provider
-      value={{ settings, setSearchTerm, togglePagination, setAutosizeColumns }}
+      value={{
+        settings,
+        setSearchTerm,
+        togglePagination,
+        setRecordsCount,
+        setAutosizeColumns,
+      }}
     >
       {props.children}
     </TableSettingsContext.Provider>
@@ -85,11 +99,13 @@ interface TableSettingsContextType {
   settings: TableSettings;
   setSearchTerm: (term: string) => void;
   togglePagination: (value: boolean) => void;
+  setRecordsCount: (value: number | null) => void;
   setAutosizeColumns: (value: AutosizeColumns) => void;
 }
 
 interface TableSettings {
   searchTerm: string;
   pagination: boolean;
+  recordsCount: number | null;
   autosizeColumns: AutosizeColumns;
 }

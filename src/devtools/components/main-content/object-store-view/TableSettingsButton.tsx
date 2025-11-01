@@ -4,6 +4,7 @@ import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import ColumnsAutosize from "@/devtools/components/main-content/object-store-view/ColumnsAutosize";
 import ColumnsConfig from "@/devtools/components/main-content/object-store-view/ColumnsConfig";
 import PaginationSetting from "@/devtools/components/main-content/object-store-view/PaginationSetting";
+import RecordsCountSetting from "@/devtools/components/main-content/object-store-view/RecordsCountSetting";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
 
 import styles from "./TableSettingsButton.module.css";
@@ -30,6 +31,7 @@ export default function TableSettingsButton() {
       >
         <ColumnsConfig />
         <ColumnsAutosize />
+        <RecordsCountSetting />
         <PaginationSetting />
       </div>
     </>

@@ -13,6 +13,7 @@ import {
 } from "@/devtools/utils/inspected-window-helpers";
 import {
   getColumnsConfig,
+  getPaginationAndSizingSettings,
   saveColumnsConfig,
 } from "@/devtools/utils/saved-settings";
 import {
@@ -88,15 +89,26 @@ export function createTableDataQuery() {
   }: QueryParams) {
     markQueryAsLoading();
     let savedColumns: TableColumn[] | undefined;
+    let recordsCount: number | undefined;
     if (origin) {
       const cols = getColumnsConfig(origin, dbName, storeName);
       if (cols.length) {
         savedColumns = cols;
       }
+      const stored = getPaginationAndSizingSettings(origin, dbName, storeName);
+      if (stored && stored.recordsCount !== null) {
+        recordsCount = stored.recordsCount;
+      }
     }
     try {
       // trigger the request and then check for the response
-      await triggerDataFetching(requestID, dbName, storeName, savedColumns);
+      await triggerDataFetching(
+        requestID,
+        dbName,
+        storeName,
+        savedColumns,
+        recordsCount,
+      );
       let timeSinceStart = 0;
       let iteration = 0;
       let responseData: TableData | undefined;
