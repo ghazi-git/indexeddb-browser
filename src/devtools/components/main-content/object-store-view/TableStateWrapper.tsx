@@ -1,4 +1,4 @@
-import { Match, Switch } from "solid-js";
+import { Match, Show, Switch } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
@@ -30,7 +30,7 @@ export default function TableStateWrapper() {
 function TableWrapper(props: { tableData: TableData }) {
   const table = () => {
     if (!props.tableData.canDisplay) return undefined;
-    if (props.tableData.rows.length === 0) return null;
+    if (props.tableData.rows?.length === 0) return null;
 
     return { columns: props.tableData.columns, rows: props.tableData.rows };
   };
@@ -58,7 +58,27 @@ function TableWrapper(props: { tableData: TableData }) {
               <TableSearch />
               <TableSettingsButton />
             </TableSettingsWrapper>
-            <Table rows={t().rows} columns={t().columns} />
+            <Show
+              when={t().rows}
+              fallback={
+                <MainContentBanner isError={true}>
+                  <h1>Unable to retrieve the data.</h1>
+                  <p>
+                    This might be due to the object store containing unsupported
+                    datatypes. The supported datatypes are primitive datatypes
+                    (string, number, boolean, bigint), dates and objects/arrays
+                    holding primitive datatypes. If you know which columns have
+                    unsupported datatypes, open the "Table Settings" dropdown
+                    and set the datatype as "Unsupported". Or, you can use the
+                    native IndexedDB viewer instead.
+                  </p>
+                </MainContentBanner>
+              }
+            >
+              {(tableRows) => (
+                <Table rows={tableRows()} columns={t().columns} />
+              )}
+            </Show>
           </TableSettingsContextProvider>
         )}
       </Match>

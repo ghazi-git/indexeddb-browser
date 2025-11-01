@@ -17,7 +17,7 @@ export type TableData =
   | {
       canDisplay: true;
       keypath: string[];
-      rows: TableRow[];
+      rows: TableRow[] | null;
       columns: TableColumn[];
     }
   | {

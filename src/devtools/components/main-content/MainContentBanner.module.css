@@ -3,6 +3,7 @@
   text-wrap: balance;
   display: grid;
   place-items: center;
+  place-content: center;
   font-size: var(--font-size-4);
 }
 

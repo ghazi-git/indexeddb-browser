@@ -1,7 +1,11 @@
 import { createStore } from "solid-js/store";
 
 import { triggerDataFetching } from "@/devtools/utils/inspected-window-data";
-import { checkForObjectStoreDataResponse } from "@/devtools/utils/inspected-window-data-polling";
+import {
+  checkForObjectStoreDataStatus,
+  getObjectStoreData,
+  getObjectStoreMetadata,
+} from "@/devtools/utils/inspected-window-data-polling";
 import {
   DATA_ERROR_MSG,
   DATA_FETCH_TIMEOUT_IN_MS,
@@ -99,10 +103,19 @@ export function createTableDataQuery() {
       while (timeSinceStart < DATA_FETCH_TIMEOUT_IN_MS) {
         const sleepTime = Math.min(5 * Math.pow(2, iteration), 1000);
         await sleep(sleepTime);
-        const response = await checkForObjectStoreDataResponse();
-        if (response?.requestID === requestID) {
+        // we are getting the response in "parts" (request status, then metadata
+        // and finally the data). That's to allow for retrieving the columns
+        // config even if the rows contain unsupported datatypes
+        const response = await checkForObjectStoreDataStatus();
+        if (response.requestID === requestID) {
           if (response.status === "success") {
-            responseData = response.data;
+            const metadata = await getObjectStoreMetadata();
+            if (metadata.canDisplay) {
+              const rows = await getObjectStoreData();
+              responseData = { ...metadata, rows };
+            } else {
+              responseData = { ...metadata, rows: null };
+            }
             break;
           } else if (response.status === "failure") {
             throw new Error(response.errorMsg);
