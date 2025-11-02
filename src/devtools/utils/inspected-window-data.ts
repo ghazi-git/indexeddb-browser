@@ -188,6 +188,10 @@ function getObjectStoreData(
         clearInterval(timerID);
         db.close();
       };
+      tx.oncomplete = () => {
+        // this is more of a fail-safe for when an unexpected error occurs
+        clearInterval(timerID);
+      };
 
       const objectStore = tx.objectStore(storeName);
       if (!objectStore.keyPath) {
