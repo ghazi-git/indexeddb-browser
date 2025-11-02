@@ -12,7 +12,7 @@ import styles from "./ColumnsConfig.module.css";
 
 export default function ColumnsConfig() {
   const { query } = useTableContext();
-  const columns = () => query.data!.columns as TableColumn[];
+  const columns = () => query.data?.columns;
 
   return (
     <div class={styles["columns-config"]}>
@@ -25,9 +25,20 @@ export default function ColumnsConfig() {
           </tr>
         </thead>
         <tbody>
-          <For each={columns()}>
-            {(column) => <ColumnConfig column={column} />}
-          </For>
+          <Show
+            when={columns()}
+            fallback={
+              <tr>
+                <td colspan="3">Nothing to show</td>
+              </tr>
+            }
+          >
+            {(cols) => (
+              <For each={cols()}>
+                {(column) => <ColumnConfig column={column} />}
+              </For>
+            )}
+          </Show>
         </tbody>
       </table>
       <ColumnsDatatypeNotes />

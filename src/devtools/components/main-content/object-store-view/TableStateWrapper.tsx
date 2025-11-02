@@ -13,17 +13,25 @@ export default function TableStateWrapper() {
   const { query } = useTableContext();
 
   return (
-    <Switch>
-      <Match when={query.isLoading}>
-        <MainContentBanner>{query.loadingMsg}</MainContentBanner>
-      </Match>
-      <Match when={query.isError}>
-        <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>
-      </Match>
-      <Match when={query.data}>
-        {(data) => <TableWrapper tableData={data()} />}
-      </Match>
-    </Switch>
+    <TableSettingsContextProvider>
+      <Show when={query.data}>
+        <TableSettingsWrapper>
+          <TableSearch />
+          <TableSettingsButton />
+        </TableSettingsWrapper>
+      </Show>
+      <Switch>
+        <Match when={query.isLoading}>
+          <MainContentBanner>{query.loadingMsg}</MainContentBanner>
+        </Match>
+        <Match when={query.isError}>
+          <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>
+        </Match>
+        <Match when={query.data}>
+          {(data) => <TableWrapper tableData={data()} />}
+        </Match>
+      </Switch>
+    </TableSettingsContextProvider>
   );
 }
 
@@ -53,33 +61,25 @@ function TableWrapper(props: { tableData: TableData }) {
       </Match>
       <Match when={table()}>
         {(t) => (
-          <TableSettingsContextProvider>
-            <TableSettingsWrapper>
-              <TableSearch />
-              <TableSettingsButton />
-            </TableSettingsWrapper>
-            <Show
-              when={t().rows}
-              fallback={
-                <MainContentBanner isError={true}>
-                  <h1>Unable to retrieve the data.</h1>
-                  <p>
-                    This might be due to the object store containing unsupported
-                    datatypes. The supported datatypes are primitive datatypes
-                    (string, number, boolean, bigint), dates and objects/arrays
-                    holding primitive datatypes. If you know which columns have
-                    unsupported datatypes, open the "Table Settings" dropdown
-                    and set the datatype as "Unsupported". Or, you can use the
-                    native IndexedDB viewer instead.
-                  </p>
-                </MainContentBanner>
-              }
-            >
-              {(tableRows) => (
-                <Table rows={tableRows()} columns={t().columns} />
-              )}
-            </Show>
-          </TableSettingsContextProvider>
+          <Show
+            when={t().rows}
+            fallback={
+              <MainContentBanner isError={true}>
+                <h1>Unable to retrieve the data.</h1>
+                <p>
+                  This might be due to the object store containing unsupported
+                  datatypes. The supported datatypes are primitive datatypes
+                  (string, number, boolean, bigint), dates and objects/arrays
+                  holding primitive datatypes. If you know which columns have
+                  unsupported datatypes, open the "Table Settings" dropdown and
+                  set the datatype as "Unsupported". Or, you can use the native
+                  IndexedDB viewer instead.
+                </p>
+              </MainContentBanner>
+            }
+          >
+            {(tableRows) => <Table rows={tableRows()} columns={t().columns} />}
+          </Show>
         )}
       </Match>
     </Switch>
