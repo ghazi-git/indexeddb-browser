@@ -1,11 +1,19 @@
-.columns-config,
+.columns-config {
+  margin-block-end: var(--size-2);
+}
+
 .columns-config table {
+  inline-size: 100%;
   margin-block-end: var(--size-2);
 }
 
 .columns-config th,
 .columns-config td {
   text-align: start;
+}
+
+.columns-config .no-columns {
+  text-align: center;
 }
 
 .column {
