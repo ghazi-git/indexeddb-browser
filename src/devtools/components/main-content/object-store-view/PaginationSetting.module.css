@@ -4,6 +4,10 @@
   align-items: center;
   gap: var(--size-2);
   cursor: pointer;
+  block-size: var(--size-7);
+  padding-inline: var(--size-2);
+  background-color: var(--surface-1);
+  border-radius: var(--radius-2);
 }
 
 .pagination input {
