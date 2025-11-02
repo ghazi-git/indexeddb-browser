@@ -6,6 +6,19 @@ import styles from "./TableSearch.module.css";
 export default function TableSearch() {
   const { activeObjectStore } = useActiveObjectStoreContext();
   const { settings, setSearchTerm } = useTableSettingsContext();
+  const debounceSearch = () => {
+    let timerID: number | undefined;
+
+    return (term: string) => {
+      if (timerID !== undefined) {
+        clearTimeout(timerID);
+        timerID = undefined;
+      }
+      timerID = setTimeout(() => setSearchTerm(term), 200);
+    };
+  };
+  const search = debounceSearch();
+
   return (
     <input
       id="quick-filter"
@@ -15,7 +28,7 @@ export default function TableSearch() {
       placeholder={`Search ${activeObjectStore()?.storeName ?? ""}`}
       value={settings.searchTerm}
       onInput={(event) => {
-        setSearchTerm(event.target.value);
+        search(event.target.value);
       }}
     />
   );
