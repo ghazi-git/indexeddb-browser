@@ -28,9 +28,9 @@ export default function ColumnsDatatypeNotes() {
               correct datatype from the dropdown.
             </li>
             <li>
-              The "Raw Data" datatype shows data as it is stored in the object
-              store. This is used when the column holds objects, arrays or a mix
-              of primitive datatypes.
+              The "JSON Data" datatype refers to columns containing objects or
+              arrays. The data is converted to a json string and treated as text
+              when searching or sorting.
             </li>
             <li>
               The "Unsupported" datatype refers to a column holding data of a
@@ -46,7 +46,7 @@ export default function ColumnsDatatypeNotes() {
               The "Timestamp" datatype represents unix timestamps in
               milliseconds that are shown as a datetime string. If you don't
               like displaying a datetime string, just change the column datatype
-              to "Number" or "Raw Data".
+              to "Number".
             </li>
             <li>Any column value formatted as a datetime string is in UTC.</li>
             <li>

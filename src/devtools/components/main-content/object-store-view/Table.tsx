@@ -17,9 +17,13 @@ import {
   getDateColdef,
   getTimestampColdef,
 } from "@/devtools/utils/coldef-date-timestamp";
+import {
+  formatJSON,
+  getJSONDataColdef,
+} from "@/devtools/utils/coldef-json-data";
 import { formatNumber, getNumberColdef } from "@/devtools/utils/coldef-number";
-import { getRawDataColdef } from "@/devtools/utils/coldef-rawdata";
 import { formatString, getStringColdef } from "@/devtools/utils/coldef-string";
+import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import { TableColumn, TableRow } from "@/devtools/utils/types";
 
 import styles from "./Table.module.css";
@@ -44,8 +48,10 @@ export default function Table(props: TableProps) {
         return getBigintColdef(column);
       } else if (column.datatype === "boolean") {
         return getBooleanColdef(column);
+      } else if (column.datatype === "json_data") {
+        return getJSONDataColdef(column);
       } else {
-        return getRawDataColdef(column);
+        return getUnsupportedColdef(column);
       }
     });
   };
@@ -91,10 +97,10 @@ export default function Table(props: TableProps) {
         }
       },
       dataTypeDefinitions: {
-        // just an explicit alias for text
-        rawData: {
+        jsonData: {
           baseDataType: "text",
           extendsDataType: "text",
+          valueFormatter: (params) => formatJSON(params.value),
         },
         string: {
           baseDataType: "text",

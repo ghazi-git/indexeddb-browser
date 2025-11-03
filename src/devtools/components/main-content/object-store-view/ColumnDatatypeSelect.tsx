@@ -12,7 +12,7 @@ export default function ColumnDatatypeSelect(props: ColumnDatatypeProps) {
     { label: "Boolean", value: "boolean" },
     { label: "Timestamp", value: "timestamp" },
     { label: "Date", value: "date" },
-    { label: "Raw Data", value: "raw_data" },
+    { label: "JSON Data", value: "json_data" },
     { label: "Unsupported", value: "unsupported" },
   ];
   const id = createUniqueId();

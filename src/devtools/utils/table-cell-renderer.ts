@@ -82,20 +82,22 @@ export class NullishBooleanRenderer extends TableCellRenderer {
   }
 }
 
-export class RawDataRenderer extends TableCellRenderer {
+export class JSONDataRenderer extends TableCellRenderer {
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");
-    this.gui.innerText = params.value;
-    const originalValue = params.data[params.colDef!.field!];
-    if (originalValue === null || originalValue === undefined) {
+    this.gui.innerText = params.valueFormatted as string;
+    if (params.value == null) {
       this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
-    } else if (
-      typeof originalValue === "number" ||
-      typeof originalValue === "boolean"
-    ) {
-      this.gui.className = `${styles["table-cell"]} ${styles.blue}`;
     } else {
       this.gui.className = styles["table-cell"];
     }
+  }
+}
+
+export class UnsupportedRenderer extends TableCellRenderer {
+  init() {
+    this.gui = document.createElement("div");
+    this.gui.innerText = "undefined";
+    this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
   }
 }

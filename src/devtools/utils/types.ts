@@ -44,7 +44,7 @@ export const TABLE_COLUMN_DATATYPES = [
   "string",
   "bigint",
   "boolean",
-  "raw_data",
+  "json_data",
   "unsupported",
 ] as const;
 export type TableColumnDatatype = (typeof TABLE_COLUMN_DATATYPES)[number];

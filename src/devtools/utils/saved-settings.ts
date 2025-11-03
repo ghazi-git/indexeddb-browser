@@ -103,7 +103,7 @@ export function getColumnsConfig(
         datatype,
       )
         ? datatype
-        : "raw_data";
+        : "unsupported";
       columns.push({
         name,
         isKey: !!isKey,

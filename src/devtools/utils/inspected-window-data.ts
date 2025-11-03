@@ -72,11 +72,10 @@ function getDataRequestCode(
   ${isBoolean.toString()}
   ${getBigInts.toString()}
   ${isBigint.toString()}
-  ${getMixed.toString()}
-  ${isMixed.toString()}
-  ${getArrays.toString()}
+  ${getJSONData.toString()}
+  ${isJSON.toString()}
+  ${isJSONSerializable.toString()}
   ${isArray.toString()}
-  ${getObjects.toString()}
   ${isObject.toString()}
   ${hasHighPercentage.toString()}
   ${canUseSavedColumns.toString()}
@@ -326,12 +325,8 @@ function getColumns(keypath: string[], rows: TableRow[]) {
         setDatatype(column, "bigint");
       } else if (hasHighPercentage(columnData, getDates(columnData))) {
         setDatatype(column, "date");
-      } else if (
-        hasHighPercentage(columnData, getObjects(columnData)) ||
-        hasHighPercentage(columnData, getArrays(columnData)) ||
-        hasHighPercentage(columnData, getMixed(columnData))
-      ) {
-        setDatatype(column, "raw_data");
+      } else if (hasHighPercentage(columnData, getJSONData(columnData))) {
+        setDatatype(column, "json_data");
       }
     }
   }
@@ -391,28 +386,35 @@ export function isBigint(value: TableColumnValue) {
   return typeof value === "bigint";
 }
 
-function getMixed(colData: TableColumnValue[]) {
-  return colData.filter((v) => isMixed(v));
+function getJSONData(colData: TableColumnValue[]) {
+  return colData.filter((v) => isJSON(v));
 }
 
-function isMixed(value: TableColumnValue) {
-  // mix of primitive datatypes that are json-serializable
-  return isString(value) || isNumber(value) || isBoolean(value);
+export function isJSON(value: TableColumnValue) {
+  // the value must be an object or an array
+  return (isObject(value) || isArray(value)) && isJSONSerializable(value);
 }
 
-function getArrays(colData: TableColumnValue[]) {
-  return colData.filter((v) => isArray(v));
+function isJSONSerializable(obj: TableColumnValue) {
+  if (obj === null || ["string", "number", "boolean"].includes(typeof obj)) {
+    return true;
+  }
+
+  if (isObject(obj)) {
+    return Object.values(obj).every(isJSONSerializable);
+  }
+  if (isArray(obj)) {
+    return obj.every(isJSONSerializable);
+  }
+
+  return false;
 }
 
-export function isArray(value: TableColumnValue) {
+function isArray(value: TableColumnValue) {
   return Array.isArray(value);
 }
 
-function getObjects(colData: TableColumnValue[]) {
-  return colData.filter((v) => isObject(v));
-}
-
-export function isObject(value: TableColumnValue) {
+function isObject(value: TableColumnValue) {
   return Object.getPrototypeOf(value) === Object.prototype;
 }
 
