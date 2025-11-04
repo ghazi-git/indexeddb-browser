@@ -85,6 +85,7 @@ export default function Table(props: TableProps) {
       columnDefs: columnDefs(),
       autoSizeStrategy: autosizeStrategy(),
       tooltipShowDelay: 1000,
+      valueCache: true,
       cacheQuickFilter: true,
       pagination: settings.pagination,
       paginationPageSizeSelector: [20, 100, 500, 1000],
