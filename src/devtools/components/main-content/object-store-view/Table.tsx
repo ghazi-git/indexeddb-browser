@@ -178,4 +178,5 @@ function createThemeSignal() {
 interface TableProps {
   columns: TableColumn[];
   rows: TableRow[];
+  keypath: string[];
 }

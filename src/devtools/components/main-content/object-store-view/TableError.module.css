@@ -1,0 +1,30 @@
+.alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--size-2);
+  background-color: var(--error-bg-color);
+  padding: var(--size-1) var(--size-2);
+  margin-inline: var(--size-2);
+  color: var(--error-color);
+  border: var(--border-size-1) solid var(--error-color);
+  border-radius: var(--radius-2);
+}
+
+.close {
+  flex-shrink: 0;
+}
+
+.close:not([disabled]):focus-visible,
+.close:not([disabled]):hover {
+  background-color: color-mix(in srgb, var(--error-bg-color), black 5%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: color-mix(in srgb, var(--error-bg-color), white 10%);
+  }
+}
+
+.close svg {
+  inline-size: var(--size-3);
+  block-size: auto;
+}

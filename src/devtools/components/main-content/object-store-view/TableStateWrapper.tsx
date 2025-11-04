@@ -3,7 +3,9 @@ import { Match, Show, Switch } from "solid-js";
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
+import { TableEditContextProvider } from "@/devtools/components/main-content/object-store-view/table-edit-context";
 import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import TableError from "@/devtools/components/main-content/object-store-view/TableError";
 import TableSearch from "@/devtools/components/main-content/object-store-view/TableSearch";
 import TableSettingsButton from "@/devtools/components/main-content/object-store-view/TableSettingsButton";
 import TableSettingsWrapper from "@/devtools/components/main-content/object-store-view/TableSettingsWrapper";
@@ -14,23 +16,27 @@ export default function TableStateWrapper() {
 
   return (
     <TableSettingsContextProvider>
-      <Show when={query.data}>
-        <TableSettingsWrapper>
-          <TableSearch />
-          <TableSettingsButton />
-        </TableSettingsWrapper>
-      </Show>
-      <Switch>
-        <Match when={query.isLoading}>
-          <MainContentBanner>{query.loadingMsg}</MainContentBanner>
-        </Match>
-        <Match when={query.isError}>
-          <MainContentBanner isError={true}>{query.errorMsg}</MainContentBanner>
-        </Match>
-        <Match when={query.data}>
-          {(data) => <TableWrapper tableData={data()} />}
-        </Match>
-      </Switch>
+      <TableEditContextProvider>
+        <Show when={query.data}>
+          <TableSettingsWrapper>
+            <TableSearch />
+            <TableSettingsButton />
+          </TableSettingsWrapper>
+        </Show>
+        <Switch>
+          <Match when={query.isLoading}>
+            <MainContentBanner>{query.loadingMsg}</MainContentBanner>
+          </Match>
+          <Match when={query.isError}>
+            <MainContentBanner isError={true}>
+              {query.errorMsg}
+            </MainContentBanner>
+          </Match>
+          <Match when={query.data}>
+            {(data) => <TableWrapper tableData={data()} />}
+          </Match>
+        </Switch>
+      </TableEditContextProvider>
     </TableSettingsContextProvider>
   );
 }
@@ -40,7 +46,11 @@ function TableWrapper(props: { tableData: TableData }) {
     if (!props.tableData.canDisplay) return undefined;
     if (props.tableData.rows?.length === 0) return null;
 
-    return { columns: props.tableData.columns, rows: props.tableData.rows };
+    return {
+      columns: props.tableData.columns,
+      rows: props.tableData.rows,
+      keypath: props.tableData.keypath,
+    };
   };
 
   return (
@@ -78,7 +88,16 @@ function TableWrapper(props: { tableData: TableData }) {
               </MainContentBanner>
             }
           >
-            {(tableRows) => <Table rows={tableRows()} columns={t().columns} />}
+            {(tableRows) => (
+              <>
+                <TableError />
+                <Table
+                  rows={tableRows()}
+                  columns={t().columns}
+                  keypath={t().keypath}
+                />
+              </>
+            )}
           </Show>
         )}
       </Match>
