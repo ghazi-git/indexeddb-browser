@@ -25,7 +25,8 @@
   padding-inline: var(--size-2);
 }
 
-.table [role="gridcell"]::selection {
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+.table [role="gridcell"]:not(:has(:global(.ag-cell-edit-wrapper)))::selection {
   background: transparent;
 }
 
