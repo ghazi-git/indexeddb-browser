@@ -11,7 +11,8 @@ abstract class TableCellRenderer implements ICellRendererComp {
 
   destroy() {}
 
-  refresh() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  refresh(params: ICellRendererParams) {
     return true;
   }
 }
@@ -19,14 +20,18 @@ abstract class TableCellRenderer implements ICellRendererComp {
 export class NullishStringRenderer extends TableCellRenderer {
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");
+    this.gui.setAttribute("dir", "auto");
+    this._setValue(params);
+  }
+
+  refresh(params: ICellRendererParams) {
+    this._setValue(params);
+    return true;
+  }
+
+  _setValue(params: ICellRendererParams) {
     this.gui.innerText = params.valueFormatted as string;
-    const value = params.value;
-    if (value === null || value === undefined) {
-      this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
-    } else {
-      this.gui.setAttribute("dir", "auto");
-      this.gui.className = styles["table-cell"];
-    }
+    this.gui.className = `${styles["table-cell"]} ${params.value == null ? styles.nullish : ""}`;
   }
 }
 

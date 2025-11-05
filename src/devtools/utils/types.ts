@@ -105,3 +105,70 @@ export type ObjectStoreData =
       keypath: null;
       values: null;
     };
+
+export interface DataUpdateRequest {
+  requestID: string;
+  dbName: string;
+  storeName: string;
+  key: DataKey[];
+  fieldToUpdate: string;
+  newValue: DataValue;
+}
+
+export type DataKey =
+  | { value: string | null | undefined; datatype: "string" }
+  | { value: number | null | undefined; datatype: "number" }
+  // timestamps are passed as their original type number (they are handled
+  // as date objects in the table)
+  | { value: number | null | undefined; datatype: "timestamp" }
+  // dates are passed as iso-formatted strings and converted to date objects
+  // in the inspected window
+  | { value: string | null | undefined; datatype: "date" };
+
+// we're passing the datatype along with the value because date objects can
+// only be passed as strings between the extension and the inspected window
+export type DataValue =
+  | DataKey
+  // bigints are passed as strings and converted back to bigint in the
+  // inspected window
+  | { value: string | null | undefined; datatype: "bigint" }
+  | { value: boolean | null | undefined; datatype: "boolean" }
+  | { value: JSONSerializable | undefined; datatype: "json_data" };
+
+type JSONSerializable =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONSerializable[]
+  | { [key: string]: JSONSerializable };
+
+// add types for the window attributes used to track requests triggered by
+// the extension to add/update/delete data
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Window
+    extends Partial<Record<MutationResponseAttr, DataMutationResponse>> {}
+}
+
+export type MutationResponseAttr =
+  | "__indexeddb_browser_data_update"
+  | "__indexeddb_browser_data_delete"
+  | "__indexeddb_browser_data_create";
+
+export type DataMutationResponse =
+  | {
+      requestID: string;
+      status: "in_progress";
+      errorMsg: null;
+    }
+  | {
+      requestID: string;
+      status: "success";
+      errorMsg: null;
+    }
+  | {
+      requestID: string;
+      status: "failure";
+      errorMsg: string;
+    };
