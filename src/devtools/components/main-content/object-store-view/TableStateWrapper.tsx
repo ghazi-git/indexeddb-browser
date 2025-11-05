@@ -3,7 +3,7 @@ import { Match, Show, Switch } from "solid-js";
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
-import { TableEditContextProvider } from "@/devtools/components/main-content/object-store-view/table-edit-context";
+import { TableMutationContextProvider } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
 import TableError from "@/devtools/components/main-content/object-store-view/TableError";
 import TableSearch from "@/devtools/components/main-content/object-store-view/TableSearch";
@@ -16,7 +16,7 @@ export default function TableStateWrapper() {
 
   return (
     <TableSettingsContextProvider>
-      <TableEditContextProvider>
+      <TableMutationContextProvider>
         <Show when={query.data}>
           <TableSettingsWrapper>
             <TableSearch />
@@ -36,7 +36,7 @@ export default function TableStateWrapper() {
             {(data) => <TableWrapper tableData={data()} />}
           </Match>
         </Switch>
-      </TableEditContextProvider>
+      </TableMutationContextProvider>
     </TableSettingsContextProvider>
   );
 }
