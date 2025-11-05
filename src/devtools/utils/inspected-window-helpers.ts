@@ -11,3 +11,6 @@ export const DATA_ERROR_MSG =
   "again by clicking the reload icon in the header.";
 
 export const DATA_FETCH_TIMEOUT_IN_MS = 30_000;
+
+export const DATA_MUTATION_ERROR_MSG =
+  "An unexpected error occurred while handling your request.";
