@@ -13,6 +13,7 @@ import {
   createTableDataQuery,
   Query,
 } from "@/devtools/utils/create-table-query";
+import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
 import { saveColumnsConfig } from "@/devtools/utils/saved-settings";
 import { TableColumnDatatype } from "@/devtools/utils/types";
 
@@ -131,11 +132,6 @@ export function TableContextProvider(props: FlowProps) {
       {props.children}
     </TableContext.Provider>
   );
-}
-
-function generateRequestID() {
-  const uuid = crypto.randomUUID();
-  return `request-${uuid.slice(0, 8)}`;
 }
 
 // list of datatypes whose data we manipulate in the inspected window before

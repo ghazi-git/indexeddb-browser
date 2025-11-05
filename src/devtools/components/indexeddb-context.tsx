@@ -11,6 +11,7 @@ import {
 import { useOriginContext } from "@/devtools/components/origin-context";
 import { triggerIndexedDBsFetching } from "@/devtools/utils/inspected-window-databases";
 import { fetchIndexedDBs } from "@/devtools/utils/inspected-window-databases-polling";
+import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
 import { IndexedDB } from "@/devtools/utils/types";
 
 const IndexedDBContext = createContext<IndexedDBContextType>();
@@ -65,11 +66,6 @@ export function IndexedDBContextProvider(props: FlowProps) {
       {props.children}
     </IndexedDBContext.Provider>
   );
-}
-
-function generateRequestID() {
-  const uuid = crypto.randomUUID();
-  return `request-${uuid.slice(0, 8)}`;
 }
 
 interface IndexedDBContextType {
