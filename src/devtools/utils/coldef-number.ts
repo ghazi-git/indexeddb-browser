@@ -4,13 +4,18 @@ import { isNumber } from "@/devtools/utils/inspected-window-data";
 import { NullishNumberRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";
 
-export function getNumberColdef(column: TableColumn): ColDef {
+export function getNumberColdef(
+  column: TableColumn,
+  canEditColumn: boolean,
+): ColDef {
   return {
     field: column.name,
     headerName: column.name,
     hide: !column.isVisible,
     cellDataType: "customNumber",
     cellRenderer: NullishNumberRenderer,
+    editable: canEditColumn && !column.isKey,
+    cellEditor: "agNumberCellEditor",
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
       return isNumber(value) || value === null ? value : undefined;

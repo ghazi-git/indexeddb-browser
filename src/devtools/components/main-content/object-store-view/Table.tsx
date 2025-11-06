@@ -64,7 +64,7 @@ export default function Table(props: TableProps) {
       if (column.datatype === "string") {
         return getStringColdef(column, canEdit);
       } else if (column.datatype === "number") {
-        return getNumberColdef(column);
+        return getNumberColdef(column, canEdit);
       } else if (column.datatype === "timestamp") {
         return getTimestampColdef(column);
       } else if (column.datatype === "date") {
