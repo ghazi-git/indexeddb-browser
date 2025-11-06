@@ -7,7 +7,7 @@ import {
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
-import { createEffect, createSignal, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
@@ -100,7 +100,7 @@ export default function Table(props: TableProps) {
     }
   };
 
-  const { updateColumnOrder } = useTableContext();
+  const { updateColumnOrder, refetch } = useTableContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
   onMount(() => {
     const activeObject = activeObjectStore()!;
@@ -236,6 +236,19 @@ export default function Table(props: TableProps) {
       gridApi.sizeColumnsToFit({ defaultMinWidth: 100, defaultMaxWidth: 500 });
     }
   });
+  // allow shift+R to reload the store data
+  const reloadStore = (event: KeyboardEvent) => {
+    if (
+      event.key === "R" &&
+      event.shiftKey &&
+      !event.metaKey &&
+      !event.ctrlKey
+    ) {
+      refetch();
+    }
+  };
+  onMount(() => document.addEventListener("keydown", reloadStore));
+  onCleanup(() => document.removeEventListener("keydown", reloadStore));
 
   return (
     <div
