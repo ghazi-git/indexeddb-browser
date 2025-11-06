@@ -53,7 +53,7 @@ export function convertToDataValue<T extends TableColumnDatatype>(
   }
 }
 
-export function parseValue(
+export function parseBooleanNull(
   newValue: TableColumnValue,
   datatype: TableColumnDatatype,
 ) {

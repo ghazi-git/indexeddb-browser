@@ -19,7 +19,7 @@ export function getBooleanColdef(
     cellEditorParams: {
       // null as a string to avoid displaying a blank dropdown
       // since valueParser is not invoked for select cell editors, converting
-      // null string to js null is done in parseValue in cellEditRequest
+      // null string to js null is done in parseBooleanNull in cellEditRequest
       values: [true, false, "null"],
     },
     valueGetter: (params) => {
