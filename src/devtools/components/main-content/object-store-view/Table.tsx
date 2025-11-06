@@ -210,6 +210,17 @@ export default function Table(props: TableProps) {
       },
     });
   });
+  onMount(() => {
+    tableContainer.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        // The escape key is used by the grid to cancel edits. Also,
+        // in chrome devtools, clicking Escape brings out the bottom devtools
+        // drawer with other devtools panels (like console, ...). So, the event
+        // propagation is stopped to avoid that
+        event.stopPropagation();
+      }
+    });
+  });
 
   // update table settings
   createEffect(() => {
