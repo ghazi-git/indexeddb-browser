@@ -4,13 +4,24 @@ import { isBoolean } from "@/devtools/utils/inspected-window-data";
 import { NullishBooleanRenderer } from "@/devtools/utils/table-cell-renderer";
 import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 
-export function getBooleanColdef(column: TableColumn): ColDef {
+export function getBooleanColdef(
+  column: TableColumn,
+  canEditColumn: boolean,
+): ColDef {
   return {
     field: column.name,
     headerName: column.name,
     hide: !column.isVisible,
     cellDataType: "boolean",
     cellRenderer: NullishBooleanRenderer,
+    editable: canEditColumn && !column.isKey,
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      // null as a string to avoid displaying a blank dropdown
+      // since valueParser is not invoked for select cell editors, converting
+      // null string to js null is done in parseValue in cellEditRequest
+      values: [true, false, "null"],
+    },
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
       return isBoolean(value) || value === null ? value : undefined;

@@ -52,3 +52,18 @@ export function convertToDataValue<T extends TableColumnDatatype>(
     return { value, datatype };
   }
 }
+
+export function parseValue(
+  newValue: TableColumnValue,
+  datatype: TableColumnDatatype,
+) {
+  if (datatype === "boolean") {
+    // for booleans, valueParser is not called because the cell editor is a select
+    // https://github.com/ag-grid/ag-grid/issues/8073#issuecomment-2449543951
+    // so we handle converting the null string to a js null here. note that
+    // setting a js null as a select value results in an empty select option
+    // (no text)
+    return newValue === "null" ? null : newValue;
+  }
+  return newValue;
+}

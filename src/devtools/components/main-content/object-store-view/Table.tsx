@@ -31,6 +31,7 @@ import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import {
   convertToDataValue,
   getIndexedDBKey,
+  parseValue,
 } from "@/devtools/utils/grid-options";
 import {
   DATA_MUTATION_ERROR_MSG,
@@ -72,7 +73,7 @@ export default function Table(props: TableProps) {
       } else if (column.datatype === "bigint") {
         return getBigintColdef(column);
       } else if (column.datatype === "boolean") {
-        return getBooleanColdef(column);
+        return getBooleanColdef(column, canEdit);
       } else if (column.datatype === "json_data") {
         return getJSONDataColdef(column);
       } else {
@@ -153,7 +154,8 @@ export default function Table(props: TableProps) {
           setErrorMsg(`Cell update reverted: ${DATA_MUTATION_ERROR_MSG}`);
           return;
         }
-        const newValue = convertToDataValue(params.newValue, col.datatype);
+        const parsedValue = parseValue(params.newValue, col.datatype);
+        const newValue = convertToDataValue(parsedValue, col.datatype);
 
         try {
           await updateField({
@@ -166,7 +168,7 @@ export default function Table(props: TableProps) {
           });
           // after the update succeeded in indexedDB, update the table data
           const tx = params.api.applyTransaction({
-            update: [{ ...params.data, [fieldToUpdate]: params.newValue }],
+            update: [{ ...params.data, [fieldToUpdate]: parsedValue }],
           });
           if (tx && tx.update.length) {
             params.api.flashCells({

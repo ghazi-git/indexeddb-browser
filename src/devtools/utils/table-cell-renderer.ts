@@ -85,9 +85,18 @@ export class NullishDateRenderer extends TableCellRenderer {
 export class NullishBooleanRenderer extends TableCellRenderer {
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");
+    this._setValue(params);
+  }
+
+  refresh(params: ICellRendererParams) {
+    this._setValue(params);
+    return true;
+  }
+
+  _setValue(params: ICellRendererParams) {
     const value = params.value;
     this.gui.innerText = String(value);
-    if (value === null || value === undefined) {
+    if (value == null) {
       this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
     } else {
       this.gui.className = `${styles["table-cell"]} ${styles.blue}`;
