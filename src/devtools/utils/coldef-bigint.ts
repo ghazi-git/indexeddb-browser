@@ -1,15 +1,21 @@
 import { ColDef } from "ag-grid-community";
 
+import { BigintCellEditor } from "@/devtools/utils/table-cell-editor";
 import { NullishBigintRenderer } from "@/devtools/utils/table-cell-renderer";
 import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 
-export function getBigintColdef(column: TableColumn): ColDef {
+export function getBigintColdef(
+  column: TableColumn,
+  canEditColumn: boolean,
+): ColDef {
   return {
     field: column.name,
     headerName: column.name,
     hide: !column.isVisible,
     cellDataType: "bigint",
     cellRenderer: NullishBigintRenderer,
+    editable: canEditColumn && !column.isKey,
+    cellEditor: BigintCellEditor,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
       // data from the inspected window is either a bigint string or null

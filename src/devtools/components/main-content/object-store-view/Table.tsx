@@ -71,7 +71,7 @@ export default function Table(props: TableProps) {
       } else if (column.datatype === "date") {
         return getDateColdef(column);
       } else if (column.datatype === "bigint") {
-        return getBigintColdef(column);
+        return getBigintColdef(column, canEdit);
       } else if (column.datatype === "boolean") {
         return getBooleanColdef(column, canEdit);
       } else if (column.datatype === "json_data") {

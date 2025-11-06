@@ -59,9 +59,17 @@ export class NullishNumberRenderer extends TableCellRenderer {
 export class NullishBigintRenderer extends TableCellRenderer {
   init(params: ICellRendererParams) {
     this.gui = document.createElement("div");
+    this._setValue(params);
+  }
+
+  refresh(params: ICellRendererParams) {
+    this._setValue(params);
+    return true;
+  }
+
+  _setValue(params: ICellRendererParams) {
     this.gui.innerText = params.valueFormatted as string;
-    const value = params.value;
-    if (value === null || value === undefined) {
+    if (params.value == null) {
       this.gui.className = `${styles["table-cell"]} ${styles.nullish}`;
     } else {
       this.gui.className = `${styles["table-cell"]} ${styles.green}`;

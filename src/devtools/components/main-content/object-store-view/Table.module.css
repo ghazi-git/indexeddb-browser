@@ -26,7 +26,7 @@
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
-.table [role="gridcell"]:not(:has(:global(.ag-cell-edit-wrapper)))::selection {
+.table [role="gridcell"]:global(.ag-cell-not-inline-editing)::selection {
   background: transparent;
 }
 
@@ -47,4 +47,21 @@
 .nullish {
   color: var(--text-2);
   font-style: italic;
+}
+
+.bigint-cell-editor {
+  /* ensure bigint cell editor has the same styles as the default ag-grid input number  */
+  outline: none;
+  background-color: var(--ag-input-background-color);
+  inline-size: 100%;
+  block-size: 100%;
+  padding-block: 0;
+  padding-inline: var(--ag-input-padding-start) 0;
+  line-height: normal;
+}
+
+.bigint-cell-editor::-webkit-outer-spin-button,
+.bigint-cell-editor::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
 }
