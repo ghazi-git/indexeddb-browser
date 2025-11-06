@@ -32,6 +32,7 @@ import {
   convertToDataValue,
   getIndexedDBKey,
   parseBooleanNull,
+  updateRowData,
 } from "@/devtools/utils/grid-options";
 import {
   DATA_MUTATION_ERROR_MSG,
@@ -67,9 +68,9 @@ export default function Table(props: TableProps) {
       } else if (column.datatype === "number") {
         return getNumberColdef(column, canEdit);
       } else if (column.datatype === "timestamp") {
-        return getTimestampColdef(column);
+        return getTimestampColdef(column, canEdit);
       } else if (column.datatype === "date") {
-        return getDateColdef(column);
+        return getDateColdef(column, canEdit);
       } else if (column.datatype === "bigint") {
         return getBigintColdef(column, canEdit);
       } else if (column.datatype === "boolean") {
@@ -166,15 +167,7 @@ export default function Table(props: TableProps) {
             newValue: convertToDataValue(newValue, col.datatype),
           });
           // after the update succeeded in indexedDB, update the table data
-          const tx = params.api.applyTransaction({
-            update: [{ ...params.data, [fieldToUpdate]: newValue }],
-          });
-          if (tx && tx.update.length) {
-            params.api.flashCells({
-              rowNodes: [tx.update[0]],
-              columns: [fieldToUpdate],
-            });
-          }
+          updateRowData(params.api, params.data, col, newValue);
         } catch (e) {
           const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
           setErrorMsg(`Cell update reverted: ${msg}`);

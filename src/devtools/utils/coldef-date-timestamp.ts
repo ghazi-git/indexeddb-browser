@@ -1,15 +1,24 @@
 import { ColDef } from "ag-grid-community";
 
+import {
+  convertDateToString,
+  DateCellEditor,
+} from "@/devtools/utils/table-cell-editor";
 import { NullishDateRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";
 
-export function getDateColdef(column: TableColumn): ColDef {
+export function getDateColdef(
+  column: TableColumn,
+  canEditColumn: boolean,
+): ColDef {
   return {
     field: column.name,
     headerName: column.name,
     hide: !column.isVisible,
     cellDataType: "dateTime",
     cellRenderer: NullishDateRenderer,
+    editable: canEditColumn && !column.isKey,
+    cellEditor: DateCellEditor,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
       // data coming from the inspected window is either an ISO-formatted
@@ -35,7 +44,10 @@ export function getDateColdef(column: TableColumn): ColDef {
   };
 }
 
-export function getTimestampColdef(column: TableColumn): ColDef {
+export function getTimestampColdef(
+  column: TableColumn,
+  canEditColumn: boolean,
+): ColDef {
   return {
     field: column.name,
     headerName: `${column.name} ⏱`,
@@ -43,6 +55,8 @@ export function getTimestampColdef(column: TableColumn): ColDef {
     headerTooltip: "Column values are timestamps formatted as datetime",
     cellDataType: "dateTime",
     cellRenderer: NullishDateRenderer,
+    editable: canEditColumn && !column.isKey,
+    cellEditor: DateCellEditor,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
       if (Number.isInteger(value) && value >= 0) {
@@ -63,11 +77,6 @@ export function getTimestampColdef(column: TableColumn): ColDef {
 
 export function formatDate(val: Date | null | undefined) {
   return val ? convertDateToString(val) : String(val);
-}
-
-function convertDateToString(dt: Date) {
-  // all dates are formatted in UTC
-  return dt.toISOString().replace("T", " ").replace("Z", "");
 }
 
 const DATE_FILTER_OPTIONS = ["greaterThan", "lessThan", "blank", "notBlank"];

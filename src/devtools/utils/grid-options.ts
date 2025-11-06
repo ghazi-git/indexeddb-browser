@@ -1,3 +1,5 @@
+import { GridApi } from "ag-grid-community";
+
 import {
   DataKey,
   TableColumn,
@@ -44,7 +46,6 @@ export function convertToDataValue<T extends TableColumnDatatype>(
   } else if (datatype === "date") {
     // serialize date object as a string to be passed safely to the inspected
     // window and converted back to date object there
-    value = value == null ? value : value.toISOString();
     return { value: value == null ? value : value.toISOString(), datatype };
   } else if (datatype === "bigint") {
     return { value: value == null ? value : value.toString(), datatype };
@@ -66,4 +67,35 @@ export function parseBooleanNull(
     return newValue === "null" ? null : newValue;
   }
   return newValue;
+}
+
+export function updateRowData(
+  gridApi: GridApi,
+  oldRow: TableRow,
+  column: TableColumn,
+  newValue: TableColumnValue,
+) {
+  // convert the newValue according to what's expected in rowData for
+  // each datatype:
+  // - timestamp => ms since epoch
+  // - date => iso-formatted string
+  // - bigint => integer as string
+  let value = newValue;
+  if (column.datatype === "timestamp") {
+    value = value == null ? value : value.getTime();
+  } else if (column.datatype === "date") {
+    value = value == null ? value : value.toISOString();
+  } else if (column.datatype === "bigint") {
+    value = value == null ? value : value.toString();
+  }
+
+  const tx = gridApi.applyTransaction({
+    update: [{ ...oldRow, [column.name]: value }],
+  });
+  if (tx && tx.update.length) {
+    gridApi.flashCells({
+      rowNodes: [tx.update[0]],
+      columns: [column.name],
+    });
+  }
 }

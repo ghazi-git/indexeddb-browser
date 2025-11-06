@@ -45,10 +45,10 @@ export default function ColumnsDatatypeNotes() {
               does not correspond to the datatype selected.
             </li>
             <li>
-              The "Timestamp" datatype represents unix timestamps in
-              milliseconds that are shown as a datetime string. If you don't
-              like displaying a datetime string, just change the column datatype
-              to "Number".
+              The "Timestamp" datatype represents the number of milliseconds
+              since epoch and is shown as a datetime string. If you don't like
+              displaying a datetime string, just change the column datatype to
+              "Number".
             </li>
             <li>Any column value formatted as a datetime string is in UTC.</li>
             <li>
