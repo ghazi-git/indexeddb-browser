@@ -7,7 +7,7 @@ import {
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
-import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, onCleanup, onMount } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
@@ -39,11 +39,12 @@ import {
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
 import { DataKey, TableColumn, TableRow } from "@/devtools/utils/types";
+import { useTheme } from "@/devtools/utils/ui-theme-context";
 
 import styles from "./Table.module.css";
 
 export default function Table(props: TableProps) {
-  const theme = createThemeSignal();
+  const { theme } = useTheme();
   let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
 
@@ -259,20 +260,6 @@ export default function Table(props: TableProps) {
       data-ag-theme-mode={theme()}
     />
   );
-}
-
-function createThemeSignal() {
-  const [theme, setTheme] = createSignal<"light" | "dark">("light");
-  onMount(() => {
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", ({ matches: isDark }) => {
-        const systemTheme = isDark ? "dark" : "light";
-        setTheme(systemTheme);
-      });
-  });
-
-  return theme;
 }
 
 interface TableProps {
