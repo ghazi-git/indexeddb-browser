@@ -49,6 +49,13 @@ export function convertToDataValue<T extends TableColumnDatatype>(
     return { value: value == null ? value : value.toISOString(), datatype };
   } else if (datatype === "bigint") {
     return { value: value == null ? value : value.toString(), datatype };
+  } else if (datatype === "json_data") {
+    try {
+      const val = JSON.parse(value);
+      return { value: val, datatype };
+    } catch {
+      return { value: undefined, datatype };
+    }
   } else {
     return { value, datatype };
   }
@@ -80,6 +87,7 @@ export function updateRowData(
   // - timestamp => ms since epoch
   // - date => iso-formatted string
   // - bigint => integer as string
+  // - json string => json object
   let value = newValue;
   if (column.datatype === "timestamp") {
     value = value == null ? value : value.getTime();
@@ -87,6 +95,12 @@ export function updateRowData(
     value = value == null ? value : value.toISOString();
   } else if (column.datatype === "bigint") {
     value = value == null ? value : value.toString();
+  } else if (column.datatype === "json_data") {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      value = undefined;
+    }
   }
 
   const tx = gridApi.applyTransaction({

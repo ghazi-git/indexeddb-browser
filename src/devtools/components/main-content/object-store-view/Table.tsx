@@ -77,7 +77,7 @@ export default function Table(props: TableProps) {
       } else if (column.datatype === "boolean") {
         return getBooleanColdef(column, canEdit);
       } else if (column.datatype === "json_data") {
-        return getJSONDataColdef(column);
+        return getJSONDataColdef(column, canEdit);
       } else {
         return getUnsupportedColdef(column);
       }
@@ -208,7 +208,7 @@ export default function Table(props: TableProps) {
   onMount(() => {
     tableContainer.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
-        // The escape key is used by the grid to cancel edits. Also,
+        // The escape key is used by the grid to cancel edits. But,
         // in chrome devtools, clicking Escape brings out the bottom devtools
         // drawer with other devtools panels (like console, ...). So, the event
         // propagation is stopped to avoid that
