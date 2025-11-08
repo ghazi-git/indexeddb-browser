@@ -1,5 +1,6 @@
 import "prism-code-editor/prism/languages/json";
 
+import { parse } from "@prantlf/jsonlint";
 import { basicEditor } from "prism-code-editor/setups";
 
 export function createJSONEditor(
@@ -44,4 +45,13 @@ function getSystemTheme() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
+}
+
+export function parseJSONFromUser(value: string) {
+  return parse(value, {
+    mode: "json",
+    ignoreTrailingCommas: true,
+    allowSingleQuotedStrings: true,
+    allowDuplicateObjectKeys: false,
+  });
 }

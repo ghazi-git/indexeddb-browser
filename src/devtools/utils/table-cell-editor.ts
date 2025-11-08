@@ -5,7 +5,10 @@ import { createUniqueId } from "solid-js";
 import btnStyles from "@/devtools/components/buttons/UnstyledButton.module.css";
 import styles from "@/devtools/components/main-content/object-store-view/Table.module.css";
 import { isDate, isJSON } from "@/devtools/utils/inspected-window-data";
-import { createJSONEditor } from "@/devtools/utils/json-editor";
+import {
+  createJSONEditor,
+  parseJSONFromUser,
+} from "@/devtools/utils/json-editor";
 
 /**
  * Similar to agNumberCellEditor but works with BigInt
@@ -97,7 +100,7 @@ export class JSONEditor implements ICellEditorComp {
     if (value === "") return null;
 
     try {
-      const parsed = JSON.parse(value);
+      const parsed = parseJSONFromUser(value);
       if (parsed && isJSON(parsed)) return JSON.stringify(parsed);
     } catch {}
     return null;
@@ -139,9 +142,8 @@ export class JSONEditor implements ICellEditorComp {
         return;
       }
 
-      // todo add validation using jsonlint
       try {
-        const parsed = JSON.parse(value);
+        const parsed = parseJSONFromUser(value);
         if (parsed && !isJSON(parsed)) {
           this._showError("Value must be an object or an array.");
         } else {
