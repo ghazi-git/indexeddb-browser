@@ -415,7 +415,7 @@ function isArray(value: TableColumnValue) {
 }
 
 function isObject(value: TableColumnValue) {
-  return Object.getPrototypeOf(value) === Object.prototype;
+  return value != null && Object.getPrototypeOf(value) === Object.prototype;
 }
 
 function hasHighPercentage(

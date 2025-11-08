@@ -101,7 +101,7 @@ export class JSONEditor implements ICellEditorComp {
 
     try {
       const parsed = parseJSONFromUser(value);
-      if (parsed && isJSON(parsed)) return JSON.stringify(parsed);
+      if (isJSON(parsed)) return JSON.stringify(parsed);
     } catch {}
     return null;
   }
@@ -144,10 +144,10 @@ export class JSONEditor implements ICellEditorComp {
 
       try {
         const parsed = parseJSONFromUser(value);
-        if (parsed && !isJSON(parsed)) {
-          this._showError("Value must be an object or an array.");
-        } else {
+        if (isJSON(parsed)) {
           gridApi.stopEditing();
+        } else {
+          this._showError("Value must be an object or an array.");
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Invalid JSON.";
