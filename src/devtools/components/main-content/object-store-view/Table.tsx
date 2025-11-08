@@ -1,5 +1,7 @@
 import {
+  CellDoubleClickedEvent,
   CellEditRequestEvent,
+  CellKeyDownEvent,
   ColDef,
   ColumnMovedEvent,
   createGrid,
@@ -104,6 +106,24 @@ export default function Table(props: TableProps) {
   const { updateColumnOrder, refetch } = useTableContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
   onMount(() => {
+    let uneditableTimer: number;
+    let cellWithLock: Element | undefined;
+    const showCellUneditableIcon = (cell: Element | null) => {
+      if (cell) {
+        if (uneditableTimer) {
+          clearTimeout(uneditableTimer);
+          cellWithLock?.classList.remove(styles.uneditable);
+        }
+        // show a lock icon to signal to the user that the column is
+        // uneditable
+        cell.classList.add(styles.uneditable);
+        cellWithLock = cell;
+        uneditableTimer = setTimeout(() => {
+          cell.classList.remove(styles.uneditable);
+          cellWithLock = undefined;
+        }, 1000);
+      }
+    };
     const activeObject = activeObjectStore()!;
     gridApi = createGrid(tableContainer, {
       rowSelection: {
@@ -131,6 +151,20 @@ export default function Table(props: TableProps) {
         const colName = event.column?.getColId();
         if (colName && event.finished) {
           updateColumnOrder(colName, event.toIndex!);
+        }
+      },
+      onCellDoubleClicked(params: CellDoubleClickedEvent) {
+        if (!params.colDef.editable) {
+          const clickedCell = params.event?.target as HTMLElement;
+          showCellUneditableIcon(clickedCell);
+        }
+      },
+      onCellKeyDown(params: CellKeyDownEvent) {
+        const event = params.event as unknown as KeyboardEvent;
+        if (!params.colDef.editable && event.key === "Enter") {
+          const gridCell = event.target as HTMLElement;
+          const tableCell = gridCell.querySelector(`.${styles["table-cell"]}`);
+          showCellUneditableIcon(tableCell);
         }
       },
       readOnlyEdit: true,
