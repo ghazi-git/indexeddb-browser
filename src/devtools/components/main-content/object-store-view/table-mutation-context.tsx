@@ -5,9 +5,11 @@ import {
   createDataMutation,
   Mutation,
 } from "@/devtools/utils/create-data-mutation";
+import { triggerDataDeletion } from "@/devtools/utils/inspected-window-data-delete";
 import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
 import { triggerDataUpdate } from "@/devtools/utils/inspected-window-data-update";
 import {
+  DataDeletionRequest,
   DataUpdateRequest,
   TableColumnDatatype,
   TableColumnValue,
@@ -46,6 +48,14 @@ export function TableMutationContextProvider(props: FlowProps) {
         request.requestID,
       );
     });
+  const { mutation: deleteOperation, mutate: deleteData } =
+    createDataMutation<DataDeletionRequest>(async (request) => {
+      await triggerDataDeletion(request);
+      await isDataMutationSuccessful(
+        "__indexeddb_browser_data_delete",
+        request.requestID,
+      );
+    });
 
   return (
     <TableMutationContext.Provider
@@ -55,6 +65,8 @@ export function TableMutationContextProvider(props: FlowProps) {
         setSelectedRowIDs,
         updateOperation,
         updateField,
+        deleteOperation,
+        deleteData,
       }}
     >
       {props.children}
@@ -68,6 +80,8 @@ interface TableMutationContextType {
   setSelectedRowIDs: (selectedRowIDs: SelectedRowID[]) => void;
   updateOperation: Mutation;
   updateField: (params: DataUpdateRequest) => Promise<void>;
+  deleteOperation: Mutation;
+  deleteData: (params: DataDeletionRequest) => Promise<void>;
 }
 
 interface TableMutationStore {

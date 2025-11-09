@@ -115,6 +115,13 @@ export interface DataUpdateRequest {
   newValue: DataValue;
 }
 
+export interface DataDeletionRequest {
+  requestID: string;
+  dbName: string;
+  storeName: string;
+  keys: DataKey[][];
+}
+
 export type DataKey =
   | { value: string | null | undefined; datatype: "string" }
   | { value: number | null | undefined; datatype: "number" }

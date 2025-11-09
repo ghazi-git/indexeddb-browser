@@ -10,7 +10,7 @@ import {
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
@@ -52,8 +52,14 @@ export default function Table(props: TableProps) {
   let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
 
-  const { setErrorMsg, setSelectedRowIDs, updateOperation, updateField } =
-    useTableMutationContext();
+  const {
+    setErrorMsg,
+    setSelectedRowIDs,
+    updateOperation,
+    updateField,
+    deleteOperation,
+    tableMutationStore,
+  } = useTableMutationContext();
   const { settings } = useTableSettingsContext();
   const hasValidKeys = () => {
     // table editing is enabled only when having valid indexedDB key datatypes
@@ -248,6 +254,20 @@ export default function Table(props: TableProps) {
         },
       },
     });
+  });
+  createEffect(() => {
+    // delete the rows from the table on deletion success in indexedDB
+    if (deleteOperation.isSuccess) {
+      untrack(() => {
+        const rows = tableMutationStore.selectedRowIDs.map((row) => {
+          return Object.fromEntries(
+            row.map(({ name, value }) => [name, value]),
+          );
+        });
+        gridApi.applyTransaction({ remove: rows });
+        setSelectedRowIDs([]);
+      });
+    }
   });
   onMount(() => {
     tableContainer.addEventListener("keydown", (event) => {

@@ -1,5 +1,6 @@
-import { createMemo, Match, Switch } from "solid-js";
+import { createMemo, Match, Show, Switch } from "solid-js";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import {
   SelectedRowID,
@@ -7,12 +8,19 @@ import {
 } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
 import DeleteIcon from "@/devtools/components/svg-icons/DeleteIcon";
+import LoadingIcon from "@/devtools/components/svg-icons/LoadingIcon";
+import {
+  DATA_MUTATION_ERROR_MSG,
+  generateRequestID,
+} from "@/devtools/utils/inspected-window-helpers";
 import { DataKey } from "@/devtools/utils/types";
 
 import styles from "./DeleteRowsButton.module.css";
 
 export default function DeleteRowsButton() {
-  const { tableMutationStore } = useTableMutationContext();
+  const { activeObjectStore } = useActiveObjectStoreContext();
+  const { tableMutationStore, setErrorMsg, deleteOperation, deleteData } =
+    useTableMutationContext();
   const canDelete = () => tableMutationStore.selectedRowIDs.length > 0;
   const deletionMsg = () => {
     const count = tableMutationStore.selectedRowIDs.length;
@@ -42,7 +50,9 @@ export default function DeleteRowsButton() {
         command="show-modal"
         commandfor="delete-rows-modal"
       >
-        <DeleteIcon />
+        <Show when={!deleteOperation.isLoading} fallback={<LoadingIcon />}>
+          <DeleteIcon />
+        </Show>
       </UnstyledButton>
       <dialog id="delete-rows-modal" class={styles.dialog} closedby="any">
         <header>
@@ -78,8 +88,26 @@ export default function DeleteRowsButton() {
               <UnstyledButton
                 command="close"
                 commandfor="delete-rows-modal"
-                onClick={() => {
-                  // todo actually delete the rows
+                onClick={async () => {
+                  const activeObject = activeObjectStore();
+                  if (!activeObject) {
+                    const msg = `Unable to determine the object store selected.`;
+                    setErrorMsg(msg);
+                    return;
+                  }
+
+                  try {
+                    await deleteData({
+                      requestID: generateRequestID(),
+                      dbName: activeObject.dbName,
+                      storeName: activeObject.storeName,
+                      keys: validRowKeys(),
+                    });
+                  } catch (e) {
+                    const msg =
+                      e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
+                    setErrorMsg(msg);
+                  }
                 }}
               >
                 Delete
