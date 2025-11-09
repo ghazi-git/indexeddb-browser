@@ -58,6 +58,7 @@ export default function Table(props: TableProps) {
     updateOperation,
     updateField,
     deleteOperation,
+    resetDeleteOperation,
     tableMutationStore,
   } = useTableMutationContext();
   const { settings } = useTableSettingsContext();
@@ -266,6 +267,7 @@ export default function Table(props: TableProps) {
         });
         gridApi.applyTransaction({ remove: rows });
         setSelectedRowIDs([]);
+        resetDeleteOperation();
       });
     }
   });

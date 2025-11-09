@@ -5,13 +5,16 @@ import { DATA_MUTATION_ERROR_MSG } from "@/devtools/utils/inspected-window-helpe
 export function createDataMutation<Params>(
   callback: (params: Params) => Promise<void>,
 ) {
-  const [mutation, setMutation] = createStore<Mutation>({
+  const initialValue: MutationIdle = {
     status: "idle",
     isLoading: false,
     isSuccess: false,
     isError: false,
     errorMsg: null,
-  });
+  };
+  const [mutation, setMutation] = createStore<Mutation>(
+    structuredClone(initialValue),
+  );
   const markAsLoading = () => {
     setMutation({
       status: "loading",
@@ -39,6 +42,7 @@ export function createDataMutation<Params>(
       errorMsg: msg,
     });
   };
+  const reset = () => setMutation(structuredClone(initialValue));
 
   async function mutate(params: Params) {
     markAsLoading();
@@ -52,7 +56,7 @@ export function createDataMutation<Params>(
     }
   }
 
-  return { mutation, mutate };
+  return { mutation, mutate, reset };
 }
 
 export type Mutation =
