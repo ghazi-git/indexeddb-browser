@@ -7,7 +7,7 @@ export default defineManifest({
   name: pkg.name,
   version: pkg.version,
   // v129 latest anchor positioning changes shipped
-  // v135 base-select
+  // v135 base-select/command/commandfor
   minimum_chrome_version: "135",
   icons: {
     48: "public/idb-browser-48x48.png",
