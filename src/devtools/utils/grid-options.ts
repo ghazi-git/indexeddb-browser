@@ -1,5 +1,6 @@
-import { GridApi } from "ag-grid-community";
+import { GridApi, IRowNode } from "ag-grid-community";
 
+import { SelectedRowID } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import {
   DataKey,
   TableColumn,
@@ -112,4 +113,22 @@ export function updateRowData(
       columns: [column.name],
     });
   }
+}
+
+export function getSelectedRowID(
+  node: IRowNode,
+  keypath: string[],
+  columns: TableColumn[],
+): SelectedRowID {
+  const rowID = JSON.parse(node.id!) as TableColumnValue[];
+
+  return rowID.map((value, index) => {
+    const colName = keypath[index];
+    const column = columns.find((col) => col.name === colName);
+    return {
+      value,
+      name: colName,
+      datatype: column!.datatype,
+    };
+  });
 }

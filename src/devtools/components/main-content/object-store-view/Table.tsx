@@ -6,6 +6,7 @@ import {
   ColumnMovedEvent,
   createGrid,
   GridApi,
+  SelectionChangedEvent,
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
@@ -33,6 +34,7 @@ import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import {
   convertToDataValue,
   getIndexedDBKey,
+  getSelectedRowID,
   parseBooleanNull,
   updateRowData,
 } from "@/devtools/utils/grid-options";
@@ -50,7 +52,7 @@ export default function Table(props: TableProps) {
   let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
 
-  const { setErrorMsg, updateOperation, updateField } =
+  const { setErrorMsg, setSelectedRowIDs, updateOperation, updateField } =
     useTableMutationContext();
   const { settings } = useTableSettingsContext();
   const hasValidKeys = () => {
@@ -127,8 +129,9 @@ export default function Table(props: TableProps) {
     const activeObject = activeObjectStore()!;
     gridApi = createGrid(tableContainer, {
       rowSelection: {
-        mode: "singleRow",
+        mode: "multiRow",
         checkboxes: false,
+        headerCheckbox: false,
         enableClickSelection: true,
       },
       // unwrap data so it's possible to update row data in the table.
@@ -166,6 +169,13 @@ export default function Table(props: TableProps) {
           const tableCell = gridCell.querySelector(`.${styles["table-cell"]}`);
           showCellUneditableIcon(tableCell);
         }
+      },
+      onSelectionChanged(params: SelectionChangedEvent) {
+        const nodes = params.selectedNodes || [];
+        const selectedRowIDs = nodes.map((node) => {
+          return getSelectedRowID(node, props.keypath, props.columns);
+        });
+        setSelectedRowIDs(selectedRowIDs);
       },
       readOnlyEdit: true,
       onCellEditRequest: async (params: CellEditRequestEvent) => {

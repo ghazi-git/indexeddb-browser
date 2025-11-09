@@ -7,7 +7,11 @@ import {
 } from "@/devtools/utils/create-data-mutation";
 import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
 import { triggerDataUpdate } from "@/devtools/utils/inspected-window-data-update";
-import { DataUpdateRequest } from "@/devtools/utils/types";
+import {
+  DataUpdateRequest,
+  TableColumnDatatype,
+  TableColumnValue,
+} from "@/devtools/utils/types";
 
 const TableMutationContext = createContext<TableMutationContextType>();
 
@@ -26,9 +30,13 @@ export function TableMutationContextProvider(props: FlowProps) {
   const [tableMutationStore, setTableMutationStore] =
     createStore<TableMutationStore>({
       errorMsg: null,
+      selectedRowIDs: [],
     });
   const setErrorMsg = (msg: string | null) =>
     setTableMutationStore("errorMsg", msg);
+  const setSelectedRowIDs = (selectedRowIDs: SelectedRowID[]) => {
+    setTableMutationStore("selectedRowIDs", selectedRowIDs);
+  };
 
   const { mutation: updateOperation, mutate: updateField } =
     createDataMutation<DataUpdateRequest>(async (request) => {
@@ -42,8 +50,9 @@ export function TableMutationContextProvider(props: FlowProps) {
   return (
     <TableMutationContext.Provider
       value={{
-        tableMutationStore: tableMutationStore,
+        tableMutationStore,
         setErrorMsg,
+        setSelectedRowIDs,
         updateOperation,
         updateField,
       }}
@@ -56,10 +65,18 @@ export function TableMutationContextProvider(props: FlowProps) {
 interface TableMutationContextType {
   tableMutationStore: TableMutationStore;
   setErrorMsg: (msg: string | null) => void;
+  setSelectedRowIDs: (selectedRowIDs: SelectedRowID[]) => void;
   updateOperation: Mutation;
   updateField: (params: DataUpdateRequest) => Promise<void>;
 }
 
 interface TableMutationStore {
   errorMsg: string | null;
+  selectedRowIDs: SelectedRowID[];
 }
+
+export type SelectedRowID = {
+  name: string;
+  datatype: TableColumnDatatype;
+  value: TableColumnValue;
+}[];
