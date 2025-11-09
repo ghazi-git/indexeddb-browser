@@ -1,6 +1,7 @@
 import { Match, Show, Switch } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
+import DeleteRowsButton from "@/devtools/components/main-content/object-store-view/DeleteRowsButton";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { TableMutationContextProvider } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
@@ -18,10 +19,15 @@ export default function TableStateWrapper() {
     <TableSettingsContextProvider>
       <TableMutationContextProvider>
         <Show when={query.data}>
-          <TableSettingsWrapper>
-            <TableSearch />
-            <TableSettingsButton />
-          </TableSettingsWrapper>
+          {(data) => (
+            <TableSettingsWrapper>
+              <TableSearch />
+              <Show when={data().rows?.length}>
+                <DeleteRowsButton />
+              </Show>
+              <TableSettingsButton />
+            </TableSettingsWrapper>
+          )}
         </Show>
         <Switch>
           <Match when={query.isLoading}>

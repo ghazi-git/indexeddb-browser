@@ -1,0 +1,9 @@
+.delete {
+  padding: var(--size-2);
+  border: var(--border-size-1) solid var(--surface-3);
+}
+
+.delete svg {
+  inline-size: var(--size-3);
+  block-size: auto;
+}

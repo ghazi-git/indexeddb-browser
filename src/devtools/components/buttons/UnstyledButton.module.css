@@ -13,6 +13,7 @@
 
 .unstyled[disabled] {
   cursor: default;
+  color: var(--text-2);
 }
 
 .loading {

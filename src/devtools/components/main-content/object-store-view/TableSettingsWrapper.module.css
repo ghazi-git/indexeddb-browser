@@ -1,7 +1,12 @@
 .wrapper {
   padding-inline: var(--size-2);
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--size-2);
+}
+
+.wrapper > :first-child {
+  margin-inline-end: auto;
 }
