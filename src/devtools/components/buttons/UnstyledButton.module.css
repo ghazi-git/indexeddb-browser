@@ -15,8 +15,3 @@
   cursor: default;
   color: var(--text-2);
 }
-
-.loading {
-  inline-size: 1em;
-  block-size: auto;
-}
