@@ -3,7 +3,7 @@ import { createMemo, Match, Show, Switch } from "solid-js";
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import {
-  SelectedRowID,
+  SelectedObjectID,
   useTableMutationContext,
 } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
@@ -15,26 +15,26 @@ import {
 } from "@/devtools/utils/inspected-window-helpers";
 import { DataKey } from "@/devtools/utils/types";
 
-import styles from "./DeleteRowsButton.module.css";
+import styles from "./DeleteObjectsButton.module.css";
 
-export default function DeleteRowsButton() {
+export default function DeleteObjectsButton() {
   const { activeObjectStore } = useActiveObjectStoreContext();
   const { tableMutationStore, setErrorMsg, deleteOperation, deleteData } =
     useTableMutationContext();
-  const canDelete = () => tableMutationStore.selectedRowIDs.length > 0;
+  const canDelete = () => tableMutationStore.selectedObjectIDs.length > 0;
   const deletionMsg = () => {
-    const count = tableMutationStore.selectedRowIDs.length;
+    const count = tableMutationStore.selectedObjectIDs.length;
     if (count === 1) {
-      return "Are you sure you want to delete the selected row?";
+      return "Are you sure you want to delete the selected object?";
     } else if (count > 1) {
-      return `Are you sure you want to delete the ${count} selected rows?`;
+      return `Are you sure you want to delete the ${count} selected objects?`;
     } else {
-      return "No rows selected";
+      return "No objects selected";
     }
   };
-  const validRowKeys = createMemo(() => {
+  const validObjectKeys = createMemo(() => {
     try {
-      return getRowKeys(tableMutationStore.selectedRowIDs);
+      return getObjectKeys(tableMutationStore.selectedObjectIDs);
     } catch {
       return [];
     }
@@ -44,50 +44,50 @@ export default function DeleteRowsButton() {
     <>
       <UnstyledButton
         class={styles["dialog-trigger"]}
-        title="Delete Selected Row(s)"
-        aria-label="Delete Selected Row(s)"
+        title="Delete Selected Object(s)"
+        aria-label="Delete Selected Object(s)"
         disabled={!canDelete()}
         command="show-modal"
-        commandfor="delete-rows-modal"
+        commandfor="delete-objects-modal"
       >
         <Show when={!deleteOperation.isLoading} fallback={<LoadingIcon />}>
           <DeleteIcon />
         </Show>
       </UnstyledButton>
-      <dialog id="delete-rows-modal" class={styles.dialog} closedby="any">
+      <dialog id="delete-objects-modal" class={styles.dialog} closedby="any">
         <header>
-          <h2>Delete Rows</h2>
+          <h2>Delete Objects</h2>
           <UnstyledButton
             title="Close Modal"
             aria-label="Close Modal"
             command="close"
-            commandfor="delete-rows-modal"
+            commandfor="delete-objects-modal"
           >
             <CloseIcon />
           </UnstyledButton>
         </header>
         <Switch>
           <Match when={!canDelete()}>
-            <div>No rows selected.</div>
+            <div>No objects selected.</div>
           </Match>
-          <Match when={!validRowKeys().length}>
+          <Match when={!validObjectKeys().length}>
             <div>
-              Unable to determine the row keys. This might be due to key columns
-              datatypes. The valid key datatypes are string, number, date and
-              timestamp. Also, ensure the key columns datatypes match those in
-              indexedDB (timestamp is automatically converted to number by the
-              extension).
+              Unable to determine the object keys. This might be due to key
+              columns datatypes. The valid key datatypes are string, number,
+              date and timestamp. Also, ensure the key columns datatypes match
+              those in indexedDB (timestamp is automatically converted to number
+              by the extension).
             </div>
           </Match>
-          <Match when={validRowKeys().length}>
+          <Match when={validObjectKeys().length}>
             <div>{deletionMsg()}</div>
             <footer>
-              <UnstyledButton command="close" commandfor="delete-rows-modal">
+              <UnstyledButton command="close" commandfor="delete-objects-modal">
                 Cancel
               </UnstyledButton>
               <UnstyledButton
                 command="close"
-                commandfor="delete-rows-modal"
+                commandfor="delete-objects-modal"
                 onClick={async () => {
                   const activeObject = activeObjectStore();
                   if (!activeObject) {
@@ -101,7 +101,7 @@ export default function DeleteRowsButton() {
                       requestID: generateRequestID(),
                       dbName: activeObject.dbName,
                       storeName: activeObject.storeName,
-                      keys: validRowKeys(),
+                      keys: validObjectKeys(),
                     });
                   } catch (e) {
                     const msg =
@@ -120,9 +120,9 @@ export default function DeleteRowsButton() {
   );
 }
 
-function getRowKeys(rowIDs: SelectedRowID[]) {
-  return rowIDs.map((rowID) => {
-    return rowID.map((cell) => {
+function getObjectKeys(objectIDs: SelectedObjectID[]) {
+  return objectIDs.map((objectID) => {
+    return objectID.map((cell) => {
       if (
         cell.datatype !== "string" &&
         cell.datatype !== "number" &&

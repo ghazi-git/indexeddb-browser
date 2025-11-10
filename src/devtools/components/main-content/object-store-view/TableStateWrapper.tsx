@@ -1,7 +1,7 @@
 import { Match, Show, Switch } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
-import DeleteRowsButton from "@/devtools/components/main-content/object-store-view/DeleteRowsButton";
+import DeleteObjectsButton from "@/devtools/components/main-content/object-store-view/DeleteObjectsButton";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { TableMutationContextProvider } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
@@ -23,7 +23,7 @@ export default function TableStateWrapper() {
             <TableSettingsWrapper>
               <TableSearch />
               <Show when={data().rows?.length}>
-                <DeleteRowsButton />
+                <DeleteObjectsButton />
               </Show>
               <TableSettingsButton />
             </TableSettingsWrapper>

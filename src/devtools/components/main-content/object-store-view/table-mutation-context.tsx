@@ -32,12 +32,12 @@ export function TableMutationContextProvider(props: FlowProps) {
   const [tableMutationStore, setTableMutationStore] =
     createStore<TableMutationStore>({
       errorMsg: null,
-      selectedRowIDs: [],
+      selectedObjectIDs: [],
     });
   const setErrorMsg = (msg: string | null) =>
     setTableMutationStore("errorMsg", msg);
-  const setSelectedRowIDs = (selectedRowIDs: SelectedRowID[]) => {
-    setTableMutationStore("selectedRowIDs", selectedRowIDs);
+  const setSelectedObjectIDs = (selectedObjectIDs: SelectedObjectID[]) => {
+    setTableMutationStore("selectedObjectIDs", selectedObjectIDs);
   };
 
   const { mutation: updateOperation, mutate: updateField } =
@@ -65,7 +65,7 @@ export function TableMutationContextProvider(props: FlowProps) {
       value={{
         tableMutationStore,
         setErrorMsg,
-        setSelectedRowIDs,
+        setSelectedObjectIDs,
         updateOperation,
         updateField,
         deleteOperation,
@@ -81,7 +81,7 @@ export function TableMutationContextProvider(props: FlowProps) {
 interface TableMutationContextType {
   tableMutationStore: TableMutationStore;
   setErrorMsg: (msg: string | null) => void;
-  setSelectedRowIDs: (selectedRowIDs: SelectedRowID[]) => void;
+  setSelectedObjectIDs: (selectedObjectIDs: SelectedObjectID[]) => void;
   updateOperation: Mutation;
   updateField: (params: DataUpdateRequest) => Promise<void>;
   deleteOperation: Mutation;
@@ -91,10 +91,10 @@ interface TableMutationContextType {
 
 interface TableMutationStore {
   errorMsg: string | null;
-  selectedRowIDs: SelectedRowID[];
+  selectedObjectIDs: SelectedObjectID[];
 }
 
-export type SelectedRowID = {
+export type SelectedObjectID = {
   name: string;
   datatype: TableColumnDatatype;
   value: TableColumnValue;

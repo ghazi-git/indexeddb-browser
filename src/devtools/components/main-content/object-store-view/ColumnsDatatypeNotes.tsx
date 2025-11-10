@@ -24,10 +24,10 @@ export default function ColumnsDatatypeNotes() {
           <ul>
             <li>
               Columns datatypes are auto-detected based on the data in the first
-              100 rows. If that is not working as expected, you can select the
-              correct datatype from the dropdown. This is very important to get
-              right for the key columns, otherwise table display and mutation
-              will not work correctly.
+              100 objects. If that is not working as expected, you can select
+              the correct datatype from the dropdown. This is very important to
+              get right for the key columns, otherwise table display and
+              mutation will not work correctly.
             </li>
             <li>
               The "JSON Data" datatype refers to columns containing objects or

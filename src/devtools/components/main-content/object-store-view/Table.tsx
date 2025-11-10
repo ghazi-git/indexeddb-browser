@@ -34,7 +34,7 @@ import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import {
   convertToDataValue,
   getIndexedDBKey,
-  getSelectedRowID,
+  getSelectedObjectID,
   parseBooleanNull,
   updateRowData,
 } from "@/devtools/utils/grid-options";
@@ -54,7 +54,7 @@ export default function Table(props: TableProps) {
 
   const {
     setErrorMsg,
-    setSelectedRowIDs,
+    setSelectedObjectIDs,
     updateOperation,
     updateField,
     deleteOperation,
@@ -179,10 +179,10 @@ export default function Table(props: TableProps) {
       },
       onSelectionChanged(params: SelectionChangedEvent) {
         const nodes = params.selectedNodes || [];
-        const selectedRowIDs = nodes.map((node) => {
-          return getSelectedRowID(node, props.keypath, props.columns);
+        const selectedObjectIDs = nodes.map((node) => {
+          return getSelectedObjectID(node, props.keypath, props.columns);
         });
-        setSelectedRowIDs(selectedRowIDs);
+        setSelectedObjectIDs(selectedObjectIDs);
       },
       readOnlyEdit: true,
       onCellEditRequest: async (params: CellEditRequestEvent) => {
@@ -190,9 +190,9 @@ export default function Table(props: TableProps) {
         try {
           key = getIndexedDBKey(props.keypath, props.columns, params.data);
         } catch (e) {
-          console.error("data-update: failure to determine row key", e);
+          console.error("data-update: failure to determine object key", e);
           setErrorMsg(`
-            Cell update reverted: unable to determine the row key. This
+            Cell update reverted: unable to determine the object key. This
             might be due to key columns datatypes. The valid key datatypes
             are string, number, date and timestamp. Also, ensure the key
             columns datatypes match those in indexedDB (timestamp is
@@ -260,13 +260,13 @@ export default function Table(props: TableProps) {
     // delete the rows from the table on deletion success in indexedDB
     if (deleteOperation.isSuccess) {
       untrack(() => {
-        const rows = tableMutationStore.selectedRowIDs.map((row) => {
+        const rows = tableMutationStore.selectedObjectIDs.map((row) => {
           return Object.fromEntries(
             row.map(({ name, value }) => [name, value]),
           );
         });
         gridApi.applyTransaction({ remove: rows });
-        setSelectedRowIDs([]);
+        setSelectedObjectIDs([]);
         resetDeleteOperation();
       });
     }
