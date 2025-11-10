@@ -1,0 +1,33 @@
+.dialog-trigger {
+  border: var(--border-size-1) solid var(--surface-3);
+}
+
+.dialog {
+  inline-size: min(calc(100% - var(--size-3)), 800px);
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--size-3);
+    margin-block-end: var(--size-2);
+
+    button svg {
+      inline-size: var(--size-3);
+      block-size: auto;
+      color: var(--text-2);
+    }
+  }
+
+  footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--size-2);
+    margin-block-start: var(--size-2);
+
+    button:last-child {
+      border: var(--border-size-1) solid var(--surface-3);
+    }
+  }
+}

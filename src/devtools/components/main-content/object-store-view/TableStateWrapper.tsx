@@ -1,6 +1,7 @@
 import { Match, Show, Switch } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
+import AddObjectsButton from "@/devtools/components/main-content/object-store-view/AddObjectsButton";
 import DeleteObjectsButton from "@/devtools/components/main-content/object-store-view/DeleteObjectsButton";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
@@ -25,6 +26,7 @@ export default function TableStateWrapper() {
               <Show when={data().rows?.length}>
                 <DeleteObjectsButton />
               </Show>
+              <AddObjectsButton />
               <TableSettingsButton />
             </TableSettingsWrapper>
           )}
