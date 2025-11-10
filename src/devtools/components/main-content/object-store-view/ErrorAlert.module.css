@@ -11,6 +11,16 @@
   border-radius: var(--radius-2);
 }
 
+.alert.mono {
+  font-family: var(--font-mono);
+}
+
+.alert ul {
+  list-style: disc;
+  padding-inline-start: var(--size-4);
+  line-height: var(--font-lineheight-1);
+}
+
 .close {
   flex-shrink: 0;
 }
