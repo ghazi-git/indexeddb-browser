@@ -101,6 +101,11 @@ ul {
 
 li {
   padding-inline-start: 0;
+  max-inline-size: unset;
+}
+
+small {
+  max-inline-size: unset;
 }
 
 @media (prefers-reduced-motion: no-preference) {

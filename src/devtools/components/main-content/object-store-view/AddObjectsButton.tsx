@@ -1,9 +1,64 @@
+import { ValidationError, Validator } from "jsonschema";
+import { PrismEditor } from "prism-code-editor";
+import { createSignal, onMount, Show } from "solid-js";
+
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
+import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
+import {
+  createJSONEditor,
+  parseJSONFromUser,
+} from "@/devtools/utils/json-editor";
+import { TableColumn } from "@/devtools/utils/types";
 
 import styles from "./AddObjectsButton.module.css";
 
 export default function AddObjectsButton() {
+  const { query } = useTableContext();
+  const [error, setError] = createSignal<string[]>([]);
+  let editorRef!: HTMLDivElement;
+  let editor: PrismEditor;
+
+  const onSaveClick = () => {
+    setError([]);
+    const value = editor.value.trim();
+    if (!value) {
+      setError(["No value entered."]);
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let parsedObj: any;
+    try {
+      parsedObj = parseJSONFromUser(value);
+    } catch (e) {
+      console.error("data-create: failure to parse", e);
+      const msg = e instanceof Error ? e.message : "Invalid JSON";
+      setError([msg]);
+      return;
+    }
+
+    if (!query.data?.columns?.length) {
+      const msg = `Unable to add any object due to inability to determine the object store key.`;
+      setError([msg]);
+      return;
+    }
+
+    const cols = query.data.columns;
+    const result = validateJsonSchema(parsedObj, cols);
+    if (!result.valid) {
+      const errors = result.errors.map((err) => generateErrorMsg(err));
+      setError(errors);
+      return;
+    }
+
+    // todo save to indexedDB
+  };
+
+  onMount(() => {
+    editor = createJSONEditor(editorRef, "\n\n\n\n");
+  });
+
   return (
     <>
       <UnstyledButton
@@ -25,14 +80,31 @@ export default function AddObjectsButton() {
             <CloseIcon />
           </UnstyledButton>
         </header>
-        <div>JSON Editor Placeholder</div>
+        <div ref={editorRef} />
+        <small class={styles.hint}>
+          The value entered must be an array of objects.
+        </small>
+        <small class={styles.hint}>
+          The value of a date column must be in the format
+          yyyy:mm:ddTHH:MM:SS[.fff]Z.
+        </small>
+        <small class={styles.hint}>
+          The value of a bigint column must be a string of digits.
+        </small>
+        <Show when={error().length}>
+          <ErrorAlert
+            useMonoFont={true}
+            errorMsg={error()}
+            onClick={() => setError([])}
+          />
+        </Show>
         <footer>
           <UnstyledButton command="close" commandfor="add-objects-modal">
             Cancel
           </UnstyledButton>
           <UnstyledButton
             onClick={() => {
-              // todo add objects
+              onSaveClick();
             }}
           >
             Save
@@ -41,4 +113,47 @@ export default function AddObjectsButton() {
       </dialog>
     </>
   );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function validateJsonSchema(value: any, columns: TableColumn[]) {
+  const schema = getJSONSchema(columns);
+  const v = new Validator();
+  return v.validate(value, schema);
+}
+
+function getJSONSchema(columns: TableColumn[]) {
+  return {
+    type: "array",
+    items: {
+      type: "object",
+      properties: Object.fromEntries(
+        columns.map((col) => [col.name, getPropertySchema(col)]),
+      ),
+    },
+    minItems: 1,
+  };
+}
+
+function getPropertySchema(column: TableColumn) {
+  if (column.datatype === "string") {
+    return { type: ["string", "null"] };
+  } else if (column.datatype === "number") {
+    return { type: ["number", "null"] };
+  } else if (column.datatype === "timestamp") {
+    return { type: ["integer", "null"], minimum: 0 };
+  } else if (column.datatype === "boolean") {
+    return { type: ["boolean", "null"] };
+  } else if (column.datatype === "date") {
+    return { type: ["string", "null"], format: "date-time" };
+  } else if (column.datatype === "bigint") {
+    return { type: ["string", "null"], pattern: "^-?\\d+$" };
+  } else {
+    // no validation for json-data and unsupported datatypes
+    return {};
+  }
+}
+
+function generateErrorMsg(error: ValidationError) {
+  return `${error.property.replace("instance", "object")} ${error.message}`;
 }

@@ -19,6 +19,12 @@
     }
   }
 
+  .hint {
+    display: block;
+    padding-inline-start: 0.75rem;
+    font-size: 0.9rem;
+  }
+
   footer {
     display: flex;
     justify-content: flex-end;
