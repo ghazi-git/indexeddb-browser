@@ -62,18 +62,9 @@ export default function Table(props: TableProps) {
     tableMutationStore,
   } = useTableMutationContext();
   const { settings } = useTableSettingsContext();
-  const hasValidKeys = () => {
-    // table editing is enabled only when having valid indexedDB key datatypes
-    const keyColumns = props.columns.filter((col) => col.isKey);
-    return (
-      keyColumns.length > 0 &&
-      keyColumns.every((col) => {
-        return ["string", "number", "date", "timestamp"].includes(col.datatype);
-      })
-    );
-  };
+
   const columnDefs = (): ColDef[] => {
-    const canEdit = hasValidKeys() && !updateOperation.isLoading;
+    const canEdit = !updateOperation.isLoading;
     return props.columns.map((column) => {
       if (column.datatype === "string") {
         return getStringColdef(column, canEdit);
