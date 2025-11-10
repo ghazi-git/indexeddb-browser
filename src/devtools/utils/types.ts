@@ -150,6 +150,9 @@ type JSONSerializable =
   | JSONSerializable[]
   | { [key: string]: JSONSerializable };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type StoreValue = any;
+
 // add types for the window attributes used to track requests triggered by
 // the extension to add/update/delete data
 declare global {

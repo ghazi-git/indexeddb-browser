@@ -1,7 +1,7 @@
 import {
   cleanupDataMutation,
   createIndexedDBKey,
-  getFromDataValue,
+  getStoreValue,
   isDataMutationActive,
   markAsFailed,
   markAsSuccessful,
@@ -33,7 +33,7 @@ function getDataDeletionCode(request: DataDeletionRequest) {
   ${processDataDeletionRequest.toString()}
   ${deleteObjects.toString()}
   ${createIndexedDBKey.toString()}
-  ${getFromDataValue.toString()}
+  ${getStoreValue.toString()}
   ${markInProgress.toString()}
   ${markAsSuccessful.toString()}
   ${markAsFailed.toString()}

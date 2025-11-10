@@ -5,8 +5,9 @@ import {
 import {
   DataKey,
   DataMutationResponse,
-  DataValue,
   MutationResponseAttr,
+  StoreValue,
+  TableColumnDatatype,
 } from "@/devtools/utils/types";
 
 export async function isDataMutationSuccessful(
@@ -110,13 +111,16 @@ export function isDataMutationActive(
 
 export function createIndexedDBKey(key: DataKey[]) {
   if (key.length === 1) {
-    return getFromDataValue(key[0]);
+    return getStoreValue(key[0]);
   } else {
-    return key.map((k) => getFromDataValue(k));
+    return key.map((k) => getStoreValue(k));
   }
 }
 
-export function getFromDataValue(k: DataValue) {
+export function getStoreValue(k: {
+  value: StoreValue;
+  datatype: TableColumnDatatype;
+}) {
   if (k.datatype === "date") {
     // dates are passed as ISO-formatted strings to the inspected window
     return typeof k.value === "string" ? new Date(k.value) : k.value;

@@ -1,7 +1,7 @@
 import {
   cleanupDataMutation,
   createIndexedDBKey,
-  getFromDataValue,
+  getStoreValue,
   isDataMutationActive,
   markAsFailed,
   markAsSuccessful,
@@ -33,7 +33,7 @@ function getDataUpdateCode(request: DataUpdateRequest) {
   ${processDataUpdateRequest.toString()}
   ${updateObjectField.toString()}
   ${createIndexedDBKey.toString()}
-  ${getFromDataValue.toString()}
+  ${getStoreValue.toString()}
   ${markInProgress.toString()}
   ${markAsSuccessful.toString()}
   ${markAsFailed.toString()}
@@ -100,7 +100,7 @@ function updateObjectField(
           return;
         }
 
-        const updated = { ...obj, [field]: getFromDataValue(fieldValue) };
+        const updated = { ...obj, [field]: getStoreValue(fieldValue) };
         objStore.put(updated);
       };
     };
