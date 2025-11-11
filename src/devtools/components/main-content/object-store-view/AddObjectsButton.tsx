@@ -111,7 +111,12 @@ export default function AddObjectsButton() {
       >
         Add Objects
       </UnstyledButton>
-      <dialog ref={dialogRef} id="add-objects-modal" class={styles.dialog}>
+      <dialog
+        ref={dialogRef}
+        id="add-objects-modal"
+        class={styles.dialog}
+        onClose={() => setError([])}
+      >
         <header>
           <h2>Add Objects</h2>
           <UnstyledButton
