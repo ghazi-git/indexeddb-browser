@@ -16,7 +16,12 @@ import {
   createJSONEditor,
   parseJSONFromUser,
 } from "@/devtools/utils/json-editor";
-import { NewObject, TableColumn, TableRow } from "@/devtools/utils/types";
+import {
+  NewObject,
+  TableColumn,
+  TableColumnValue,
+  TableRow,
+} from "@/devtools/utils/types";
 
 import styles from "./AddObjectsButton.module.css";
 
@@ -77,7 +82,7 @@ export default function AddObjectsButton() {
       });
       refetch();
       dialogRef.close();
-      editor.setOptions({ value: "\n\n\n\n" });
+      editor.setOptions({ value: getSampleValue(cols) });
     } catch (e) {
       const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
       setError([msg]);
@@ -85,7 +90,10 @@ export default function AddObjectsButton() {
   };
 
   onMount(() => {
-    editor = createJSONEditor(editorRef, "\n\n\n\n");
+    editor = createJSONEditor(
+      editorRef,
+      getSampleValue(query.data?.columns || []),
+    );
   });
 
   return (
@@ -142,6 +150,29 @@ export default function AddObjectsButton() {
       </dialog>
     </>
   );
+}
+
+function getSampleValue(columns: TableColumn[]) {
+  const now = new Date();
+  const keyValuePairs = columns.map((column) => {
+    let value: TableColumnValue = null;
+    if (column.datatype === "string") {
+      value = "string";
+    } else if (column.datatype === "number") {
+      value = 0;
+    } else if (column.datatype === "timestamp") {
+      value = now.getTime();
+    } else if (column.datatype === "boolean") {
+      value = true;
+    } else if (column.datatype === "date") {
+      value = now.toISOString();
+    } else if (column.datatype === "bigint") {
+      value = "1234567890";
+    }
+    return [column.name, value] as [string, TableColumnValue];
+  });
+  const obj = Object.fromEntries(keyValuePairs);
+  return JSON.stringify([obj], null, 2);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
