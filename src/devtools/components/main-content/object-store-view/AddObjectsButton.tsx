@@ -1,8 +1,9 @@
-import { ValidationError, Validator } from "jsonschema";
+import { Schema, ValidationError, Validator } from "jsonschema";
 import { PrismEditor } from "prism-code-editor";
 import { createEffect, createSignal, onMount, Show, untrack } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import DatatypeValidationCheckbox from "@/devtools/components/main-content/object-store-view/DatatypeValidationCheckbox";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
@@ -27,6 +28,7 @@ import styles from "./AddObjectsButton.module.css";
 export default function AddObjectsButton() {
   const { createData } = useTableMutationContext();
   const { query, refetch } = useTableContext();
+  const [validateDatatypes, setValidateDatatypes] = createSignal(true);
   const [error, setError] = createSignal<string[]>([]);
   let dialogRef!: HTMLDialogElement;
   let editorRef!: HTMLDivElement;
@@ -57,7 +59,10 @@ export default function AddObjectsButton() {
     }
 
     const cols = query.data.columns;
-    const result = validateJsonSchema(parsedObj, cols);
+    const schema = validateDatatypes()
+      ? getJSONSchemaWithDatatypesValidation(cols)
+      : getSimpleJSONSchema();
+    const result = validateJsonSchema(parsedObj, schema);
     if (!result.valid) {
       const errors = result.errors.map((err) => generateErrorMsg(err));
       setError(errors);
@@ -122,13 +127,12 @@ export default function AddObjectsButton() {
         <small class={styles.hint}>
           The value entered must be an array of objects.
         </small>
-        <small class={styles.hint}>
-          The value of a date column must be in the format
-          yyyy:mm:ddTHH:MM:SS[.fff]Z.
-        </small>
-        <small class={styles.hint}>
-          The value of a bigint column must be a string of digits.
-        </small>
+        <DatatypeValidationCheckbox
+          checked={validateDatatypes()}
+          onChange={(event) => {
+            setValidateDatatypes(event.target.checked);
+          }}
+        />
         <Show when={error().length}>
           <ErrorAlert
             useMonoFont={true}
@@ -177,13 +181,12 @@ function getSampleValue(columns: TableColumn[]) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function validateJsonSchema(value: any, columns: TableColumn[]) {
-  const schema = getJSONSchema(columns);
+function validateJsonSchema(value: any, schema: Schema) {
   const v = new Validator();
   return v.validate(value, schema);
 }
 
-function getJSONSchema(columns: TableColumn[]) {
+function getJSONSchemaWithDatatypesValidation(columns: TableColumn[]) {
   return {
     type: "array",
     items: {
@@ -194,6 +197,10 @@ function getJSONSchema(columns: TableColumn[]) {
     },
     minItems: 1,
   };
+}
+
+function getSimpleJSONSchema() {
+  return { type: "array", items: { type: "object" }, minItems: 1 };
 }
 
 function getPropertySchema(column: TableColumn) {
