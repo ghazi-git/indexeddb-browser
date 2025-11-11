@@ -1,6 +1,6 @@
 import { ValidationError, Validator } from "jsonschema";
 import { PrismEditor } from "prism-code-editor";
-import { createSignal, onMount, Show } from "solid-js";
+import { createEffect, createSignal, onMount, Show, untrack } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
@@ -86,6 +86,15 @@ export default function AddObjectsButton() {
       editorRef,
       getSampleValue(query.data?.columns || []),
     );
+  });
+  createEffect(() => {
+    const activeStore = query.data?.activeStore;
+    if (activeStore) {
+      const columns = untrack(() => query.data?.columns || []);
+      editor.setOptions({ value: getSampleValue(columns) });
+    } else {
+      editor.setOptions({ value: "" });
+    }
   });
 
   return (
