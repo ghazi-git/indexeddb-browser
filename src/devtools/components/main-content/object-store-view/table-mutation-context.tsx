@@ -5,10 +5,12 @@ import {
   createDataMutation,
   Mutation,
 } from "@/devtools/utils/create-data-mutation";
+import { triggerDataCreation } from "@/devtools/utils/inspected-window-data-create";
 import { triggerDataDeletion } from "@/devtools/utils/inspected-window-data-delete";
 import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
 import { triggerDataUpdate } from "@/devtools/utils/inspected-window-data-update";
 import {
+  DataCreationRequest,
   DataDeletionRequest,
   DataUpdateRequest,
   TableColumnDatatype,
@@ -59,6 +61,17 @@ export function TableMutationContextProvider(props: FlowProps) {
       request.requestID,
     );
   });
+  const {
+    mutation: createOperation,
+    mutate: createData,
+    reset: resetCreateOperation,
+  } = createDataMutation<DataCreationRequest>(async (request) => {
+    await triggerDataCreation(request);
+    await isDataMutationSuccessful(
+      "__indexeddb_browser_data_create",
+      request.requestID,
+    );
+  });
 
   return (
     <TableMutationContext.Provider
@@ -71,6 +84,9 @@ export function TableMutationContextProvider(props: FlowProps) {
         deleteOperation,
         deleteData,
         resetDeleteOperation,
+        createOperation,
+        createData,
+        resetCreateOperation,
       }}
     >
       {props.children}
@@ -87,6 +103,9 @@ interface TableMutationContextType {
   deleteOperation: Mutation;
   deleteData: (params: DataDeletionRequest) => Promise<void>;
   resetDeleteOperation: () => void;
+  createOperation: Mutation;
+  createData: (params: DataCreationRequest) => Promise<void>;
+  resetCreateOperation: () => void;
 }
 
 interface TableMutationStore {

@@ -122,6 +122,19 @@ export interface DataDeletionRequest {
   keys: DataKey[][];
 }
 
+export interface DataCreationRequest {
+  requestID: string;
+  dbName: string;
+  storeName: string;
+  objects: NewObject[];
+}
+
+export type NewObject = {
+  name: string;
+  value: JSONSerializable;
+  datatype: TableColumnDatatype;
+}[];
+
 export type DataKey =
   | { value: string | null | undefined; datatype: "string" }
   | { value: number | null | undefined; datatype: "number" }

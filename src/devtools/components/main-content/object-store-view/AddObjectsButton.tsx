@@ -2,25 +2,34 @@ import { ValidationError, Validator } from "jsonschema";
 import { PrismEditor } from "prism-code-editor";
 import { createSignal, onMount, Show } from "solid-js";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
+import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
+import {
+  DATA_MUTATION_ERROR_MSG,
+  generateRequestID,
+} from "@/devtools/utils/inspected-window-helpers";
 import {
   createJSONEditor,
   parseJSONFromUser,
 } from "@/devtools/utils/json-editor";
-import { TableColumn } from "@/devtools/utils/types";
+import { NewObject, TableColumn, TableRow } from "@/devtools/utils/types";
 
 import styles from "./AddObjectsButton.module.css";
 
 export default function AddObjectsButton() {
-  const { query } = useTableContext();
+  const { createData } = useTableMutationContext();
+  const { activeObjectStore } = useActiveObjectStoreContext();
+  const { query, refetch } = useTableContext();
   const [error, setError] = createSignal<string[]>([]);
+  let dialogRef!: HTMLDialogElement;
   let editorRef!: HTMLDivElement;
   let editor: PrismEditor;
 
-  const onSaveClick = () => {
+  const onSaveClick = async () => {
     setError([]);
     const value = editor.value.trim();
     if (!value) {
@@ -52,7 +61,27 @@ export default function AddObjectsButton() {
       return;
     }
 
-    // todo save to indexedDB
+    const activeStore = activeObjectStore();
+    if (!activeStore) {
+      setError(["Unable to determine the object store"]);
+      return;
+    }
+
+    const newObjects = getNewObjects(parsedObj as TableRow[], cols);
+    try {
+      await createData({
+        requestID: generateRequestID(),
+        dbName: activeStore.dbName,
+        storeName: activeStore.storeName,
+        objects: newObjects,
+      });
+      refetch();
+      dialogRef.close();
+      editor.setOptions({ value: "\n\n\n\n" });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
+      setError([msg]);
+    }
   };
 
   onMount(() => {
@@ -68,7 +97,7 @@ export default function AddObjectsButton() {
       >
         Add Objects
       </UnstyledButton>
-      <dialog id="add-objects-modal" class={styles.dialog}>
+      <dialog ref={dialogRef} id="add-objects-modal" class={styles.dialog}>
         <header>
           <h2>Add Objects</h2>
           <UnstyledButton
@@ -156,4 +185,23 @@ function getPropertySchema(column: TableColumn) {
 
 function generateErrorMsg(error: ValidationError) {
   return `${error.property.replace("instance", "object")} ${error.message}`;
+}
+
+function getNewObjects(
+  parsedObj: TableRow[],
+  cols: TableColumn[],
+): NewObject[] {
+  return parsedObj.map((row) => {
+    return Object.entries(row).map(([colName, colValue]) => {
+      const col = cols.find((col) => col.name === colName);
+      return {
+        name: colName,
+        value: colValue,
+        // user can specify columns that the extension doesn't know about or
+        // the user is adding the first objects when we have no info about
+        // the datatypes
+        datatype: col?.datatype ?? "unsupported",
+      };
+    });
+  });
 }
