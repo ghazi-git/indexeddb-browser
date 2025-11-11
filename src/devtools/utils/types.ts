@@ -19,12 +19,14 @@ export type TableData =
       keypath: string[];
       rows: TableRow[] | null;
       columns: TableColumn[];
+      activeStore: ActiveObjectStore;
     }
   | {
       canDisplay: false;
       keypath: null;
       rows: null;
       columns: null;
+      activeStore: ActiveObjectStore;
     };
 export type TableRow = Record<string, TableColumnValue>;
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

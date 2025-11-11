@@ -24,7 +24,7 @@ export default function TableStateWrapper() {
             <TableSettingsWrapper>
               <TableSearch />
               <Show when={data().rows?.length}>
-                <DeleteObjectsButton />
+                <DeleteObjectsButton activeStore={data().activeStore} />
               </Show>
               <AddObjectsButton />
               <TableSettingsButton />
@@ -58,6 +58,7 @@ function TableWrapper(props: { tableData: TableData }) {
       columns: props.tableData.columns,
       rows: props.tableData.rows,
       keypath: props.tableData.keypath,
+      activeStore: props.tableData.activeStore,
     };
   };
 
@@ -103,6 +104,7 @@ function TableWrapper(props: { tableData: TableData }) {
                   rows={tableRows()}
                   columns={t().columns}
                   keypath={t().keypath}
+                  activeStore={t().activeStore}
                 />
               </>
             )}

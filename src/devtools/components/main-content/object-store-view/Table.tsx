@@ -13,7 +13,6 @@ import {
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
@@ -42,7 +41,12 @@ import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
-import { DataKey, TableColumn, TableRow } from "@/devtools/utils/types";
+import {
+  ActiveObjectStore,
+  DataKey,
+  TableColumn,
+  TableRow,
+} from "@/devtools/utils/types";
 import { useTheme } from "@/devtools/utils/ui-theme-context";
 
 import styles from "./Table.module.css";
@@ -104,7 +108,6 @@ export default function Table(props: TableProps) {
   };
 
   const { updateColumnOrder, refetch } = useTableContext();
-  const { activeObjectStore } = useActiveObjectStoreContext();
   onMount(() => {
     let uneditableTimer: number;
     let cellWithLock: Element | undefined;
@@ -124,7 +127,6 @@ export default function Table(props: TableProps) {
         }, 1000);
       }
     };
-    const activeObject = activeObjectStore()!;
     gridApi = createGrid(tableContainer, {
       rowSelection: {
         mode: "multiRow",
@@ -203,8 +205,8 @@ export default function Table(props: TableProps) {
         try {
           await updateField({
             requestID: generateRequestID(),
-            dbName: activeObject.dbName,
-            storeName: activeObject.storeName,
+            dbName: props.activeStore.dbName,
+            storeName: props.activeStore.storeName,
             key,
             fieldToUpdate,
             newValue: convertToDataValue(newValue, col.datatype),
@@ -323,4 +325,5 @@ interface TableProps {
   columns: TableColumn[];
   rows: TableRow[];
   keypath: string[];
+  activeStore: ActiveObjectStore;
 }

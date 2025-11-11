@@ -2,7 +2,6 @@ import { ValidationError, Validator } from "jsonschema";
 import { PrismEditor } from "prism-code-editor";
 import { createSignal, onMount, Show } from "solid-js";
 
-import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
@@ -27,7 +26,6 @@ import styles from "./AddObjectsButton.module.css";
 
 export default function AddObjectsButton() {
   const { createData } = useTableMutationContext();
-  const { activeObjectStore } = useActiveObjectStoreContext();
   const { query, refetch } = useTableContext();
   const [error, setError] = createSignal<string[]>([]);
   let dialogRef!: HTMLDialogElement;
@@ -66,18 +64,12 @@ export default function AddObjectsButton() {
       return;
     }
 
-    const activeStore = activeObjectStore();
-    if (!activeStore) {
-      setError(["Unable to determine the object store"]);
-      return;
-    }
-
     const newObjects = getNewObjects(parsedObj as TableRow[], cols);
     try {
       await createData({
         requestID: generateRequestID(),
-        dbName: activeStore.dbName,
-        storeName: activeStore.storeName,
+        dbName: query.data.activeStore.dbName,
+        storeName: query.data.activeStore.storeName,
         objects: newObjects,
       });
       refetch();

@@ -1,6 +1,5 @@
 import { createMemo, Match, Show, Switch } from "solid-js";
 
-import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import {
   SelectedObjectID,
@@ -13,12 +12,13 @@ import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
-import { DataKey } from "@/devtools/utils/types";
+import { ActiveObjectStore, DataKey } from "@/devtools/utils/types";
 
 import styles from "./DeleteObjectsButton.module.css";
 
-export default function DeleteObjectsButton() {
-  const { activeObjectStore } = useActiveObjectStoreContext();
+export default function DeleteObjectsButton(props: {
+  activeStore: ActiveObjectStore;
+}) {
   const { tableMutationStore, setErrorMsg, deleteOperation, deleteData } =
     useTableMutationContext();
   const canDelete = () => tableMutationStore.selectedObjectIDs.length > 0;
@@ -89,18 +89,11 @@ export default function DeleteObjectsButton() {
                 command="close"
                 commandfor="delete-objects-modal"
                 onClick={async () => {
-                  const activeObject = activeObjectStore();
-                  if (!activeObject) {
-                    const msg = `Unable to determine the object store selected.`;
-                    setErrorMsg(msg);
-                    return;
-                  }
-
                   try {
                     await deleteData({
                       requestID: generateRequestID(),
-                      dbName: activeObject.dbName,
-                      storeName: activeObject.storeName,
+                      dbName: props.activeStore.dbName,
+                      storeName: props.activeStore.storeName,
                       keys: validObjectKeys(),
                     });
                   } catch (e) {

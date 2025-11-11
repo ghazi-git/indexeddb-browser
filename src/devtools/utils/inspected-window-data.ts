@@ -119,6 +119,7 @@ async function processDataRequest(
       recordsCount,
     );
     let resp: TableData;
+    const activeStore = { dbName, storeName };
     if (data.canDisplay) {
       let columns = getColumns(data.keypath, data.values);
       if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
@@ -126,9 +127,10 @@ async function processDataRequest(
       }
       const keypath = data.keypath;
       const rows = convertStoreData(columns, data.values);
-      resp = { canDisplay: true, keypath, columns, rows };
+      resp = { canDisplay: true, keypath, columns, rows, activeStore };
     } else {
-      resp = { canDisplay: false, keypath: null, columns: null, rows: null };
+      // prettier-ignore
+      resp = { canDisplay: false, keypath: null, columns: null, rows: null, activeStore };
     }
     markRequestAsSuccessful(requestID, resp);
   } catch (e) {

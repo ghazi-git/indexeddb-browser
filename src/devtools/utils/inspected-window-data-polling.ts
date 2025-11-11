@@ -1,5 +1,9 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
-import { TableColumn, TableRow } from "@/devtools/utils/types";
+import {
+  ActiveObjectStore,
+  TableColumn,
+  TableRow,
+} from "@/devtools/utils/types";
 
 export function checkForObjectStoreDataStatus() {
   return new Promise<ObjectStoreStatus>((resolve, reject) => {
@@ -28,8 +32,8 @@ export function getObjectStoreMetadata() {
     chrome.devtools.inspectedWindow.eval(
       `
       (function() {
-        const {canDisplay, keypath, columns} = window.__indexeddb_browser_data.data;
-        return {canDisplay, keypath, columns};
+        const {canDisplay, keypath, columns, activeStore} = window.__indexeddb_browser_data.data;
+        return {canDisplay, keypath, columns, activeStore};
       })()
       `,
       (result: ObjectStoreMetadata, exceptionInfo) => {
@@ -67,11 +71,13 @@ type ObjectStoreMetadata =
       canDisplay: true;
       keypath: string[];
       columns: TableColumn[];
+      activeStore: ActiveObjectStore;
     }
   | {
       canDisplay: false;
       keypath: null;
       columns: null;
+      activeStore: ActiveObjectStore;
     };
 
 type ObjectStoreStatus =
