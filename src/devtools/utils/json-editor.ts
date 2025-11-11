@@ -17,25 +17,18 @@ export function createJSONEditor(
     theme: systemScheme === "light" ? "night-owl-light" : "night-owl",
   });
   editor.container.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      // the editor usually prevents enter click from bubbling up. However,
-      // when the editor is empty or a single line with no braces, enter
-      // click doesn't add a new line in the textarea and bubbles up.
-      // That results in the cell editor committing the changes. So, we
-      // prevent that here. Doesn't seem to be an issue in the documentation
-      // site though.
-      event.stopPropagation();
-
-      // get selection start/end
-      const start = editor.textarea.selectionStart;
-      const end = editor.textarea.selectionEnd;
-      const before = editor.textarea.value.slice(0, start);
-      const after = editor.textarea.value.slice(end);
-
-      // notice how a newline was NOT added
-      editor.textarea.value = before + after;
-      // now we magically have a new line added in the editor UI
-      editor.textarea.selectionStart = editor.textarea.selectionEnd = start;
+    if (event.key === "a" || event.key === "A") {
+      // letting the event bubble results in the character not being written
+      // to the textarea.
+      // Seems like "Chrome's own devtools frontend" has a keydown listener
+      // that calls `event.preventDefault()`. Removing the listener from
+      // "Elements panel > Event Listeners" results in the character being
+      // written as expected. Usually, the listener ignores textarea and inputs
+      // when they are the current `document.activeElement`. But, it doesn't
+      // in this case, because the editor uses shadow dom to render, making
+      // the `document.activeElement` equal to the div acting as the editor
+      // container rather than the inner textarea.
+      event.stopImmediatePropagation();
     }
   });
   return editor;
