@@ -209,16 +209,19 @@ function getSimpleJSONSchema() {
 }
 
 function getPropertySchema(column: TableColumn) {
+  const getType = (type: string, isKey: boolean) => {
+    return isKey ? [type] : [type, "null"];
+  };
   if (column.datatype === "string") {
-    return { type: ["string", "null"] };
+    return { type: getType("string", column.isKey) };
   } else if (column.datatype === "number") {
-    return { type: ["number", "null"] };
+    return { type: getType("number", column.isKey) };
   } else if (column.datatype === "timestamp") {
-    return { type: ["integer", "null"], minimum: 0 };
+    return { type: getType("integer", column.isKey), minimum: 0 };
   } else if (column.datatype === "boolean") {
-    return { type: ["boolean", "null"] };
+    return { type: getType("boolean", column.isKey) };
   } else if (column.datatype === "date") {
-    return { type: ["string", "null"], format: "date-time" };
+    return { type: getType("string", column.isKey), format: "date-time" };
   } else if (column.datatype === "bigint") {
     return { type: ["string", "null"], pattern: "^-?\\d+$" };
   } else {
