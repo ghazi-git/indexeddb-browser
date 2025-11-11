@@ -53,7 +53,6 @@ async function processDataDeletionRequest(request: DataDeletionRequest) {
     await deleteObjects(request.dbName, request.storeName, idbKeys);
     markAsSuccessful("__indexeddb_browser_data_delete", request.requestID);
   } catch (e) {
-    console.error("data-deletion: failure", e);
     const msg =
       e instanceof Error
         ? e.message
@@ -72,7 +71,7 @@ function deleteObjects(
     const genericErrorMsg = `An unexpected error occurred when deleting the data.`;
     dbRequest.onerror = () => {
       console.error("data-deletion: db error", dbRequest.error);
-      reject(genericErrorMsg);
+      reject(new Error(genericErrorMsg));
     };
     dbRequest.onsuccess = () => {
       const db = dbRequest.result;
@@ -82,10 +81,11 @@ function deleteObjects(
       const objStore = tx.objectStore(storeName);
       idbKeys.forEach((idbKey) => {
         const deleteRequest = objStore.delete(idbKey);
-        deleteRequest.onerror = () => {
+        deleteRequest.onerror = (event) => {
           console.error("data-deletion: delete error", deleteRequest.error);
           const msg = `Unable to delete the object with the key=${idbKey} from the object store.`;
-          reject(msg);
+          reject(new Error(msg));
+          event.stopPropagation();
         };
       });
     };
