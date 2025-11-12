@@ -24,15 +24,6 @@ html {
   --success-color-light: var(--green-9);
   --success-color-dark: var(--green-0);
   --success-color: var(--success-color-light);
-  --success-bg-color-light: var(--teal-0);
-  --success-bg-color-dark: var(--teal-10);
-  --success-bg-color: var(--success-bg-color-light);
-  --info-color-light: var(--indigo-9);
-  --info-color-dark: var(--indigo-1);
-  --info-color: var(--info-color-light);
-  --info-bg-color-light: var(--blue-0);
-  --info-bg-color-dark: var(--blue-11);
-  --info-bg-color: var(--info-bg-color-light);
 
   font-size: 14px;
 }
@@ -43,9 +34,6 @@ html {
     --error-color: var(--error-color-dark);
     --error-bg-color: var(--error-bg-color-dark);
     --success-color: var(--success-color-dark);
-    --success-bg-color: var(--success-bg-color-dark);
-    --info-color: var(--info-color-dark);
-    --info-bg-color: var(--info-bg-color-dark);
   }
 
   dialog::backdrop {
