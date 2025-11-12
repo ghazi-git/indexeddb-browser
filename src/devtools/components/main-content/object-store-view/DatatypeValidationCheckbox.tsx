@@ -33,6 +33,10 @@ export default function DatatypeValidationCheckbox(props: CheckboxProps) {
         <p>
           - The values for the remaining datatypes must be of the correct type.
         </p>
+        <p>
+          - <code>null</code> is allowed for any property except object store
+          key properties.
+        </p>
       </div>
     </div>
   );

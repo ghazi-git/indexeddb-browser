@@ -30,7 +30,7 @@
     position: absolute;
     inset: auto;
     /* stylelint-disable declaration-property-value-no-unknown */
-    inset-block-start: anchor(end);
+    inset-block-end: anchor(start);
     inset-inline-end: anchor(end);
     /* stylelint-enable declaration-property-value-no-unknown */
     margin-block-start: var(--size-1);
