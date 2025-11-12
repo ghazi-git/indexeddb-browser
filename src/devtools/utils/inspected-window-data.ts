@@ -182,7 +182,6 @@ function getObjectStoreData(
           "data again by clicking the reload icon in the header.";
         reject(new Error(msg));
         clearInterval(timerID);
-        db.close();
       };
       tx.onabort = () => {
         reject(new Error("Request timed out or canceled."));
@@ -192,13 +191,13 @@ function getObjectStoreData(
       tx.oncomplete = () => {
         // this is more of a fail-safe for when an unexpected error occurs
         clearInterval(timerID);
+        db.close();
       };
 
       const objectStore = tx.objectStore(storeName);
       if (!objectStore.keyPath) {
         resolve({ canDisplay: false, keypath: null, values: null });
         clearInterval(timerID);
-        db.close();
         return;
       }
       const keypath =
@@ -213,12 +212,10 @@ function getObjectStoreData(
           "data again by clicking the reload icon in the header.";
         reject(new Error(msg));
         clearInterval(timerID);
-        db.close();
       };
       getAllReq.onsuccess = () => {
         resolve({ canDisplay: true, keypath, values: getAllReq.result });
         clearInterval(timerID);
-        db.close();
       };
     };
   });

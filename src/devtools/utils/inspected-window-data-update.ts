@@ -82,7 +82,11 @@ function updateObjectField(
     dbRequest.onsuccess = () => {
       const db = dbRequest.result;
       const tx = db.transaction(storeName, "readwrite");
-      tx.oncomplete = () => resolve();
+      tx.oncomplete = () => {
+        resolve();
+        db.close();
+      };
+      tx.onabort = () => db.close();
 
       const objStore = tx.objectStore(storeName);
       const getRequest = objStore.get(idbKey);
