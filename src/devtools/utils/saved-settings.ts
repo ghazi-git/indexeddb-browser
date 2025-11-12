@@ -142,6 +142,30 @@ export function saveColumnsConfig(
   saveOriginSettings(origin, originSettings);
 }
 
+export function originHasSavedSettings(
+  origin: string,
+  dbName: string,
+  storeName: string,
+) {
+  const originSettings = getOriginSettings(origin);
+  const stores = getStores(originSettings);
+  return !!getStore(stores, dbName, storeName);
+}
+
+export function deleteSavedOriginSettings(
+  origin: string,
+  dbName: string,
+  storeName: string,
+) {
+  const originSettings = getOriginSettings(origin);
+  const stores = getStores(originSettings);
+
+  originSettings.stores = stores.filter(
+    (store) => store.dbName !== dbName && store.storeName !== storeName,
+  );
+  saveOriginSettings(origin, originSettings);
+}
+
 function getStore(
   savedStores: SavedStoreSettings[],
   dbName: string,

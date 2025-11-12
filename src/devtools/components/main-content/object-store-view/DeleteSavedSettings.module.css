@@ -1,0 +1,22 @@
+.delete-settings {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--size-2);
+  border: var(--border-size-1) solid var(--error-color);
+  color: var(--error-color);
+}
+
+.delete-settings:not([disabled]):focus-visible,
+.delete-settings:not([disabled]):hover {
+  background-color: var(--error-bg-color);
+}
+
+.delete-settings[disabled] {
+  border-color: var(--surface-4);
+}
+
+.delete-settings svg {
+  inline-size: var(--size-3);
+  block-size: auto;
+}
