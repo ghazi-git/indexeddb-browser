@@ -1,5 +1,5 @@
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
-import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 
 import styles from "./RecordsCountSetting.module.css";
 

@@ -1,4 +1,4 @@
-import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 
 import styles from "./PaginationSetting.module.css";
 

@@ -1,9 +1,9 @@
 import { For, Show } from "solid-js";
 
-import CheckboxCell from "@/devtools/components/main-content/object-store-view/CheckboxCell";
-import ColumnDatatypeSelect from "@/devtools/components/main-content/object-store-view/ColumnDatatypeSelect";
-import ColumnsDatatypeNotes from "@/devtools/components/main-content/object-store-view/ColumnsDatatypeNotes";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
+import CheckboxCell from "@/devtools/components/main-content/object-store-view/table-settings/CheckboxCell";
+import ColumnDatatypeSelect from "@/devtools/components/main-content/object-store-view/table-settings/ColumnDatatypeSelect";
+import ColumnsConfigNotes from "@/devtools/components/main-content/object-store-view/table-settings/ColumnsConfigNotes";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import KeyIcon from "@/devtools/components/svg-icons/KeyIcon";
 import { TableColumn, TableColumnDatatype } from "@/devtools/utils/types";
@@ -41,7 +41,7 @@ export default function ColumnsConfig() {
           </Show>
         </tbody>
       </table>
-      <ColumnsDatatypeNotes />
+      <ColumnsConfigNotes />
     </div>
   );
 }

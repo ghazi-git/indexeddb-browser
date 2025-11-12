@@ -6,10 +6,10 @@ import DeleteObjectsButton from "@/devtools/components/main-content/object-store
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { TableMutationContextProvider } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
-import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { TableSettingsContextProvider } from "@/devtools/components/main-content/object-store-view/table-settings/context";
+import TableSettingsButton from "@/devtools/components/main-content/object-store-view/table-settings/TableSettingsButton";
 import TableError from "@/devtools/components/main-content/object-store-view/TableError";
 import TableSearch from "@/devtools/components/main-content/object-store-view/TableSearch";
-import TableSettingsButton from "@/devtools/components/main-content/object-store-view/TableSettingsButton";
 import TableSettingsWrapper from "@/devtools/components/main-content/object-store-view/TableSettingsWrapper";
 import { TableData } from "@/devtools/utils/types";
 

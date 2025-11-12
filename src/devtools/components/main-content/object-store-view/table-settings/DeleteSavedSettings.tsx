@@ -1,7 +1,7 @@
 import { Setter } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
-import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 import DeleteIcon from "@/devtools/components/svg-icons/DeleteIcon";
 
 import styles from "./DeleteSavedSettings.module.css";

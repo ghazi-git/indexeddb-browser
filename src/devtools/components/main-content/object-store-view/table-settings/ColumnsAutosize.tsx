@@ -1,6 +1,6 @@
 import { For } from "solid-js";
 
-import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 import { AutosizeColumns } from "@/devtools/utils/types";
 
 import styles from "./ColumnsAutosize.module.css";

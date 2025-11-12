@@ -15,7 +15,7 @@ import { unwrap } from "solid-js/store";
 
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
-import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings-context";
+import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 import { formatBigint, getBigintColdef } from "@/devtools/utils/coldef-bigint";
 import { getBooleanColdef } from "@/devtools/utils/coldef-boolean";
 import {

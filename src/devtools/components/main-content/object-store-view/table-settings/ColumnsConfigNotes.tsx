@@ -3,9 +3,9 @@ import { createSignal } from "solid-js";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
 
-import styles from "./ColumnsDatatypeNotes.module.css";
+import styles from "./ColumnsConfigNotes.module.css";
 
-export default function ColumnsDatatypeNotes() {
+export default function ColumnsConfigNotes() {
   const [isOpen, setIsOpen] = createSignal(false);
   return (
     <>
