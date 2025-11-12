@@ -30,6 +30,7 @@
 
 .sidebar.closed {
   inline-size: 0;
+  block-size: 0;
   border-inline-end: none;
 }
 
