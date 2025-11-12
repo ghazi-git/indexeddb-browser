@@ -1,6 +1,7 @@
-import { createContext, FlowProps, useContext } from "solid-js";
+import { createContext, createEffect, FlowProps, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
+import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import {
   createDataMutation,
   Mutation,
@@ -71,6 +72,13 @@ export function TableMutationContextProvider(props: FlowProps) {
       "__indexeddb_browser_data_create",
       request.requestID,
     );
+  });
+
+  // reset the error msg and selected objects on store change
+  const { activeObjectStore } = useActiveObjectStoreContext();
+  createEffect(() => {
+    activeObjectStore();
+    setTableMutationStore({ errorMsg: null, selectedObjectIDs: [] });
   });
 
   return (

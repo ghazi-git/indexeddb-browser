@@ -1,4 +1,11 @@
-import { batch, createContext, FlowProps, onMount, useContext } from "solid-js";
+import {
+  batch,
+  createContext,
+  createEffect,
+  FlowProps,
+  onMount,
+  useContext,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
@@ -79,6 +86,12 @@ export function TableSettingsContextProvider(props: FlowProps) {
     setSettings("recordsCount", value);
     _saveToLocalStorage();
   };
+
+  // reset the search term on store change
+  createEffect(() => {
+    activeObjectStore();
+    setSettings("searchTerm", "");
+  });
 
   return (
     <TableSettingsContext.Provider
