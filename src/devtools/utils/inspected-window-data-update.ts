@@ -86,11 +86,10 @@ function updateObjectField(
 
       const objStore = tx.objectStore(storeName);
       const getRequest = objStore.get(idbKey);
-      getRequest.onerror = (event) => {
+      getRequest.onerror = () => {
         console.error("data-update: get error", getRequest.error);
         const msg = `Unable to get the object with the key=${idbKey} from the object store.`;
         reject(new Error(msg));
-        event.stopPropagation();
       };
       getRequest.onsuccess = () => {
         const obj = getRequest.result;

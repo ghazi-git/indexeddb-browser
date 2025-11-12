@@ -81,11 +81,10 @@ function deleteObjects(
       const objStore = tx.objectStore(storeName);
       idbKeys.forEach((idbKey) => {
         const deleteRequest = objStore.delete(idbKey);
-        deleteRequest.onerror = (event) => {
+        deleteRequest.onerror = () => {
           console.error("data-deletion: delete error", deleteRequest.error);
           const msg = `Unable to delete the object with the key=${idbKey} from the object store.`;
           reject(new Error(msg));
-          event.stopPropagation();
         };
       });
     };

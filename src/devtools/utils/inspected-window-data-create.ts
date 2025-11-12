@@ -83,7 +83,7 @@ function insertObjects(
       objects.forEach((obj) => {
         try {
           const addRequest = objStore.add(obj);
-          addRequest.onerror = (event) => {
+          addRequest.onerror = () => {
             console.error("data-creation: add error", addRequest.error);
             // better to just return the indexedDB error given that many things
             // can go wrong
@@ -92,10 +92,11 @@ function insertObjects(
               addRequest.error?.message ??
               `Unable to insert the object=${JSON.stringify(obj)}.`;
             reject(new Error(msg));
-            event.stopPropagation();
           };
         } catch (e) {
           reject(e);
+          tx.abort();
+          return;
         }
       });
     };
