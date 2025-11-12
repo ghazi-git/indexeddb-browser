@@ -1,6 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isJSON } from "@/devtools/utils/inspected-window-data";
+import { isJSON } from "@/devtools/utils/inspected-window-data-fetch";
 import { JSONEditor } from "@/devtools/utils/table-cell-editor";
 import { JSONDataRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";

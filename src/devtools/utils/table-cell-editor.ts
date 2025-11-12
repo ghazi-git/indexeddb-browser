@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 
 import btnStyles from "@/devtools/components/buttons/UnstyledButton.module.css";
 import styles from "@/devtools/components/main-content/object-store-view/Table.module.css";
-import { isDate, isJSON } from "@/devtools/utils/inspected-window-data";
+import { isDate, isJSON } from "@/devtools/utils/inspected-window-data-fetch";
 import {
   createJSONEditor,
   parseJSONFromUser,

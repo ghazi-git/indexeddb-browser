@@ -1,6 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isNumber } from "@/devtools/utils/inspected-window-data";
+import { isNumber } from "@/devtools/utils/inspected-window-data-fetch";
 import { NullishNumberRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";
 

@@ -1,6 +1,6 @@
 import { ColDef } from "ag-grid-community";
 
-import { isString } from "@/devtools/utils/inspected-window-data";
+import { isString } from "@/devtools/utils/inspected-window-data-fetch";
 import { NullishStringRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";
 

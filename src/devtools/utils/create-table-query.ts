@@ -1,11 +1,11 @@
 import { createStore } from "solid-js/store";
 
-import { triggerDataFetching } from "@/devtools/utils/inspected-window-data";
+import { triggerDataFetching } from "@/devtools/utils/inspected-window-data-fetch";
 import {
   checkForObjectStoreDataStatus,
   getObjectStoreData,
   getObjectStoreMetadata,
-} from "@/devtools/utils/inspected-window-data-polling";
+} from "@/devtools/utils/inspected-window-data-fetch-polling";
 import {
   DATA_ERROR_MSG,
   DATA_FETCH_TIMEOUT_IN_MS,
