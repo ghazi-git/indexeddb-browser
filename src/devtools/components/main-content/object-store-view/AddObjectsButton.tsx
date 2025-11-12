@@ -130,7 +130,7 @@ export default function AddObjectsButton() {
         </header>
         <div ref={editorRef} />
         <small class={styles.hint}>
-          The value entered must be an array of objects.
+          The json value entered must be an array of objects.
         </small>
         <DatatypeValidationCheckbox
           checked={validateDatatypes()}
