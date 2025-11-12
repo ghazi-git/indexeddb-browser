@@ -1,7 +1,3 @@
-.records-count {
-  margin-block-end: var(--size-2);
-}
-
 .records-count > label {
   display: block;
   margin-block-end: var(--size-1);

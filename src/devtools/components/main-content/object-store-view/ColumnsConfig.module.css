@@ -1,7 +1,3 @@
-.columns-config {
-  margin-block-end: var(--size-2);
-}
-
 .columns-config table {
   inline-size: 100%;
   margin-block-end: var(--size-2);

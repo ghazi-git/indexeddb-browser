@@ -1,7 +1,3 @@
-.field-wrapper {
-  margin-block-end: var(--size-2);
-}
-
 .field-wrapper > label {
   display: block;
   margin-block-end: var(--size-1);

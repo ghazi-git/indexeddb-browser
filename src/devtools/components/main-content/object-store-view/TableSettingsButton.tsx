@@ -29,10 +29,12 @@ export default function TableSettingsButton() {
           setIsOpen(event.newState === "open");
         }}
       >
-        <ColumnsConfig />
-        <ColumnsAutosize />
-        <RecordsCountSetting />
-        <PaginationSetting />
+        <div class={styles["settings-container"]}>
+          <ColumnsConfig />
+          <ColumnsAutosize />
+          <RecordsCountSetting />
+          <PaginationSetting />
+        </div>
       </div>
     </>
   );
