@@ -25,4 +25,4 @@ jobs:
       - name: list packages
         run: npm list
       - name: Lint project
-        run: lefthook run pre-commit --all-files
+        run: npx lefthook run pre-commit --all-files
