@@ -22,5 +22,7 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm ci
+      - name: list packages
+        run: npm list
       - name: Lint project
         run: lefthook run pre-commit --all-files
