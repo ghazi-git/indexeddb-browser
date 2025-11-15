@@ -88,19 +88,17 @@ export default function DeleteObjectsButton(props: {
               <UnstyledButton
                 command="close"
                 commandfor="delete-objects-modal"
-                onClick={async () => {
-                  try {
-                    await deleteData({
-                      requestID: generateRequestID(),
-                      dbName: props.activeStore.dbName,
-                      storeName: props.activeStore.storeName,
-                      keys: validObjectKeys(),
-                    });
-                  } catch (e) {
+                onClick={() => {
+                  deleteData({
+                    requestID: generateRequestID(),
+                    dbName: props.activeStore.dbName,
+                    storeName: props.activeStore.storeName,
+                    keys: validObjectKeys(),
+                  }).catch((e) => {
                     const msg =
                       e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
                     setErrorMsg(msg);
-                  }
+                  });
                 }}
               >
                 Delete
