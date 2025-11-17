@@ -274,6 +274,8 @@ export default function Table(props: TableProps) {
         event.stopPropagation();
       }
     });
+    // reset selected rows on table reload
+    setSelectedObjectIDs([]);
   });
 
   // update table settings
