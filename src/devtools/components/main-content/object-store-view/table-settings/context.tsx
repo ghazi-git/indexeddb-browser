@@ -13,8 +13,8 @@ import { useTableContext } from "@/devtools/components/main-content/object-store
 import { useOriginContext } from "@/devtools/components/origin-context";
 import {
   DEFAULT_AUTOSIZE_COLUMNS,
+  DEFAULT_OBJECTS_COUNT,
   DEFAULT_PAGINATION,
-  DEFAULT_RECORDS_COUNT,
   deleteSavedOriginSettings,
   getPaginationAndSizingSettings,
   originHasSavedSettings,
@@ -52,7 +52,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
       if (values) {
         batch(() => {
           setSettings("pagination", values.enablePagination);
-          setSettings("recordsCount", values.recordsCount);
+          setSettings("objectsCount", values.objectsCount);
           setSettings("autosizeColumns", values.autosizeColumns);
         });
       }
@@ -69,7 +69,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         activeStore.dbName,
         activeStore.storeName,
         settings.pagination,
-        settings.recordsCount,
+        settings.objectsCount,
         settings.autosizeColumns,
       );
     }
@@ -82,8 +82,8 @@ export function TableSettingsContextProvider(props: FlowProps) {
     setSettings("autosizeColumns", value);
     _saveToLocalStorage();
   };
-  const setRecordsCount = (value: number | null) => {
-    setSettings("recordsCount", value);
+  const setObjectsCount = (value: number | null) => {
+    setSettings("objectsCount", value);
     _saveToLocalStorage();
   };
 
@@ -129,7 +129,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         settings,
         setSearchTerm,
         togglePagination,
-        setRecordsCount,
+        setObjectsCount,
         setAutosizeColumns,
         hasSavedSettings,
         deleteSavedSettings,
@@ -145,7 +145,7 @@ function getInitialSettingsValue(): TableSettings {
     searchTerm: "",
     pagination: DEFAULT_PAGINATION,
     autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
-    recordsCount: DEFAULT_RECORDS_COUNT,
+    objectsCount: DEFAULT_OBJECTS_COUNT,
   };
 }
 
@@ -153,7 +153,7 @@ interface TableSettingsContextType {
   settings: TableSettings;
   setSearchTerm: (term: string) => void;
   togglePagination: (value: boolean) => void;
-  setRecordsCount: (value: number | null) => void;
+  setObjectsCount: (value: number | null) => void;
   setAutosizeColumns: (value: AutosizeColumns) => void;
   hasSavedSettings: () => boolean;
   deleteSavedSettings: () => void;
@@ -162,6 +162,6 @@ interface TableSettingsContextType {
 interface TableSettings {
   searchTerm: string;
   pagination: boolean;
-  recordsCount: number | null;
+  objectsCount: number | null;
   autosizeColumns: AutosizeColumns;
 }

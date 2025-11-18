@@ -14,14 +14,14 @@ export function triggerDataFetching(
   dbName: string,
   storeName: string,
   savedColumns: TableColumn[] | undefined,
-  recordsCount: number | undefined,
+  objectsCount: number | undefined,
 ) {
   const code = getDataRequestCode(
     requestID,
     dbName,
     storeName,
     savedColumns,
-    recordsCount,
+    objectsCount,
   );
   return new Promise<void>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(code, (_, exceptionInfo) => {
@@ -40,13 +40,13 @@ function getDataRequestCode(
   dbName: string,
   storeName: string,
   savedColumns: TableColumn[] | undefined,
-  recordsCount: number | undefined,
+  objectsCount: number | undefined,
 ) {
   const serializedRequestID = JSON.stringify(requestID);
   const serializedDBName = JSON.stringify(dbName);
   const serializedStoreName = JSON.stringify(storeName);
   const serializedColumns = JSON.stringify(savedColumns);
-  const serializedCount = JSON.stringify(recordsCount);
+  const serializedCount = JSON.stringify(objectsCount);
 
   return `
 (function() {
@@ -89,7 +89,7 @@ async function processDataRequest(
   dbName: string,
   storeName: string,
   savedColumns: TableColumn[] | undefined,
-  recordsCount: number | undefined,
+  objectsCount: number | undefined,
 ) {
   markRequestInProgress(requestID);
   // make sure the database exists to avoid creating a new one when opening
@@ -116,7 +116,7 @@ async function processDataRequest(
       requestID,
       dbName,
       storeName,
-      recordsCount,
+      objectsCount,
     );
     let resp: TableData;
     const activeStore = { dbName, storeName };
@@ -148,7 +148,7 @@ function getObjectStoreData(
   requestID: string,
   dbName: string,
   storeName: string,
-  recordsCount: number | undefined,
+  objectsCount: number | undefined,
 ) {
   let tx: IDBTransaction;
   const startTime = Date.now();
@@ -205,7 +205,7 @@ function getObjectStoreData(
           ? [objectStore.keyPath]
           : objectStore.keyPath;
 
-      const getAllReq = objectStore.getAll(null, recordsCount);
+      const getAllReq = objectStore.getAll(null, objectsCount);
       getAllReq.onerror = () => {
         const msg =
           "An unexpected error occurred. Please try fetching the object store " +

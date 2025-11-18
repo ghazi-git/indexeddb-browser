@@ -1,35 +1,35 @@
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 
-import styles from "./RecordsCountSetting.module.css";
+import styles from "./ObjectsCountSetting.module.css";
 
-export default function RecordsCountSetting() {
+export default function ObjectsCountSetting() {
   const { refetch } = useTableContext();
-  const { settings, setRecordsCount } = useTableSettingsContext();
+  const { settings, setObjectsCount } = useTableSettingsContext();
 
   return (
-    <div class={styles["records-count"]}>
-      <label for="records-count">Number of records to fetch</label>
+    <div class={styles["objects-count"]}>
+      <label for="objects-count">Number of objects to fetch</label>
       <input
         type="number"
         step="1"
         min="0"
-        id="records-count"
-        value={settings.recordsCount ?? undefined}
+        id="objects-count"
+        value={settings.objectsCount ?? undefined}
         onChange={(event) => {
           const val = parseInt(event.target.value) || null;
           if (val === null || val >= 0) {
-            setRecordsCount(parseInt(event.target.value) || null);
+            setObjectsCount(parseInt(event.target.value) || null);
             refetch();
           } else {
             event.target.value =
-              typeof settings.recordsCount === "number"
-                ? String(settings.recordsCount)
+              typeof settings.objectsCount === "number"
+                ? String(settings.objectsCount)
                 : "";
           }
         }}
       />
-      <small>Leave empty to get all records</small>
+      <small>Leave empty to get all objects</small>
     </div>
   );
 }

@@ -5,8 +5,8 @@ import ColumnsAutosize from "@/devtools/components/main-content/object-store-vie
 import ColumnsConfig from "@/devtools/components/main-content/object-store-view/table-settings/ColumnsConfig";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 import DeleteSavedSettings from "@/devtools/components/main-content/object-store-view/table-settings/DeleteSavedSettings";
+import ObjectsCountSetting from "@/devtools/components/main-content/object-store-view/table-settings/ObjectsCountSetting";
 import PaginationSetting from "@/devtools/components/main-content/object-store-view/table-settings/PaginationSetting";
-import RecordsCountSetting from "@/devtools/components/main-content/object-store-view/table-settings/RecordsCountSetting";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
 
 import styles from "./TableSettingsButton.module.css";
@@ -39,7 +39,7 @@ export default function TableSettingsButton() {
         <div class={styles["settings-container"]}>
           <ColumnsConfig />
           <ColumnsAutosize />
-          <RecordsCountSetting />
+          <ObjectsCountSetting />
           <PaginationSetting />
           <DeleteSavedSettings
             disabled={isDeleteDisabled()}

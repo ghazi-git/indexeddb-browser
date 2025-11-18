@@ -89,15 +89,15 @@ export function createTableDataQuery() {
   }: QueryParams) {
     markQueryAsLoading();
     let savedColumns: TableColumn[] | undefined;
-    let recordsCount: number | undefined;
+    let objectsCount: number | undefined;
     if (origin) {
       const cols = getColumnsConfig(origin, dbName, storeName);
       if (cols.length) {
         savedColumns = cols;
       }
       const stored = getPaginationAndSizingSettings(origin, dbName, storeName);
-      if (stored && stored.recordsCount !== null) {
-        recordsCount = stored.recordsCount;
+      if (stored && stored.objectsCount !== null) {
+        objectsCount = stored.objectsCount;
       }
     }
     try {
@@ -107,7 +107,7 @@ export function createTableDataQuery() {
         dbName,
         storeName,
         savedColumns,
-        recordsCount,
+        objectsCount,
       );
       let timeSinceStart = 0;
       let iteration = 0;
