@@ -184,13 +184,13 @@ export default function Table(props: TableProps) {
           key = getIndexedDBKey(props.keypath, props.columns, params.data);
         } catch (e) {
           console.error("data-update: failure to determine object key", e);
-          setErrorMsg(`
-            Cell update reverted: unable to determine the object key. This
-            might be due to key columns datatypes. The valid key datatypes
-            are string, number, date and timestamp. Also, ensure the key
-            columns datatypes match those in indexedDB (timestamp is
-            automatically converted to number by the extension).
-          `);
+          setErrorMsg(
+            "Cell update reverted: unable to determine the object key. This " +
+              "might be due to key columns datatypes. The valid key datatypes " +
+              "are string, number, date and timestamp. Also, ensure the key " +
+              "columns datatypes match those in indexedDB (timestamp is " +
+              "automatically converted to number by the extension).",
+          );
           return;
         }
 
