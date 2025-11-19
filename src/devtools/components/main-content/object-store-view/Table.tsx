@@ -10,7 +10,7 @@ import {
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
-import { createEffect, onCleanup, onMount, untrack } from "solid-js";
+import { batch, createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
@@ -274,8 +274,11 @@ export default function Table(props: TableProps) {
         event.stopPropagation();
       }
     });
-    // reset selected rows on table reload
-    setSelectedObjectIDs([]);
+    batch(() => {
+      // reset selected rows and error msg on table reload
+      setSelectedObjectIDs([]);
+      setErrorMsg(null);
+    });
   });
 
   // update table settings
