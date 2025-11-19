@@ -302,14 +302,9 @@ export default function Table(props: TableProps) {
       gridApi.sizeColumnsToFit({ defaultMinWidth: 100, defaultMaxWidth: 500 });
     }
   });
-  // allow shift+R to reload the store data
+  // allow alt/option+s to reload the store data
   const reloadStore = (event: KeyboardEvent) => {
-    if (
-      event.key === "R" &&
-      event.shiftKey &&
-      !event.metaKey &&
-      !event.ctrlKey
-    ) {
+    if (event.key === "s" && event.altKey && !event.metaKey && !event.ctrlKey) {
       refetch();
     }
   };

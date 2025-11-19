@@ -18,7 +18,7 @@ Chrome extension that adds a DevTools panel to manage IndexedDB data.
 - Table settings are saved automatically to local storage. Saved settings can still be removed using the delete button
   at the bottom of the "Table Settings" popover.
 - Copy table data by selecting the cell then "ctrl/cmd + c"
-- The shortcut "shift + r" can be used to reload the data of the displayed object store.
+- The shortcut "alt/option + s" can be used to reload the data of the displayed object store.
 - "ctrl/cmd + click" or "shift + click" can be used to select multiple objects to be deleted from the object store.
 - Double-clicking a table cell or selecting it then starting to type, will allow updating the value for that cell. Press
   "Enter" to save or "Escape" to cancel.
