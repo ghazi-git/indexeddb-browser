@@ -13,7 +13,10 @@ export default function ErrorAlert(props: ErrorAlertProps) {
   };
 
   return (
-    <div class={`${styles.alert} ${props.useMonoFont && styles.mono}`}>
+    <div
+      class={`${styles.alert} ${props.useMonoFont && styles.mono}`}
+      role="alert"
+    >
       <Show
         when={errors().length !== 1}
         fallback={<div innerText={errors()[0]} />}
@@ -28,6 +31,7 @@ export default function ErrorAlert(props: ErrorAlertProps) {
         onClick={(event) => {
           props.onClick?.(event);
         }}
+        aria-label="Dismiss error alert"
       >
         <CloseIcon />
       </UnstyledButton>

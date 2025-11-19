@@ -113,7 +113,9 @@ export class JSONEditor implements ICellEditorComp {
   _createErrorsContainer() {
     const errors = document.createElement("div");
     errors.className = `${styles.errors} ${styles.hidden}`;
+    errors.setAttribute("role", "alert");
     const closeBtn = this._createButton("✕");
+    closeBtn.setAttribute("aria-label", "Dismiss error alert");
     closeBtn.addEventListener("click", () => {
       this._hideError();
     });
