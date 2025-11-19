@@ -48,9 +48,23 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
   // if the user navigates away from the current origin, unset the active store
   const { origin } = useOriginContext();
   createEffect(() => {
+    const currentOrigin = origin();
     const activeStore = untrack(() => activeObjectStore());
-    if (activeStore && origin()) {
-      _setActiveStore(null);
+    if (currentOrigin && activeStore) {
+      // load the last viewed store, if any, and it still exists
+      const lastViewedStore = getLastViewedStore(currentOrigin);
+      if (lastViewedStore) {
+        const { dbName, storeName } = lastViewedStore;
+        const dbs = untrack(() => databases());
+        const indexeddb = dbs?.find((db) => db.name === dbName);
+        if (indexeddb && indexeddb.objectStores.includes(storeName)) {
+          _setActiveStore(lastViewedStore);
+        } else {
+          _setActiveStore(null);
+        }
+      } else {
+        _setActiveStore(null);
+      }
     }
   });
 
