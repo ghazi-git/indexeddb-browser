@@ -118,6 +118,7 @@ function getObjectKeys(objectIDs: SelectedObjectID[]) {
         cell.datatype !== "string" &&
         cell.datatype !== "number" &&
         cell.datatype !== "timestamp" &&
+        cell.datatype !== "json_data" &&
         cell.datatype !== "date"
       ) {
         throw new Error("Invalid key column datatype");

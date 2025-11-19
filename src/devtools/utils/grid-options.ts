@@ -22,6 +22,7 @@ export function getIndexedDBKey(
       col.datatype !== "string" &&
       col.datatype !== "number" &&
       col.datatype !== "timestamp" &&
+      col.datatype !== "json_data" &&
       col.datatype !== "date"
     ) {
       throw new Error("Invalid key column datatype");
@@ -29,7 +30,7 @@ export function getIndexedDBKey(
     const value = row[colName];
     if (value == null) throw new Error("Invalid key column value");
 
-    key.push(convertToDataValue(value, col.datatype));
+    key.push({ value, datatype: col.datatype });
   });
   if (key.length === 0) throw new Error("Invalid key");
 
