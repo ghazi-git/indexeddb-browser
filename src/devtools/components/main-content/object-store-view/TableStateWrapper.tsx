@@ -15,11 +15,14 @@ import { TableData } from "@/devtools/utils/types";
 
 export default function TableStateWrapper() {
   const { query } = useTableContext();
+  const displayableData = () => {
+    if (query.data?.canDisplay) return query.data;
+  };
 
   return (
     <TableSettingsContextProvider>
       <TableMutationContextProvider>
-        <Show when={query.data}>
+        <Show when={displayableData()}>
           {(data) => (
             <TableSettingsWrapper>
               <TableSearch />
