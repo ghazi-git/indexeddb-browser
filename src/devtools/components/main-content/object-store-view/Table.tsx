@@ -43,7 +43,7 @@ import {
 } from "@/devtools/utils/inspected-window-helpers";
 import {
   ActiveObjectStore,
-  DataKey,
+  DataValue,
   TableColumn,
   TableRow,
 } from "@/devtools/utils/types";
@@ -179,7 +179,7 @@ export default function Table(props: TableProps) {
       },
       readOnlyEdit: true,
       onCellEditRequest: async (params: CellEditRequestEvent) => {
-        let key: DataKey[] = [];
+        let key: DataValue[] = [];
         try {
           key = getIndexedDBKey(props.keypath, props.columns, params.data);
         } catch (e) {

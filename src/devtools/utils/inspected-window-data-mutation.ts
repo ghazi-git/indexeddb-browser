@@ -3,8 +3,8 @@ import {
   sleep,
 } from "@/devtools/utils/inspected-window-helpers";
 import {
-  DataKey,
   DataMutationResponse,
+  DataValue,
   MutationResponseAttr,
   StoreValue,
   TableColumnDatatype,
@@ -109,7 +109,7 @@ export function isDataMutationActive(
   return window[attr]?.requestID === requestID;
 }
 
-export function createIndexedDBKey(key: DataKey[]) {
+export function createIndexedDBKey(key: DataValue[]) {
   if (key.length === 1) {
     return getStoreValue(key[0]);
   } else {

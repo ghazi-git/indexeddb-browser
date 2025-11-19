@@ -12,7 +12,7 @@ import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
-import { ActiveObjectStore, DataKey } from "@/devtools/utils/types";
+import { ActiveObjectStore, DataValue } from "@/devtools/utils/types";
 
 import styles from "./DeleteObjectsButton.module.css";
 
@@ -124,7 +124,7 @@ function getObjectKeys(objectIDs: SelectedObjectID[]) {
       }
       if (cell.value == null) throw new Error("Invalid key column value");
 
-      return { datatype: cell.datatype, value: cell.value } as DataKey;
+      return { datatype: cell.datatype, value: cell.value } as DataValue;
     });
   });
 }

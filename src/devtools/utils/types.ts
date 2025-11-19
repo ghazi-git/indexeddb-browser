@@ -112,7 +112,7 @@ export interface DataUpdateRequest {
   requestID: string;
   dbName: string;
   storeName: string;
-  key: DataKey[];
+  key: DataValue[];
   fieldToUpdate: string;
   newValue: DataValue;
 }
@@ -121,7 +121,7 @@ export interface DataDeletionRequest {
   requestID: string;
   dbName: string;
   storeName: string;
-  keys: DataKey[][];
+  keys: DataValue[][];
 }
 
 export interface DataCreationRequest {
@@ -137,7 +137,9 @@ export type NewObject = {
   datatype: TableColumnDatatype;
 }[];
 
-export type DataKey =
+// we're passing the datatype along with the value because date objects can
+// only be passed as strings between the extension and the inspected window
+export type DataValue =
   | { value: string | null | undefined; datatype: "string" }
   | { value: number | null | undefined; datatype: "number" }
   // timestamps are passed as their original type number (they are handled
@@ -145,12 +147,7 @@ export type DataKey =
   | { value: number | null | undefined; datatype: "timestamp" }
   // dates are passed as iso-formatted strings and converted to date objects
   // in the inspected window
-  | { value: string | null | undefined; datatype: "date" };
-
-// we're passing the datatype along with the value because date objects can
-// only be passed as strings between the extension and the inspected window
-export type DataValue =
-  | DataKey
+  | { value: string | null | undefined; datatype: "date" }
   // bigints are passed as strings and converted back to bigint in the
   // inspected window
   | { value: string | null | undefined; datatype: "bigint" }

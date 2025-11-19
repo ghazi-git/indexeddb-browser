@@ -2,7 +2,7 @@ import { GridApi, IRowNode } from "ag-grid-community";
 
 import { SelectedObjectID } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import {
-  DataKey,
+  DataValue,
   TableColumn,
   TableColumnDatatype,
   TableColumnValue,
@@ -14,7 +14,7 @@ export function getIndexedDBKey(
   columns: TableColumn[],
   row: TableRow,
 ) {
-  const key: DataKey[] = [];
+  const key: DataValue[] = [];
   keypath.forEach((colName) => {
     const col = columns.find((col) => col.name === colName);
     if (!col) throw new Error(`Key column '${colName}' not found`);
