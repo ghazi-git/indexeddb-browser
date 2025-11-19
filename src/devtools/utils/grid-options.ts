@@ -37,32 +37,6 @@ export function getIndexedDBKey(
   return key;
 }
 
-export function convertToDataValue<T extends TableColumnDatatype>(
-  value: TableColumnValue,
-  datatype: Exclude<T, "unsupported">,
-) {
-  if (datatype === "timestamp") {
-    // convert timestamp back to being a number which is the original
-    // type of data stored in indexedDB
-    return { value: value == null ? value : value.getTime(), datatype };
-  } else if (datatype === "date") {
-    // serialize date object as a string to be passed safely to the inspected
-    // window and converted back to date object there
-    return { value: value == null ? value : value.toISOString(), datatype };
-  } else if (datatype === "bigint") {
-    return { value: value == null ? value : value.toString(), datatype };
-  } else if (datatype === "json_data") {
-    try {
-      const val = JSON.parse(value);
-      return { value: val, datatype };
-    } catch {
-      return { value: undefined, datatype };
-    }
-  } else {
-    return { value, datatype };
-  }
-}
-
 export function parseBooleanNull(
   newValue: TableColumnValue,
   datatype: TableColumnDatatype,
@@ -84,35 +58,43 @@ export function updateRowData(
   column: TableColumn,
   newValue: TableColumnValue,
 ) {
-  // convert the newValue according to what's expected in rowData for
-  // each datatype:
-  // - timestamp => ms since epoch
-  // - date => iso-formatted string
-  // - bigint => integer as string
-  // - json string => json object
-  let value = newValue;
-  if (column.datatype === "timestamp") {
-    value = value == null ? value : value.getTime();
-  } else if (column.datatype === "date") {
-    value = value == null ? value : value.toISOString();
-  } else if (column.datatype === "bigint") {
-    value = value == null ? value : value.toString();
-  } else if (column.datatype === "json_data") {
-    try {
-      value = JSON.parse(value);
-    } catch {
-      value = undefined;
-    }
-  }
-
   const tx = gridApi.applyTransaction({
-    update: [{ ...oldRow, [column.name]: value }],
+    update: [{ ...oldRow, [column.name]: newValue }],
   });
   if (tx && tx.update.length) {
     gridApi.flashCells({
       rowNodes: [tx.update[0]],
       columns: [column.name],
     });
+  }
+}
+
+export function convertGetterValueToRowDataValue(
+  value: TableColumnValue,
+  datatype: TableColumnDatatype,
+) {
+  // convert the value returned by the column's valueGetter to the value that
+  // gets stored in rowData. The value in rowData is the value passed from
+  // the inspected window to the extension i.e. JSON-compliant value (dates
+  // and bigints as strings)
+  // - timestamp columns: convert from date to ms since epoch
+  // - date columns: convert from date to iso-formatted string
+  // - bigint columns: convert from bigint to integer as a string
+  // - json columns: convert from json string to json object
+  if (datatype === "timestamp") {
+    return value == null ? value : value.getTime();
+  } else if (datatype === "date") {
+    return value == null ? value : value.toISOString();
+  } else if (datatype === "bigint") {
+    return value == null ? value : value.toString();
+  } else if (datatype === "json_data") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return undefined;
+    }
+  } else {
+    return value;
   }
 }
 

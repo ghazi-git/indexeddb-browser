@@ -31,7 +31,7 @@ import { formatNumber, getNumberColdef } from "@/devtools/utils/coldef-number";
 import { formatString, getStringColdef } from "@/devtools/utils/coldef-string";
 import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import {
-  convertToDataValue,
+  convertGetterValueToRowDataValue,
   getIndexedDBKey,
   getSelectedObjectID,
   parseBooleanNull,
@@ -200,7 +200,8 @@ export default function Table(props: TableProps) {
           setErrorMsg(`Cell update reverted: ${DATA_MUTATION_ERROR_MSG}`);
           return;
         }
-        const newValue = parseBooleanNull(params.newValue, col.datatype);
+        let newValue = parseBooleanNull(params.newValue, col.datatype);
+        newValue = convertGetterValueToRowDataValue(newValue, col.datatype);
 
         try {
           await updateField({
@@ -209,7 +210,7 @@ export default function Table(props: TableProps) {
             storeName: props.activeStore.storeName,
             key,
             fieldToUpdate,
-            newValue: convertToDataValue(newValue, col.datatype),
+            newValue: { value: newValue, datatype: col.datatype },
           });
           // after the update succeeded in indexedDB, update the table data
           updateRowData(params.api, params.data, col, newValue);
