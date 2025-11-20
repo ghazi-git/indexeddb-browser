@@ -119,7 +119,7 @@ export class JSONEditor implements ICellEditorComp {
     this.editor.textarea.style.cursor = "text";
 
     this.focusManager = new EditorFocusManager(
-      this.editor.textarea,
+      editorContainer,
       this.cancelBtn,
       this.saveBtn,
     );
@@ -260,45 +260,51 @@ export class JSONEditor implements ICellEditorComp {
  * in the popup
  */
 class EditorFocusManager {
-  elements: HTMLElement[];
-  focusIndex: number | null;
   constructor(
-    textarea: HTMLTextAreaElement,
-    cancel: HTMLButtonElement,
-    save: HTMLButtonElement,
-  ) {
-    this.elements = [textarea, cancel, save];
-    this.focusIndex = null;
+    public editorContainer: HTMLDivElement,
+    public cancel: HTMLButtonElement,
+    public save: HTMLButtonElement,
+  ) {}
+
+  get elements(): HTMLElement[] {
+    return [this.editorContainer, this.cancel, this.save];
   }
 
   focusNext() {
-    if (
-      this.focusIndex === null ||
-      this.focusIndex >= this.elements.length - 1
-    ) {
-      this.focusElement(0);
-    } else {
-      const idx = Math.max(this.focusIndex + 1, 0);
-      this.focusElement(idx);
+    if (document.activeElement instanceof HTMLElement) {
+      const idx = this.elements.indexOf(document.activeElement);
+      if (idx >= 0) {
+        const next = idx >= this.elements.length - 1 ? 0 : idx + 1;
+        this.focusElement(this.elements[next]);
+        return;
+      }
     }
+    this.focusElement(this.editorContainer);
   }
 
   focusPrevious() {
-    if (this.focusIndex === null || this.focusIndex <= 0) {
-      this.focusElement(this.elements.length - 1);
-    } else {
-      const idx = Math.min(this.focusIndex - 1, this.elements.length - 1);
-      this.focusElement(idx);
+    if (document.activeElement instanceof HTMLElement) {
+      const idx = this.elements.indexOf(document.activeElement);
+      if (idx >= 0) {
+        const prev = idx <= 0 ? this.elements.length - 1 : idx - 1;
+        this.focusElement(this.elements[prev]);
+        return;
+      }
     }
+    this.focusElement(this.editorContainer);
   }
 
-  private focusElement(idx: number) {
-    const elt = this.elements[idx];
-    elt.focus();
-    if (elt instanceof HTMLTextAreaElement) {
-      elt.select();
+  private focusElement(elt: HTMLElement) {
+    if (elt === this.editorContainer) {
+      const textarea =
+        this.editorContainer.shadowRoot?.querySelector("textarea");
+      if (textarea) {
+        textarea.focus();
+        textarea.select();
+      }
+    } else {
+      elt.focus();
     }
-    this.focusIndex = idx;
   }
 }
 
