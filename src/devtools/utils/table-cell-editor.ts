@@ -96,7 +96,8 @@ export class JSONEditor implements ICellEditorComp {
     editorFooter.className = styles.footer;
     this.errorContainer = this._createErrorsContainer();
     const buttonsContainer = this._createButtonsContainer(params.api);
-    editorFooter.append(this.errorContainer, buttonsContainer);
+    const hint = this._createHint();
+    editorFooter.append(hint, this.errorContainer, buttonsContainer);
 
     this.gui.append(editorContainer, editorFooter);
 
@@ -126,7 +127,7 @@ export class JSONEditor implements ICellEditorComp {
       // work as expected. Tried the onLoad method of basicEditor but that didn't work.
       // This is necessary for keyboard-only users and to mimic the behavior
       // of other cell editors.
-    }, 20);
+    }, 50);
   }
 
   getGui() {
@@ -166,6 +167,13 @@ export class JSONEditor implements ICellEditorComp {
     this.errorMsgElement.className = styles["error-msg"];
     errors.append(this.errorMsgElement, closeBtn);
     return errors;
+  }
+
+  _createHint() {
+    const elt = document.createElement("small");
+    elt.innerText =
+      "Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab for indentation.";
+    return elt;
   }
 
   _createButtonsContainer(gridApi: GridApi) {
