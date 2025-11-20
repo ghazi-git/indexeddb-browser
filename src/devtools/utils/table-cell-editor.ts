@@ -63,6 +63,7 @@ export class JSONEditor implements ICellEditorComp {
   editor!: PrismEditor;
   saveBtn!: HTMLButtonElement;
   cancelBtn!: HTMLButtonElement;
+  hideErrorsBtn!: HTMLButtonElement;
   focusManager!: EditorFocusManager;
 
   init(params: ICellEditorParams) {
@@ -122,6 +123,7 @@ export class JSONEditor implements ICellEditorComp {
       editorContainer,
       this.cancelBtn,
       this.saveBtn,
+      this.hideErrorsBtn,
     );
   }
 
@@ -163,14 +165,14 @@ export class JSONEditor implements ICellEditorComp {
     const errors = document.createElement("div");
     errors.className = `${styles.errors} ${styles.hidden}`;
     errors.setAttribute("role", "alert");
-    const closeBtn = this._createButton("✕");
-    closeBtn.setAttribute("aria-label", "Dismiss error alert");
-    closeBtn.addEventListener("click", () => {
+    this.hideErrorsBtn = this._createButton("✕");
+    this.hideErrorsBtn.setAttribute("aria-label", "Dismiss error alert");
+    this.hideErrorsBtn.addEventListener("click", () => {
       this._hideError();
     });
     this.errorMsgElement = document.createElement("div");
     this.errorMsgElement.className = styles["error-msg"];
-    errors.append(this.errorMsgElement, closeBtn);
+    errors.append(this.errorMsgElement, this.hideErrorsBtn);
     return errors;
   }
 
@@ -236,11 +238,13 @@ export class JSONEditor implements ICellEditorComp {
     // -------------^
     this.errorMsgElement.style.flexShrink = scrollLongLine ? "0" : "1";
     this.errorContainer.classList.remove(styles.hidden);
+    this.focusManager.focusHideErrorsBtn();
   }
 
   _hideError() {
     this.errorMsgElement.innerText = "";
     this.errorContainer.classList.add(styles.hidden);
+    this.focusManager.excludeHideErrors();
   }
 
   _prettyPrint(value: string | null | undefined) {
@@ -264,10 +268,16 @@ class EditorFocusManager {
     public editorContainer: HTMLDivElement,
     public cancel: HTMLButtonElement,
     public save: HTMLButtonElement,
+    public hideErrors: HTMLButtonElement,
+    public includeHideErrors = false,
   ) {}
 
   get elements(): HTMLElement[] {
-    return [this.editorContainer, this.cancel, this.save];
+    const managedElements = [this.editorContainer, this.cancel, this.save];
+    if (this.includeHideErrors) {
+      managedElements.push(this.hideErrors);
+    }
+    return managedElements;
   }
 
   focusNext() {
@@ -292,6 +302,16 @@ class EditorFocusManager {
       }
     }
     this.focusElement(this.editorContainer);
+  }
+
+  focusHideErrorsBtn() {
+    this.includeHideErrors = true;
+    this.focusElement(this.hideErrors);
+  }
+
+  excludeHideErrors() {
+    this.includeHideErrors = false;
+    this.focusElement(this.save);
   }
 
   private focusElement(elt: HTMLElement) {
