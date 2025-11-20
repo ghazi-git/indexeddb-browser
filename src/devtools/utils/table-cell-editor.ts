@@ -70,7 +70,12 @@ export class JSONEditor implements ICellEditorComp {
     this.gui = document.createElement("div");
     this.gui.className = styles["json-editor"];
     this.gui.addEventListener("keydown", (event) => {
-      if (
+      if (event.key === "Enter") {
+        // don't propagate enter click to ag-grid to avoid ag-grid committing
+        // the changes even on cancel click or save click with unfixed errors
+        // this is relevant to keyboard users
+        event.stopPropagation();
+      } else if (
         event.key === "Tab" &&
         !event.ctrlKey &&
         !event.altKey &&
