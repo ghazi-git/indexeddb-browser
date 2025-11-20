@@ -61,11 +61,35 @@ export class JSONEditor implements ICellEditorComp {
   errorMsgElement!: HTMLDivElement;
   errorContainer!: HTMLDivElement;
   editor!: PrismEditor;
+  saveBtn!: HTMLButtonElement;
+  cancelBtn!: HTMLButtonElement;
+  focusManager!: EditorFocusManager;
 
   init(params: ICellEditorParams) {
     this.gridCell = params.eGridCell;
     this.gui = document.createElement("div");
     this.gui.className = styles["json-editor"];
+    this.gui.addEventListener("keydown", (event) => {
+      if (
+        event.key === "Tab" &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey
+      ) {
+        // when the user wants to tab out of the editor, this stops the grid
+        // from tabbing him out from the cell by default. So, the user can
+        // move to the save/cancel buttons
+        event.stopPropagation();
+        // stop the default browser tabbing behavior since EditorFocusManager
+        // is used to cycle through the 3 elements in the popup
+        event.preventDefault();
+        if (event.shiftKey) {
+          this.focusManager.focusPrevious();
+        } else {
+          this.focusManager.focusNext();
+        }
+      }
+    });
 
     const editorContainer = document.createElement("div");
     const editorFooter = document.createElement("div");
@@ -87,14 +111,19 @@ export class JSONEditor implements ICellEditorComp {
     const containerChild = this.editor.container.firstChild as HTMLElement;
     containerChild.style.marginBlockEnd = "0";
     this.editor.textarea.style.cursor = "text";
+
+    this.focusManager = new EditorFocusManager(
+      this.editor.textarea,
+      this.cancelBtn,
+      this.saveBtn,
+    );
   }
 
   afterGuiAttached() {
     setTimeout(() => {
-      this.editor.textarea.focus();
-      this.editor.textarea.select();
-      // Adding some delay, otherwise the selection wouldn't work as expected.
-      // Tried the onLoad method of basicEditor but that didn't work.
+      this.focusManager.focusNext();
+      // Adding some delay, otherwise the text selection in the textarea wouldn't
+      // work as expected. Tried the onLoad method of basicEditor but that didn't work.
       // This is necessary for keyboard-only users and to mimic the behavior
       // of other cell editors.
     }, 20);
@@ -143,14 +172,14 @@ export class JSONEditor implements ICellEditorComp {
     const btnContainer = document.createElement("div");
     btnContainer.className = styles["btn-container"];
 
-    const cancelBtn = this._createButton("Cancel");
-    cancelBtn.addEventListener("click", () => {
+    this.cancelBtn = this._createButton("Cancel");
+    this.cancelBtn.addEventListener("click", () => {
       gridApi.stopEditing(true);
     });
 
-    const saveBtn = this._createButton("Save");
-    saveBtn.classList.add(styles.save);
-    saveBtn.addEventListener("click", () => {
+    this.saveBtn = this._createButton("Save");
+    this.saveBtn.classList.add(styles.save);
+    this.saveBtn.addEventListener("click", () => {
       const value = this.editor.textarea.value.trim();
       if (value === "") {
         // will be considered as null
@@ -171,7 +200,7 @@ export class JSONEditor implements ICellEditorComp {
       }
     });
 
-    btnContainer.append(cancelBtn, saveBtn);
+    btnContainer.append(this.cancelBtn, this.saveBtn);
     return btnContainer;
   }
 
@@ -210,6 +239,53 @@ export class JSONEditor implements ICellEditorComp {
     } catch {
       return "";
     }
+  }
+}
+
+/**
+ * Manage the focus for the json editor popup by cycling through the 3 elements
+ * in the popup
+ */
+class EditorFocusManager {
+  elements: HTMLElement[];
+  focusIndex: number | null;
+  constructor(
+    textarea: HTMLTextAreaElement,
+    cancel: HTMLButtonElement,
+    save: HTMLButtonElement,
+  ) {
+    this.elements = [textarea, cancel, save];
+    this.focusIndex = null;
+  }
+
+  focusNext() {
+    if (
+      this.focusIndex === null ||
+      this.focusIndex >= this.elements.length - 1
+    ) {
+      this.focusElement(0);
+    } else {
+      const idx = Math.max(this.focusIndex + 1, 0);
+      this.focusElement(idx);
+    }
+  }
+
+  focusPrevious() {
+    if (this.focusIndex === null || this.focusIndex <= 0) {
+      this.focusElement(this.elements.length - 1);
+    } else {
+      const idx = Math.min(this.focusIndex - 1, this.elements.length - 1);
+      this.focusElement(idx);
+    }
+  }
+
+  private focusElement(idx: number) {
+    const elt = this.elements[idx];
+    elt.focus();
+    if (elt instanceof HTMLTextAreaElement) {
+      elt.select();
+    }
+    this.focusIndex = idx;
   }
 }
 

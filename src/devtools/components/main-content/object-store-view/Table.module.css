@@ -153,6 +153,10 @@
     button {
       padding-block-start: 2px;
 
+      &:focus-visible {
+        z-index: var(--layer-1);
+      }
+
       &:hover {
         background-color: #f3f3f3;
 
