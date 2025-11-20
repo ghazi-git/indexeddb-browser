@@ -56,12 +56,14 @@ export class BigintCellEditor implements ICellEditorComp {
 }
 
 export class JSONEditor implements ICellEditorComp {
+  gridCell!: HTMLElement;
   gui!: HTMLDivElement;
   errorMsgElement!: HTMLDivElement;
   errorContainer!: HTMLDivElement;
   editor!: PrismEditor;
 
   init(params: ICellEditorParams) {
+    this.gridCell = params.eGridCell;
     this.gui = document.createElement("div");
     this.gui.className = styles["json-editor"];
 
@@ -88,7 +90,14 @@ export class JSONEditor implements ICellEditorComp {
   }
 
   afterGuiAttached() {
-    this.editor.textarea.focus();
+    setTimeout(() => {
+      this.editor.textarea.focus();
+      this.editor.textarea.select();
+      // Adding some delay, otherwise the selection wouldn't work as expected.
+      // Tried the onLoad method of basicEditor but that didn't work.
+      // This is necessary for keyboard-only users and to mimic the behavior
+      // of other cell editors.
+    }, 20);
   }
 
   getGui() {
@@ -108,6 +117,11 @@ export class JSONEditor implements ICellEditorComp {
 
   isPopup() {
     return true;
+  }
+
+  destroy() {
+    // return the focus to the original cell after moving it to the editor
+    this.gridCell.focus();
   }
 
   _createErrorsContainer() {
