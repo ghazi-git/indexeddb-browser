@@ -20,7 +20,11 @@
   }
 
   .hint {
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0 var(--size-1);
     padding-inline-start: 0.75rem;
     font-size: 0.9rem;
   }

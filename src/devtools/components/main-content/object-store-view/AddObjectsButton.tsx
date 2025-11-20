@@ -129,9 +129,13 @@ export default function AddObjectsButton() {
           </UnstyledButton>
         </header>
         <div ref={editorRef} />
-        <small class={styles.hint}>
-          The json value entered must be an array of objects.
-        </small>
+        <div class={styles.hint}>
+          <div>The json value entered must be an array of objects.</div>
+          <div>
+            Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab for
+            indentation.
+          </div>
+        </div>
         <DatatypeValidationCheckbox
           checked={validateDatatypes()}
           onChange={(event) => {
