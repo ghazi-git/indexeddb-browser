@@ -30,7 +30,7 @@
     "stylelint-config-standard": "39.0.1",
     "stylelint-plugin-logical-css": "1.2.3",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.46.0",
+    "typescript-eslint": "8.46.2",
     "vite": "7.1.9",
     "vite-plugin-solid": "2.11.9",
     "vite-plugin-zip-pack": "1.2.4"
