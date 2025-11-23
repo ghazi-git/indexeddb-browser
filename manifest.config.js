@@ -4,8 +4,10 @@ import pkg from "./package.json";
 
 export default defineManifest({
   manifest_version: 3,
-  name: pkg.name,
+  name: "IndexedDB Browser",
   version: pkg.version,
+  description:
+    "Chrome extension that adds a DevTools panel to add, edit, delete and view IndexedDB data in a table.",
   // v129 latest anchor positioning changes shipped
   // v135 base-select/command/commandfor
   minimum_chrome_version: "135",
