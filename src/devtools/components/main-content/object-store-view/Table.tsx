@@ -10,7 +10,14 @@ import {
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
 } from "ag-grid-community";
-import { batch, createEffect, onCleanup, onMount, untrack } from "solid-js";
+import {
+  batch,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount,
+  untrack,
+} from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
@@ -47,12 +54,11 @@ import {
   TableColumn,
   TableRow,
 } from "@/devtools/utils/types";
-import { useTheme } from "@/devtools/utils/ui-theme-context";
 
 import styles from "./Table.module.css";
 
 export default function Table(props: TableProps) {
-  const { theme } = useTheme();
+  const theme = createThemeSignal();
   let gridApi: GridApi;
   let tableContainer: HTMLDivElement;
 
@@ -320,6 +326,27 @@ export default function Table(props: TableProps) {
       data-ag-theme-mode={theme()}
     />
   );
+}
+
+function createThemeSignal() {
+  const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const [theme, setTheme] = createSignal<"light" | "dark">(
+    darkThemeQuery.matches ? "dark" : "light",
+  );
+
+  const onChange = (event: MediaQueryListEvent) => {
+    const systemTheme = event.matches ? "dark" : "light";
+    console.log("systemTheme", systemTheme);
+    setTheme(systemTheme);
+  };
+  onMount(() => {
+    darkThemeQuery.addEventListener("change", onChange);
+  });
+  onCleanup(() => {
+    darkThemeQuery.removeEventListener("change", onChange);
+  });
+
+  return theme;
 }
 
 interface TableProps {
