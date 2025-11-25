@@ -34,6 +34,11 @@
   border-inline-end: none;
 }
 
+.sidebar > :last-child {
+  margin-block-start: auto;
+  padding-inline: var(--sidebar-padding-inline);
+}
+
 .no-databases {
   padding-inline: var(--sidebar-padding-inline);
 }

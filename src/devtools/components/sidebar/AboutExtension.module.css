@@ -1,0 +1,13 @@
+.about {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0 var(--size-2);
+
+  a {
+    color: var(--text-2);
+    text-align: center;
+    line-height: normal;
+  }
+}

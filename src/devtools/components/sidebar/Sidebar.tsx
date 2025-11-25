@@ -1,6 +1,7 @@
 import { Match, Show, Switch } from "solid-js";
 
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
+import AboutExtension from "@/devtools/components/sidebar/AboutExtension";
 import DatabaseTree from "@/devtools/components/sidebar/database-tree/DatabaseTree";
 import { useSidebarContext } from "@/devtools/components/sidebar/sidebar-context";
 import SidebarHeader from "@/devtools/components/sidebar/SidebarHeader";
@@ -48,6 +49,7 @@ export default function Sidebar() {
           )}
         </Match>
       </Switch>
+      <AboutExtension />
     </aside>
   );
 }
