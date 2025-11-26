@@ -162,16 +162,15 @@ npm run build
 
 - [optional] Set env variable
   `GITHUB_TOKEN` ([generate token](https://github.com/settings/tokens/new?scopes=repo&description=indexeddb-browser-github-release))
-- Run `npm run release`
-  - Pull the latest changes on main.
+- Run `npm run release` which includes:
+  - Pull the latest changes `git pull`.
   - Check for linting issues `npm run lint`.
-  - Set the version in `package.json`
-  - Add the version and date to the changelog `## [<version>] - <yyyy-mm-dd>` and keep `## [UNRELEASED]` at the top.
+  - Set the new version in `package.json`
+  - Add the version and date to the changelog `## [<version>] - <yyyy-mm-dd>` and keep `## [Unrelease]` at the top.
   - Commit the changes and create a git tag `v<version>`.
   - Push the local commit and tag to GitHub.
-  - Open the GitHub release page with the fields prepopulated. The release notes are copied from the changelog.
   - Create the GitHub release, done automatically if the GITHUB_TOKEN env variable is set. Otherwise, a new release page
-    is opened in the browser with fields prepopulated.
+    is opened in the browser with fields prepopulated. The release notes are copied from the changelog.
 - Package the extension with `npm run build`.
 - Upload the packaged extension to the Chrome web store.
 
