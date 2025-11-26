@@ -1,0 +1,19 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+The format is based on [Keep a Changelog](https://keepachangelog.com/).
+
+## [UNRELEASED]
+
+### Added
+
+- Display IndexedDB data in a table.
+- Enable search and per-column filtering for IndexedDB data.
+- Manage column visibility and ordering.
+- Add, edit and delete IndexedDB data.
+- Use a JSON editor with syntax highlighting for updating JSON data and adding new objects.
+- Ensure UI components are accessible.
+- Format integers that represent milliseconds since epoch as a datetime using the timestamp datatype.
+- Automatically save table settings and last viewed object store for the next time the user opens the extension's panel.
+- Automatically update the indexedDB list when the origin of the inspected page changes.
+- Use a light or dark theme depending on system settings.
