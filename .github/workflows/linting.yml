@@ -28,4 +28,4 @@ jobs:
         run: npm ci
 
       - name: Lint project
-        run: npx lefthook run pre-commit --all-files
+        run: npm run lint
