@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "lint": "lefthook run pre-commit --all-files",
-    "build": "vite build"
+    "build": "vite build",
+    "release": "release-it"
   },
   "dependencies": {
     "@prantlf/jsonlint": "16.0.0",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "2.2.0",
     "@eslint/js": "9.38.0",
+    "@release-it/keep-a-changelog": "7.0.0",
     "@types/chrome": "0.1.24",
     "eslint": "9.38.0",
     "eslint-plugin-import": "2.32.0",
@@ -27,6 +29,7 @@
     "globals": "16.4.0",
     "lefthook": "1.13.6",
     "prettier": "3.6.2",
+    "release-it": "19.0.6",
     "stylelint": "16.25.0",
     "stylelint-config-standard": "39.0.1",
     "stylelint-plugin-logical-css": "1.2.3",
