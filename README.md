@@ -158,6 +158,15 @@ npm run build
 - `src/popup.html` - Extension popup UI (minimal page directing the user to the devtools panel)
 - `manifest.config.js` - Chrome extension manifest configuration
 
+## Release Process
+
+- Add the version and date to the changelog `## [<version>] - <yyyy-mm-dd>` and keep `## [UNRELEASED]` at the top.
+- Set the version in `package.json`
+- Commit the changes and push a git tag `v<version>`.
+- Create a GitHub release with the same version and changes copied from the changelog.
+- Package the extension with `npm run build`.
+- Upload the packaged extension to the Chrome web store.
+
 ## License
 
 This project is [MIT licensed](LICENSE).
