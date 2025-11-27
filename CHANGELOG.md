@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-11-27
+
 ### Added
 
 - Display IndexedDB data in a table.
