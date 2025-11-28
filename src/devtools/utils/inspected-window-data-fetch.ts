@@ -50,7 +50,7 @@ function getDataRequestCode(
 
   return `
 (function() {
-  processDataRequest(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns}, ${serializedCount})
+  ${processDataRequest.name}(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns}, ${serializedCount})
 
   ${processDataRequest.toString()}
   ${getObjectStoreData.toString()}

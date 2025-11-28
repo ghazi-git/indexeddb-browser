@@ -28,7 +28,7 @@ function getDataDeletionCode(request: DataDeletionRequest) {
   const serializedRequest = JSON.stringify(request);
   return `
 (function() {
-  processDataDeletionRequest(${serializedRequest})
+  ${processDataDeletionRequest.name}(${serializedRequest})
 
   ${processDataDeletionRequest.toString()}
   ${deleteObjects.toString()}

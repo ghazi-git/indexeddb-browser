@@ -23,7 +23,7 @@ function getDatabasesRequestCode(requestID: string) {
   const serializedErrorMsg = JSON.stringify(DATABASES_ERROR_MSG);
   return `
 (function() {
-  processDatabasesRequest(${serializedRequestID}, ${serializedErrorMsg})
+  ${processDatabasesRequest.name}(${serializedRequestID}, ${serializedErrorMsg})
 
   ${processDatabasesRequest.toString()}
   ${markRequestInProgress.toString()}

@@ -28,7 +28,7 @@ function getDataUpdateCode(request: DataUpdateRequest) {
   const serializedRequest = JSON.stringify(request);
   return `
 (function() {
-  processDataUpdateRequest(${serializedRequest})
+  ${processDataUpdateRequest.name}(${serializedRequest})
 
   ${processDataUpdateRequest.toString()}
   ${updateObjectField.toString()}

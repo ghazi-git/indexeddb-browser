@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Avoid hardcoding function names in code evaluated by `chrome.devtools.inspectedWindow.eval` to account for code
+  minification during the build process.
+
 ## [1.0.0] - 2025-11-27
 
 ### Added

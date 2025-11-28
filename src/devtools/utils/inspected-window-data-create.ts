@@ -27,7 +27,7 @@ function getDataCreationCode(request: DataCreationRequest) {
   const serializedRequest = JSON.stringify(request);
   return `
 (function() {
-  processDataCreationRequest(${serializedRequest})
+  ${processDataCreationRequest.name}(${serializedRequest})
 
   ${processDataCreationRequest.toString()}
   ${insertObjects.toString()}
