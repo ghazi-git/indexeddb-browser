@@ -2,6 +2,8 @@
 
 Chrome extension that adds a DevTools panel to manage IndexedDB data.
 
+[![Available in chrome webstore icon](https://developer.chrome.com/static/docs/webstore/branding/image/tbyBjqi7Zu733AAKA5n4.png)](https://chromewebstore.google.com/detail/indexeddb-browser/hbceohajonmaepffkpihbkknoeklagcg)
+
 ## Features
 
 - Search, sort and display IndexedDB data in a table.
