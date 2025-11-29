@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added
 
+- Optimistically update cell values before saving the value to IndexedDB but revert it in case of failures. This makes
+  the update faster from a user perspective since we don't wait for it to be committed to IndexedDB first.
 - Distinguish the extension installed in dev mode from the one installed from the Chrome Web Store.
 
 ## [1.0.1] - 2025-11-28

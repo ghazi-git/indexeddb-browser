@@ -206,8 +206,12 @@ export default function Table(props: TableProps) {
           setErrorMsg(`Cell update reverted: ${DATA_MUTATION_ERROR_MSG}`);
           return;
         }
+        // store the old value in case the update in indexedDB fails
+        const oldValue = params.data[col.name];
         let newValue = parseBooleanNull(params.newValue, col.datatype);
         newValue = convertGetterValueToRowDataValue(newValue, col.datatype);
+        // optimistically update the cell value
+        updateRowData(params.api, params.data, col, newValue);
 
         try {
           await updateField({
@@ -218,9 +222,8 @@ export default function Table(props: TableProps) {
             fieldToUpdate,
             newValue: { value: newValue, datatype: col.datatype },
           });
-          // after the update succeeded in indexedDB, update the table data
-          updateRowData(params.api, params.data, col, newValue);
         } catch (e) {
+          updateRowData(params.api, params.data, col, oldValue);
           const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
           setErrorMsg(`Cell update reverted: ${msg}`);
         }
