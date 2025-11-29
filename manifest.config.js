@@ -2,9 +2,12 @@ import { defineManifest } from "@crxjs/vite-plugin";
 
 import pkg from "./package.json";
 
-export default defineManifest({
+export default defineManifest(async (env) => ({
   manifest_version: 3,
-  name: "IndexedDB Browser",
+  name:
+    env.mode === "development"
+      ? "IndexedDB Browser (DEV)"
+      : "IndexedDB Browser",
   version: pkg.version,
   description:
     "Chrome extension that adds a DevTools panel to add, edit, delete and view IndexedDB data in a table.",
@@ -18,8 +21,11 @@ export default defineManifest({
   },
   devtools_page: "src/devtools/index.html",
   action: {
-    default_icon: "public/idb-browser-48x48.png",
+    default_icon:
+      env.mode === "development"
+        ? "public/idb-browser-dev.png"
+        : "public/idb-browser-48x48.png",
     default_popup: "src/popup.html",
     default_title: "IndexedDB Browser",
   },
-});
+}));

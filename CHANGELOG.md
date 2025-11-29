@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Distinguish the extension installed in dev mode from the one installed from the Chrome Web Store.
+
 ## [1.0.1] - 2025-11-28
 
 ### Fixed
