@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-11-30
+
 ### Added
 
 - Optimistically update cell values before saving the value to IndexedDB but revert it in case of failures. This makes
