@@ -162,11 +162,11 @@ npm run dev
   - Pull the latest changes `git pull`.
   - Check for linting issues `npm run lint`.
   - Set the new version in `package.json`
-  - Add the version and date to the changelog `## [<version>] - <yyyy-mm-dd>` and keep `## [Unrelease]` at the top.
+  - Add the version and date to the changelog `## [<version>] - <yyyy-mm-dd>` and keep `## [Unreleased]` at the top.
   - Commit the changes and create a git tag `v<version>`.
   - Push the local commit and tag to GitHub.
-  - Create the GitHub release, done automatically if the GITHUB_TOKEN env variable is set. Otherwise, a new release page
-    is opened in the browser with fields prepopulated. The release notes are copied from the changelog.
+  - Create the GitHub release, done automatically if the `GITHUB_TOKEN` env variable is set. Otherwise, a new release
+    page is opened in the browser with fields prepopulated. The release notes are copied from the changelog.
 - Package the extension with `npm run build`.
 - Upload the packaged extension to the Chrome web store.
 
