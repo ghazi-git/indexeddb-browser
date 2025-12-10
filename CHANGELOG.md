@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-12-10
+
 ### Fixed
 
 - Enable word wrapping in the JSON editor.
