@@ -14,6 +14,7 @@ export function createJSONEditor(
   const editor = basicEditor(container, {
     value: initialValue,
     language: "json",
+    wordWrap: true,
     theme: systemScheme === "light" ? "night-owl-light" : "night-owl",
   });
   editor.container.addEventListener("keydown", (event) => {
