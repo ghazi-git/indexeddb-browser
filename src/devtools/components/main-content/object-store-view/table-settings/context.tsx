@@ -3,7 +3,6 @@ import {
   createContext,
   createEffect,
   FlowProps,
-  onMount,
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
@@ -40,7 +39,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
   );
   const { origin } = useOriginContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
-  onMount(() => {
+  createEffect(() => {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
