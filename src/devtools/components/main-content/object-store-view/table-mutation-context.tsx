@@ -14,8 +14,7 @@ import {
   DataCreationRequest,
   DataDeletionRequest,
   DataUpdateRequest,
-  TableColumnDatatype,
-  TableColumnValue,
+  TableRow,
 } from "@/devtools/utils/types";
 
 const TableMutationContext = createContext<TableMutationContextType>();
@@ -35,12 +34,12 @@ export function TableMutationContextProvider(props: FlowProps) {
   const [tableMutationStore, setTableMutationStore] =
     createStore<TableMutationStore>({
       errorMsg: null,
-      selectedObjectIDs: [],
+      selectedObjects: [],
     });
   const setErrorMsg = (msg: string | null) =>
     setTableMutationStore("errorMsg", msg);
-  const setSelectedObjectIDs = (selectedObjectIDs: SelectedObjectID[]) => {
-    setTableMutationStore("selectedObjectIDs", selectedObjectIDs);
+  const setSelectedObjects = (selectedObjects: TableRow[]) => {
+    setTableMutationStore("selectedObjects", selectedObjects);
   };
 
   const { mutation: updateOperation, mutate: updateField } =
@@ -78,7 +77,7 @@ export function TableMutationContextProvider(props: FlowProps) {
   const { activeObjectStore } = useActiveObjectStoreContext();
   createEffect(() => {
     activeObjectStore();
-    setTableMutationStore({ errorMsg: null, selectedObjectIDs: [] });
+    setTableMutationStore({ errorMsg: null, selectedObjects: [] });
   });
 
   return (
@@ -86,7 +85,7 @@ export function TableMutationContextProvider(props: FlowProps) {
       value={{
         tableMutationStore,
         setErrorMsg,
-        setSelectedObjectIDs,
+        setSelectedObjects,
         updateOperation,
         updateField,
         deleteOperation,
@@ -105,7 +104,7 @@ export function TableMutationContextProvider(props: FlowProps) {
 interface TableMutationContextType {
   tableMutationStore: TableMutationStore;
   setErrorMsg: (msg: string | null) => void;
-  setSelectedObjectIDs: (selectedObjectIDs: SelectedObjectID[]) => void;
+  setSelectedObjects: (selectedObjects: TableRow[]) => void;
   updateOperation: Mutation;
   updateField: (params: DataUpdateRequest) => Promise<void>;
   deleteOperation: Mutation;
@@ -118,11 +117,5 @@ interface TableMutationContextType {
 
 interface TableMutationStore {
   errorMsg: string | null;
-  selectedObjectIDs: SelectedObjectID[];
+  selectedObjects: TableRow[];
 }
-
-export type SelectedObjectID = {
-  name: string;
-  datatype: TableColumnDatatype;
-  value: TableColumnValue;
-}[];

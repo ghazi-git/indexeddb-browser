@@ -40,7 +40,6 @@ import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import {
   convertGetterValueToRowDataValue,
   getIndexedDBKey,
-  getSelectedObjectID,
   parseBooleanNull,
   updateRowData,
 } from "@/devtools/utils/grid-options";
@@ -64,7 +63,7 @@ export default function Table(props: TableProps) {
 
   const {
     setErrorMsg,
-    setSelectedObjectIDs,
+    setSelectedObjects,
     updateOperation,
     updateField,
     deleteOperation,
@@ -178,10 +177,7 @@ export default function Table(props: TableProps) {
       },
       onSelectionChanged(params: SelectionChangedEvent) {
         const nodes = params.selectedNodes || [];
-        const selectedObjectIDs = nodes.map((node) => {
-          return getSelectedObjectID(node, props.keypath, props.columns);
-        });
-        setSelectedObjectIDs(selectedObjectIDs);
+        setSelectedObjects(nodes.map((node) => node.data));
       },
       readOnlyEdit: true,
       onCellEditRequest: async (params: CellEditRequestEvent) => {
@@ -263,13 +259,10 @@ export default function Table(props: TableProps) {
     // delete the rows from the table on deletion success in indexedDB
     if (deleteOperation.isSuccess) {
       untrack(() => {
-        const rows = tableMutationStore.selectedObjectIDs.map((row) => {
-          return Object.fromEntries(
-            row.map(({ name, value }) => [name, value]),
-          );
+        gridApi.applyTransaction({
+          remove: tableMutationStore.selectedObjects,
         });
-        gridApi.applyTransaction({ remove: rows });
-        setSelectedObjectIDs([]);
+        setSelectedObjects([]);
         resetDeleteOperation();
       });
     }
@@ -286,7 +279,7 @@ export default function Table(props: TableProps) {
     });
     batch(() => {
       // reset selected rows and error msg on table reload
-      setSelectedObjectIDs([]);
+      setSelectedObjects([]);
       setErrorMsg(null);
     });
   });

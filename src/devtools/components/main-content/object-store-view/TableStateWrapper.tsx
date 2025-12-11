@@ -27,7 +27,11 @@ export default function TableStateWrapper() {
             <TableSettingsWrapper>
               <TableSearch />
               <Show when={data().rows?.length}>
-                <DeleteObjectsButton activeStore={data().activeStore} />
+                <DeleteObjectsButton
+                  activeStore={data().activeStore}
+                  keypath={data().keypath}
+                  columns={data().columns}
+                />
               </Show>
               <AddObjectsButton />
               <TableSettingsButton />
