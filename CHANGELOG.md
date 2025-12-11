@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-12-11
+
 ### Added
 
 - Allow bulk updating the selected objects from the table.
