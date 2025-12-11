@@ -1,29 +1,25 @@
 import { createMemo, Match, Show, Switch } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
-import {
-  SelectedObjectID,
-  useTableMutationContext,
-} from "@/devtools/components/main-content/object-store-view/table-mutation-context";
+import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
 import DeleteIcon from "@/devtools/components/svg-icons/DeleteIcon";
 import LoadingIcon from "@/devtools/components/svg-icons/LoadingIcon";
+import { getIndexedDBKey } from "@/devtools/utils/grid-options";
 import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
-import { ActiveObjectStore, DataValue } from "@/devtools/utils/types";
+import { ActiveObjectStore, TableColumn } from "@/devtools/utils/types";
 
 import styles from "./DeleteObjectsButton.module.css";
 
-export default function DeleteObjectsButton(props: {
-  activeStore: ActiveObjectStore;
-}) {
+export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
   const { tableMutationStore, setErrorMsg, deleteOperation, deleteData } =
     useTableMutationContext();
-  const canDelete = () => tableMutationStore.selectedObjectIDs.length > 0;
+  const canDelete = () => tableMutationStore.selectedObjects.length > 0;
   const deletionMsg = () => {
-    const count = tableMutationStore.selectedObjectIDs.length;
+    const count = tableMutationStore.selectedObjects.length;
     if (count === 1) {
       return "Are you sure you want to delete the selected object?";
     } else if (count > 1) {
@@ -34,7 +30,9 @@ export default function DeleteObjectsButton(props: {
   };
   const validObjectKeys = createMemo(() => {
     try {
-      return getObjectKeys(tableMutationStore.selectedObjectIDs);
+      return tableMutationStore.selectedObjects.map((obj) =>
+        getIndexedDBKey(props.keypath, props.columns, obj),
+      );
     } catch {
       return [];
     }
@@ -111,21 +109,8 @@ export default function DeleteObjectsButton(props: {
   );
 }
 
-function getObjectKeys(objectIDs: SelectedObjectID[]) {
-  return objectIDs.map((objectID) => {
-    return objectID.map((cell) => {
-      if (
-        cell.datatype !== "string" &&
-        cell.datatype !== "number" &&
-        cell.datatype !== "timestamp" &&
-        cell.datatype !== "json_data" &&
-        cell.datatype !== "date"
-      ) {
-        throw new Error("Invalid key column datatype");
-      }
-      if (cell.value == null) throw new Error("Invalid key column value");
-
-      return { datatype: cell.datatype, value: cell.value } as DataValue;
-    });
-  });
+interface DeleteObjectsButtonProps {
+  activeStore: ActiveObjectStore;
+  keypath: string[];
+  columns: TableColumn[];
 }
