@@ -86,14 +86,14 @@ function insertObjects(
       const objStore = tx.objectStore(storeName);
       objects.forEach((obj) => {
         try {
-          const addRequest = objStore.add(obj);
-          addRequest.onerror = () => {
-            console.error("data-creation: add error", addRequest.error);
+          const putRequest = objStore.put(obj);
+          putRequest.onerror = () => {
+            console.error("data-creation: put error", putRequest.error);
             // better to just return the indexedDB error given that many things
             // can go wrong
-            // https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/add#exceptions
+            // https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put#exceptions
             const msg =
-              addRequest.error?.message ??
+              putRequest.error?.message ??
               `Unable to insert the object=${JSON.stringify(obj)}.`;
             reject(new Error(msg));
           };

@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Allow bulk updating the selected objects from the table.
+
 ## [1.1.2] - 2025-12-10
 
 ### Fixed

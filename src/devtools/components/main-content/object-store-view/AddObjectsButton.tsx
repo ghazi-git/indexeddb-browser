@@ -1,6 +1,13 @@
 import { Schema, ValidationError, Validator } from "jsonschema";
 import { PrismEditor } from "prism-code-editor";
-import { createEffect, createSignal, onMount, Show, untrack } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  onMount,
+  Show,
+  untrack,
+} from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import DatatypeValidationCheckbox from "@/devtools/components/main-content/object-store-view/DatatypeValidationCheckbox";
@@ -17,7 +24,7 @@ import {
   parseJSONFromUser,
 } from "@/devtools/utils/json-editor";
 import {
-  NewObject,
+  SerializedObject,
   TableColumn,
   TableColumnValue,
   TableRow,
@@ -26,13 +33,19 @@ import {
 import styles from "./AddObjectsButton.module.css";
 
 export default function AddObjectsButton() {
-  const { createData } = useTableMutationContext();
+  const { tableMutationStore, createData } = useTableMutationContext();
   const { query, refetch } = useTableContext();
   const [validateDatatypes, setValidateDatatypes] = createSignal(true);
   const [error, setError] = createSignal<string[]>([]);
   let dialogRef!: HTMLDialogElement;
   let editorRef!: HTMLDivElement;
   let editor: PrismEditor;
+
+  const title = () => {
+    return tableMutationStore.selectedObjects.length > 0
+      ? "Edit Object(s)"
+      : "Add Objects";
+  };
 
   const onSaveClick = async () => {
     setError([]);
@@ -53,7 +66,7 @@ export default function AddObjectsButton() {
     }
 
     if (!query.data?.columns?.length) {
-      const msg = `Unable to add any object due to inability to determine the object store key.`;
+      const msg = `Unable to save any object due to inability to determine the object store key.`;
       setError([msg]);
       return;
     }
@@ -69,7 +82,7 @@ export default function AddObjectsButton() {
       return;
     }
 
-    const newObjects = getNewObjects(parsedObj as TableRow[], cols);
+    const newObjects = serializeObjects(parsedObj as TableRow[], cols);
     try {
       await createData({
         requestID: generateRequestID(),
@@ -79,7 +92,7 @@ export default function AddObjectsButton() {
       });
       refetch();
       dialogRef.close();
-      editor.setOptions({ value: getSampleValue(cols) });
+      editor.setOptions({ value: editorData() });
     } catch (e) {
       const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
       setError([msg]);
@@ -87,19 +100,23 @@ export default function AddObjectsButton() {
   };
 
   onMount(() => {
-    editor = createJSONEditor(
-      editorRef,
-      getSampleValue(query.data?.columns || []),
-    );
+    editor = createJSONEditor(editorRef, "");
+  });
+  const editorData = createMemo(() => {
+    const activeStore = query.data?.activeStore;
+    if (tableMutationStore.selectedObjects.length > 0) {
+      return JSON.stringify(tableMutationStore.selectedObjects, null, 2);
+    } else {
+      if (activeStore) {
+        const columns = untrack(() => query.data?.columns || []);
+        return getSampleValue(columns);
+      } else {
+        return "";
+      }
+    }
   });
   createEffect(() => {
-    const activeStore = query.data?.activeStore;
-    if (activeStore) {
-      const columns = untrack(() => query.data?.columns || []);
-      editor.setOptions({ value: getSampleValue(columns) });
-    } else {
-      editor.setOptions({ value: "" });
-    }
+    editor.setOptions({ value: editorData() });
   });
 
   return (
@@ -107,30 +124,30 @@ export default function AddObjectsButton() {
       <UnstyledButton
         class={styles["dialog-trigger"]}
         command="show-modal"
-        commandfor="add-objects-modal"
+        commandfor="add-edit-objects-modal"
       >
-        Add Objects
+        {title()}
       </UnstyledButton>
       <dialog
         ref={dialogRef}
-        id="add-objects-modal"
+        id="add-edit-objects-modal"
         class={styles.dialog}
         onClose={() => setError([])}
       >
         <header>
-          <h2>Add Objects</h2>
+          <h2>{title()}</h2>
           <UnstyledButton
             title="Close Modal"
             aria-label="Close Modal"
             command="close"
-            commandfor="add-objects-modal"
+            commandfor="add-edit-objects-modal"
           >
             <CloseIcon />
           </UnstyledButton>
         </header>
         <div ref={editorRef} />
         <div class={styles.hint}>
-          <div>The json value entered must be an array of objects.</div>
+          <div>The JSON value entered must be an array of objects.</div>
           <div>
             Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab for
             indentation.
@@ -150,7 +167,7 @@ export default function AddObjectsButton() {
           />
         </Show>
         <footer>
-          <UnstyledButton command="close" commandfor="add-objects-modal">
+          <UnstyledButton command="close" commandfor="add-edit-objects-modal">
             Cancel
           </UnstyledButton>
           <UnstyledButton
@@ -238,10 +255,10 @@ function generateErrorMsg(error: ValidationError) {
   return `${error.property.replace("instance", "object")} ${error.message}`;
 }
 
-function getNewObjects(
+function serializeObjects(
   parsedObj: TableRow[],
   cols: TableColumn[],
-): NewObject[] {
+): SerializedObject[] {
   return parsedObj.map((row) => {
     return Object.entries(row).map(([colName, colValue]) => {
       const col = cols.find((col) => col.name === colName);
