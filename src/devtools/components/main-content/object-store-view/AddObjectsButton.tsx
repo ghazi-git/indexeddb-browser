@@ -6,7 +6,6 @@ import {
   createSignal,
   onMount,
   Show,
-  untrack,
 } from "solid-js";
 
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
@@ -103,17 +102,16 @@ export default function AddObjectsButton() {
     editor = createJSONEditor(editorRef, "");
   });
   const editorData = createMemo(() => {
+    const columns = query.data?.columns;
     const activeStore = query.data?.activeStore;
-    if (tableMutationStore.selectedObjects.length > 0) {
-      return JSON.stringify(tableMutationStore.selectedObjects, null, 2);
-    } else {
-      if (activeStore) {
-        const columns = untrack(() => query.data?.columns || []);
-        return getSampleValue(columns);
-      } else {
-        return "";
-      }
+
+    if (columns && tableMutationStore.selectedObjects.length > 0) {
+      return stringifyData(tableMutationStore.selectedObjects, columns);
+    } else if (columns && activeStore) {
+      const data = getSampleValue(columns);
+      return stringifyData(data, columns);
     }
+    return "";
   });
   createEffect(() => {
     editor.setOptions({ value: editorData() });
@@ -203,7 +201,22 @@ function getSampleValue(columns: TableColumn[]) {
     return [column.name, value] as [string, TableColumnValue];
   });
   const obj = Object.fromEntries(keyValuePairs);
-  return JSON.stringify([obj], null, 2);
+  return [obj];
+}
+
+function stringifyData(data: TableRow[], columns: TableColumn[]) {
+  // sort the data keys according to columns' order
+  const objects = data.map((row) => {
+    const keyValuePairs = columns.map((col) => [col.name, row[col.name]]);
+    return Object.fromEntries(keyValuePairs);
+  });
+
+  return JSON.stringify(
+    objects,
+    // replace undefined with null
+    (_, val) => (val === undefined ? null : val),
+    2,
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
