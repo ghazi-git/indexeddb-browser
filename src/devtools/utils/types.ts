@@ -128,10 +128,10 @@ export interface DataCreationRequest {
   requestID: string;
   dbName: string;
   storeName: string;
-  objects: NewObject[];
+  objects: SerializedObject[];
 }
 
-export type NewObject = {
+export type SerializedObject = {
   name: string;
   value: JSONSerializable;
   datatype: TableColumnDatatype;
