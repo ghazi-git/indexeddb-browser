@@ -31,6 +31,7 @@ export default function SidebarHeader() {
         title={
           databases.loading ? "Fetching database list" : "Reload database list"
         }
+        disabled={databases.loading}
         onClick={() => {
           refetchIndexedDBs();
         }}

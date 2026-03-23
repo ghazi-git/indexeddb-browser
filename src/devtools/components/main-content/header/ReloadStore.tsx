@@ -13,6 +13,7 @@ export default function ReloadStore() {
     <UnstyledButton
       class={styles.reload}
       title={query.isLoading ? "Reloading data..." : "Reload store data"}
+      disabled={query.isLoading}
       onClick={() => {
         refetch();
       }}
