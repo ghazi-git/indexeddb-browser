@@ -4,14 +4,14 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["replacements:all", "workarounds:all"],
   ignorePaths: ["**/node_modules/**", "**/tests/**"],
-  dependencyDashboard: true,
+  dependencyDashboard: false,
   schedule: "every 2 months on the first day of the month",
   packageRules: [
     {
       groupName: "All NPM Dependencies",
       matchManagers: ["npm"],
       rangeStrategy: "pin",
-      minimumReleaseAge: "30 days",
+      minimumReleaseAge: "14 days",
       abandonmentThreshold: "2 years",
     },
     {
