@@ -43,14 +43,14 @@ function getDataCreationCode(request: DataCreationRequest) {
 
 async function processDataCreationRequest(request: DataCreationRequest) {
   markInProgress("__indexeddb_browser_data_create", request.requestID);
-  const objects = request.objects.map((obj) => {
-    const keyValuePairs = obj.map((field) => {
-      return [field.name, getStoreValue(field)] as [string, StoreValue];
-    });
-    return Object.fromEntries(keyValuePairs);
-  });
 
   try {
+    const objects = request.objects.map((obj) => {
+      const keyValuePairs = obj.map((field) => {
+        return [field.name, getStoreValue(field)] as [string, StoreValue];
+      });
+      return Object.fromEntries(keyValuePairs);
+    });
     await insertObjects(request.dbName, request.storeName, objects);
     markAsSuccessful("__indexeddb_browser_data_create", request.requestID);
   } catch (e) {

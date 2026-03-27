@@ -45,8 +45,8 @@ function getDataUpdateCode(request: DataUpdateRequest) {
 
 async function processDataUpdateRequest(request: DataUpdateRequest) {
   markInProgress("__indexeddb_browser_data_update", request.requestID);
-  const idbKey = createIndexedDBKey(request.key) as IDBValidKey;
   try {
+    const idbKey = createIndexedDBKey(request.key) as IDBValidKey;
     await updateObjectField(
       request.dbName,
       request.storeName,

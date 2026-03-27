@@ -45,11 +45,11 @@ function getDataDeletionCode(request: DataDeletionRequest) {
 
 async function processDataDeletionRequest(request: DataDeletionRequest) {
   markInProgress("__indexeddb_browser_data_delete", request.requestID);
-  const idbKeys = request.keys.map((item) => {
-    return createIndexedDBKey(item) as IDBValidKey;
-  });
 
   try {
+    const idbKeys = request.keys.map((item) => {
+      return createIndexedDBKey(item) as IDBValidKey;
+    });
     await deleteObjects(request.dbName, request.storeName, idbKeys);
     markAsSuccessful("__indexeddb_browser_data_delete", request.requestID);
   } catch (e) {
