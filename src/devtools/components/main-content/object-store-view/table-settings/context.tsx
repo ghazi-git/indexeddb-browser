@@ -1,10 +1,4 @@
-import {
-  batch,
-  createContext,
-  createEffect,
-  FlowProps,
-  useContext,
-} from "solid-js";
+import { createContext, createEffect, FlowProps, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
@@ -50,12 +44,9 @@ export function TableSettingsContextProvider(props: FlowProps) {
         activeStore.storeName,
       );
       if (values) {
-        batch(() => {
-          setSettings("pagination", values.enablePagination);
-          setSettings("pageSize", values.pageSize);
-          setSettings("objectsCount", values.objectsCount);
-          setSettings("autosizeColumns", values.autosizeColumns);
-        });
+        setSettings(({ searchTerm }) => ({ searchTerm, ...values }));
+      } else {
+        setSettings(getInitialSettingsValue());
       }
     }
   });
