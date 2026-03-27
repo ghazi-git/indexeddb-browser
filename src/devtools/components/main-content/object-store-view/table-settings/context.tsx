@@ -13,6 +13,7 @@ import { useOriginContext } from "@/devtools/components/origin-context";
 import {
   DEFAULT_AUTOSIZE_COLUMNS,
   DEFAULT_OBJECTS_COUNT,
+  DEFAULT_PAGE_SIZE,
   DEFAULT_PAGINATION,
   deleteSavedOriginSettings,
   getPaginationAndSizingSettings,
@@ -51,6 +52,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
       if (values) {
         batch(() => {
           setSettings("pagination", values.enablePagination);
+          setSettings("pageSize", values.pageSize);
           setSettings("objectsCount", values.objectsCount);
           setSettings("autosizeColumns", values.autosizeColumns);
         });
@@ -68,6 +70,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         activeStore.dbName,
         activeStore.storeName,
         settings.pagination,
+        settings.pageSize,
         settings.objectsCount,
         settings.autosizeColumns,
       );
@@ -83,6 +86,10 @@ export function TableSettingsContextProvider(props: FlowProps) {
   };
   const setObjectsCount = (value: number | null) => {
     setSettings("objectsCount", value);
+    _saveToLocalStorage();
+  };
+  const setPageSize = (value: number) => {
+    setSettings("pageSize", value);
     _saveToLocalStorage();
   };
 
@@ -129,6 +136,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         setSearchTerm,
         togglePagination,
         setObjectsCount,
+        setPageSize,
         setAutosizeColumns,
         hasSavedSettings,
         deleteSavedSettings,
@@ -145,6 +153,7 @@ function getInitialSettingsValue(): TableSettings {
     pagination: DEFAULT_PAGINATION,
     autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
     objectsCount: DEFAULT_OBJECTS_COUNT,
+    pageSize: DEFAULT_PAGE_SIZE,
   };
 }
 
@@ -153,6 +162,7 @@ interface TableSettingsContextType {
   setSearchTerm: (term: string) => void;
   togglePagination: (value: boolean) => void;
   setObjectsCount: (value: number | null) => void;
+  setPageSize: (value: number) => void;
   setAutosizeColumns: (value: AutosizeColumns) => void;
   hasSavedSettings: () => boolean;
   deleteSavedSettings: () => void;
@@ -161,6 +171,7 @@ interface TableSettingsContextType {
 interface TableSettings {
   searchTerm: string;
   pagination: boolean;
+  pageSize: number;
   objectsCount: number | null;
   autosizeColumns: AutosizeColumns;
 }

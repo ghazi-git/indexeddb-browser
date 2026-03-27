@@ -1,0 +1,19 @@
+.page-size {
+  label {
+    display: block;
+    margin-block-end: var(--size-1);
+  }
+
+  select {
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
+    appearance: base-select;
+    padding-inline: var(--size-2);
+    inline-size: 100%;
+    background-color: var(--surface-1);
+
+    &::picker(select) {
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
+      appearance: base-select;
+    }
+  }
+}

@@ -47,6 +47,7 @@ import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
+import { PAGE_SIZES } from "@/devtools/utils/saved-settings";
 import {
   ActiveObjectStore,
   DataValue,
@@ -152,8 +153,8 @@ export default function Table(props: TableProps) {
       valueCache: true,
       cacheQuickFilter: true,
       pagination: settings.pagination,
-      paginationPageSizeSelector: [20, 100, 500, 1000],
-      paginationPageSize: 20,
+      paginationPageSizeSelector: PAGE_SIZES,
+      paginationPageSize: settings.pageSize,
       suppressDragLeaveHidesColumns: true,
       onColumnMoved(event: ColumnMovedEvent) {
         const colName = event.column?.getColId();
@@ -292,6 +293,9 @@ export default function Table(props: TableProps) {
   });
   createEffect(() => {
     gridApi.setGridOption("pagination", settings.pagination);
+  });
+  createEffect(() => {
+    gridApi.setGridOption("paginationPageSize", settings.pageSize);
   });
   createEffect(() => {
     gridApi.setGridOption("columnDefs", columnDefs());
