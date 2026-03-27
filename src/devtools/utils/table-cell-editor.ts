@@ -10,51 +10,6 @@ import {
   parseJSONFromUser,
 } from "@/devtools/utils/json-editor";
 
-/**
- * Similar to agNumberCellEditor but works with BigInt
- */
-export class BigintCellEditor implements ICellEditorComp {
-  gui!: HTMLInputElement;
-
-  init(params: ICellEditorParams) {
-    this.gui = document.createElement("input");
-    this.gui.className = styles["input-cell-editor"];
-    this.gui.setAttribute("type", "number");
-    this.gui.setAttribute("aria-label", "BigInt Editor");
-    this.gui.setAttribute("id", createUniqueId());
-    this.gui.setAttribute("value", params.value);
-    this.gui.addEventListener("wheel", this._preventWheelFromChangingValue);
-  }
-
-  afterGuiAttached() {
-    this.gui.focus();
-    this.gui.select();
-  }
-
-  getGui() {
-    return this.gui;
-  }
-
-  getValue() {
-    const value = this.gui.value;
-    if (value === "") return null;
-
-    try {
-      return BigInt(value);
-    } catch {
-      return null;
-    }
-  }
-
-  destroy() {
-    this.gui.removeEventListener("wheel", this._preventWheelFromChangingValue);
-  }
-
-  _preventWheelFromChangingValue(event: WheelEvent) {
-    event.preventDefault();
-  }
-}
-
 export class JSONEditor implements ICellEditorComp {
   gridCell!: HTMLElement;
   gui!: HTMLDivElement;

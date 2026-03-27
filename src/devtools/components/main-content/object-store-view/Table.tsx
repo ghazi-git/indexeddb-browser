@@ -247,9 +247,11 @@ export default function Table(props: TableProps) {
           extendsDataType: "dateTime",
           valueFormatter: (params) => formatDate(params.value),
         },
-        bigint: {
-          baseDataType: "object",
-          extendsDataType: "object",
+        // the custom datatype name should be different from the built-in one
+        // so that the default valueParser for cell editing is used automatically
+        BigInt: {
+          baseDataType: "bigint",
+          extendsDataType: "bigint",
           valueFormatter: (params) => formatBigint(params.value),
         },
       },
@@ -332,7 +334,6 @@ function createThemeSignal() {
 
   const onChange = (event: MediaQueryListEvent) => {
     const systemTheme = event.matches ? "dark" : "light";
-    console.log("systemTheme", systemTheme);
     setTheme(systemTheme);
   };
   onMount(() => {
