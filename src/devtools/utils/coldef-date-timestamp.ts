@@ -1,4 +1,4 @@
-import { ColDef } from "ag-grid-community";
+import { ColDef, SortDef } from "ag-grid-community";
 
 import {
   convertDateToString,
@@ -9,7 +9,8 @@ import { TableColumn } from "@/devtools/utils/types";
 
 export function getDateColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -17,7 +18,7 @@ export function getDateColdef(
     hide: !column.isVisible,
     cellDataType: "dateTime",
     cellRenderer: NullishDateRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: DateCellEditor,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
@@ -41,12 +42,14 @@ export function getDateColdef(
       filterOptions: DATE_FILTER_OPTIONS,
       comparator: datetimeComparator,
     },
+    initialSort,
   };
 }
 
 export function getTimestampColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -55,7 +58,7 @@ export function getTimestampColdef(
     headerTooltip: "Column values are timestamps formatted as datetime",
     cellDataType: "dateTime",
     cellRenderer: NullishDateRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: DateCellEditor,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
@@ -72,6 +75,7 @@ export function getTimestampColdef(
       filterOptions: DATE_FILTER_OPTIONS,
       comparator: datetimeComparator,
     },
+    initialSort,
   };
 }
 

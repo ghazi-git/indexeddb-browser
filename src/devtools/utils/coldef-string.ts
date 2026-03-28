@@ -1,4 +1,4 @@
-import { ColDef } from "ag-grid-community";
+import { ColDef, SortDef } from "ag-grid-community";
 
 import { isString } from "@/devtools/utils/inspected-window-data-fetch";
 import { NullishStringRenderer } from "@/devtools/utils/table-cell-renderer";
@@ -6,7 +6,8 @@ import { TableColumn } from "@/devtools/utils/types";
 
 export function getStringColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -14,7 +15,7 @@ export function getStringColdef(
     hide: !column.isVisible,
     cellDataType: "string",
     cellRenderer: NullishStringRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: "agTextCellEditor",
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
@@ -25,6 +26,7 @@ export function getStringColdef(
     filterParams: {
       buttons: ["reset"],
     },
+    initialSort,
   };
 }
 

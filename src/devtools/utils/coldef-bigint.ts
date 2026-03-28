@@ -1,11 +1,12 @@
-import { ColDef } from "ag-grid-community";
+import { ColDef, SortDef } from "ag-grid-community";
 
 import { NullishBigintRenderer } from "@/devtools/utils/table-cell-renderer";
 import { TableColumn } from "@/devtools/utils/types";
 
 export function getBigintColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -13,7 +14,7 @@ export function getBigintColdef(
     hide: !column.isVisible,
     cellDataType: "BigInt",
     cellRenderer: NullishBigintRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: "agTextCellEditor",
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
@@ -32,6 +33,7 @@ export function getBigintColdef(
     getQuickFilterText: (params) => formatBigint(params.value),
     filter: "agBigIntColumnFilter",
     filterParams: { buttons: ["reset"] },
+    initialSort,
   };
 }
 

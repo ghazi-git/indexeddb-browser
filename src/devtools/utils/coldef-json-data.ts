@@ -1,4 +1,4 @@
-import { ColDef } from "ag-grid-community";
+import { ColDef, SortDef } from "ag-grid-community";
 
 import { isJSON } from "@/devtools/utils/inspected-window-data-fetch";
 import { JSONEditor } from "@/devtools/utils/table-cell-editor";
@@ -7,7 +7,8 @@ import { TableColumn } from "@/devtools/utils/types";
 
 export function getJSONDataColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -15,7 +16,7 @@ export function getJSONDataColdef(
     hide: !column.isVisible,
     cellDataType: "jsonData",
     cellRenderer: JSONDataRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: JSONEditor,
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
@@ -30,6 +31,7 @@ export function getJSONDataColdef(
     filterParams: {
       buttons: ["reset"],
     },
+    initialSort,
   };
 }
 

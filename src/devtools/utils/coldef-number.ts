@@ -1,4 +1,4 @@
-import { ColDef } from "ag-grid-community";
+import { ColDef, SortDef } from "ag-grid-community";
 
 import { isNumber } from "@/devtools/utils/inspected-window-data-fetch";
 import { NullishNumberRenderer } from "@/devtools/utils/table-cell-renderer";
@@ -6,7 +6,8 @@ import { TableColumn } from "@/devtools/utils/types";
 
 export function getNumberColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -14,7 +15,7 @@ export function getNumberColdef(
     hide: !column.isVisible,
     cellDataType: "customNumber",
     cellRenderer: NullishNumberRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: "agNumberCellEditor",
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
@@ -26,6 +27,7 @@ export function getNumberColdef(
       buttons: ["reset"],
       filterOptions: NUMBER_FILTER_OPTIONS,
     },
+    initialSort,
   };
 }
 

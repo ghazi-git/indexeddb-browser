@@ -1,4 +1,4 @@
-import { ColDef } from "ag-grid-community";
+import { ColDef, SortDef } from "ag-grid-community";
 
 import { isBoolean } from "@/devtools/utils/inspected-window-data-fetch";
 import { NullishBooleanRenderer } from "@/devtools/utils/table-cell-renderer";
@@ -6,7 +6,8 @@ import { FilterOptionDef, TableColumn } from "@/devtools/utils/types";
 
 export function getBooleanColdef(
   column: TableColumn,
-  canEditColumn: boolean,
+  editable: boolean,
+  initialSort: SortDef | null,
 ): ColDef {
   return {
     field: column.name,
@@ -14,7 +15,7 @@ export function getBooleanColdef(
     hide: !column.isVisible,
     cellDataType: "boolean",
     cellRenderer: NullishBooleanRenderer,
-    editable: canEditColumn && !column.isKey,
+    editable,
     cellEditor: "agSelectCellEditor",
     cellEditorParams: {
       // null as a string to avoid displaying a blank dropdown
@@ -32,6 +33,7 @@ export function getBooleanColdef(
       buttons: ["reset"],
       filterOptions: BOOLEAN_FILTER_OPTIONS,
     },
+    initialSort,
   };
 }
 

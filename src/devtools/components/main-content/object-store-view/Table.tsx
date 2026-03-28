@@ -5,10 +5,12 @@ import {
   ColDef,
   ColumnMovedEvent,
   createGrid,
+  FilterChangedEvent,
   GridApi,
   SelectionChangedEvent,
   SizeColumnsToContentStrategy,
   SizeColumnsToFitGridStrategy,
+  SortChangedEvent,
 } from "ag-grid-community";
 import {
   batch,
@@ -71,25 +73,32 @@ export default function Table(props: TableProps) {
     resetDeleteOperation,
     tableMutationStore,
   } = useTableMutationContext();
-  const { settings } = useTableSettingsContext();
+  const { settings, setSort, setColumnFilters } = useTableSettingsContext();
 
+  const columnsSort = untrack(() => settings.sort);
   const columnDefs = (): ColDef[] => {
-    const canEdit = !updateOperation.isLoading;
+    const isLoading = updateOperation.isLoading;
+
     return props.columns.map((column) => {
+      const canEdit = !isLoading && !column.isKey;
+      const colSort = columnsSort.find(
+        ({ column: colName }) => colName === column.name,
+      );
+      const initialSort = colSort?.def ?? null;
       if (column.datatype === "string") {
-        return getStringColdef(column, canEdit);
+        return getStringColdef(column, canEdit, initialSort);
       } else if (column.datatype === "number") {
-        return getNumberColdef(column, canEdit);
+        return getNumberColdef(column, canEdit, initialSort);
       } else if (column.datatype === "timestamp") {
-        return getTimestampColdef(column, canEdit);
+        return getTimestampColdef(column, canEdit, initialSort);
       } else if (column.datatype === "date") {
-        return getDateColdef(column, canEdit);
+        return getDateColdef(column, canEdit, initialSort);
       } else if (column.datatype === "bigint") {
-        return getBigintColdef(column, canEdit);
+        return getBigintColdef(column, canEdit, initialSort);
       } else if (column.datatype === "boolean") {
-        return getBooleanColdef(column, canEdit);
+        return getBooleanColdef(column, canEdit, initialSort);
       } else if (column.datatype === "json_data") {
-        return getJSONDataColdef(column, canEdit);
+        return getJSONDataColdef(column, canEdit, initialSort);
       } else {
         return getUnsupportedColdef(column);
       }
@@ -152,10 +161,26 @@ export default function Table(props: TableProps) {
       tooltipShowDelay: 1000,
       valueCache: true,
       cacheQuickFilter: true,
+      quickFilterText: settings.searchTerm,
       pagination: settings.pagination,
       paginationPageSizeSelector: PAGE_SIZES,
       paginationPageSize: settings.pageSize,
       suppressDragLeaveHidesColumns: true,
+      onFilterChanged(event: FilterChangedEvent) {
+        setColumnFilters(event.api.getFilterModel());
+      },
+      onSortChanged(event: SortChangedEvent) {
+        if (!event.columns?.length) {
+          setSort([]);
+          return;
+        }
+
+        const sortState = event.columns.map((col) => ({
+          column: col.getColId(),
+          def: col.getSortDef(),
+        }));
+        setSort(sortState);
+      },
       onColumnMoved(event: ColumnMovedEvent) {
         const colName = event.column?.getColId();
         if (colName && event.finished) {
@@ -257,6 +282,7 @@ export default function Table(props: TableProps) {
         },
       },
     });
+    gridApi.setFilterModel(settings.columnFilters);
   });
   createEffect(() => {
     // delete the rows from the table on deletion success in indexedDB

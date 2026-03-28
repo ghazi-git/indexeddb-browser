@@ -1,3 +1,4 @@
+import { FilterModel, SortDef } from "ag-grid-community";
 import { createContext, createEffect, FlowProps, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
@@ -34,24 +35,30 @@ export function TableSettingsContextProvider(props: FlowProps) {
   );
   const { origin } = useOriginContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
+  // on store change, reset in-memory settings and load persistent settings (if any)
+  // from local storage
   createEffect(() => {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
-      const values = getPaginationAndSizingSettings(
+      const initialValues = getInitialSettingsValue();
+      const savedValues = getPaginationAndSizingSettings(
         currentOrigin,
         activeStore.dbName,
         activeStore.storeName,
       );
-      if (values) {
-        setSettings(({ searchTerm }) => ({ searchTerm, ...values }));
+      if (savedValues) {
+        setSettings({ ...initialValues, ...savedValues });
       } else {
-        setSettings(getInitialSettingsValue());
+        setSettings(initialValues);
       }
     }
   });
 
   const setSearchTerm = (term: string) => setSettings("searchTerm", term);
+  const setColumnFilters = (filters: FilterModel) =>
+    setSettings("columnFilters", filters);
+  const setSort = (sort: ColumnSort[]) => setSettings("sort", sort);
   const _saveToLocalStorage = () => {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
@@ -114,17 +121,13 @@ export function TableSettingsContextProvider(props: FlowProps) {
     }
   };
 
-  // reset the search term on store change
-  createEffect(() => {
-    activeObjectStore();
-    setSettings("searchTerm", "");
-  });
-
   return (
     <TableSettingsContext.Provider
       value={{
         settings,
         setSearchTerm,
+        setColumnFilters,
+        setSort,
         togglePagination,
         setObjectsCount,
         setPageSize,
@@ -141,6 +144,8 @@ export function TableSettingsContextProvider(props: FlowProps) {
 function getInitialSettingsValue(): TableSettings {
   return {
     searchTerm: "",
+    columnFilters: {},
+    sort: [],
     pagination: DEFAULT_PAGINATION,
     autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
     objectsCount: DEFAULT_OBJECTS_COUNT,
@@ -151,6 +156,8 @@ function getInitialSettingsValue(): TableSettings {
 interface TableSettingsContextType {
   settings: TableSettings;
   setSearchTerm: (term: string) => void;
+  setColumnFilters: (filters: FilterModel) => void;
+  setSort: (sort: ColumnSort[]) => void;
   togglePagination: (value: boolean) => void;
   setObjectsCount: (value: number | null) => void;
   setPageSize: (value: number) => void;
@@ -160,9 +167,20 @@ interface TableSettingsContextType {
 }
 
 interface TableSettings {
+  // in-memory settings: retained when the user reloads the store data but are
+  // reset when the object store changes
   searchTerm: string;
+  columnFilters: FilterModel;
+  sort: ColumnSort[];
+  // persistent settings: saved to local storage to be loaded when the user
+  // comes back to view the same object store
   pagination: boolean;
   pageSize: number;
   objectsCount: number | null;
   autosizeColumns: AutosizeColumns;
+}
+
+interface ColumnSort {
+  column: string;
+  def: SortDef | null;
 }
