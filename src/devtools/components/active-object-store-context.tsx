@@ -4,6 +4,8 @@ import {
   createEffect,
   createSignal,
   FlowProps,
+  onCleanup,
+  onMount,
   Signal,
   untrack,
   useContext,
@@ -32,9 +34,34 @@ export function useActiveObjectStoreContext() {
 
 export function ActiveObjectStoreContextProvider(props: FlowProps) {
   const [activeObjectStore, _setActiveStore] = createActiveObjectStore();
+  // track the list of object stores visited along with an index that *always*
+  // indicates the currently active store (if the active store is set to null,
+  // the history will reset)
+  const [history, setHistory] = createSignal<ActiveStoreHistory>({
+    index: null,
+    stack: [],
+  });
 
   const setActiveObjectStore = (activeStore: ActiveObjectStore) => {
-    _setActiveStore(activeStore);
+    let prevEqualsNew = false;
+    _setActiveStore((prev) => {
+      prevEqualsNew =
+        prev?.dbName === activeStore.dbName &&
+        prev?.storeName === activeStore.storeName;
+      return activeStore;
+    });
+    if (!prevEqualsNew) {
+      setHistory((prev) => {
+        if (prev.index === null) {
+          return { index: 0, stack: [activeStore] };
+        } else {
+          return {
+            index: prev.index + 1,
+            stack: [...prev.stack.slice(0, prev.index + 1), activeStore],
+          };
+        }
+      });
+    }
     const currentOrigin = untrack(() => origin());
     if (currentOrigin) {
       saveLastViewedStore(
@@ -59,11 +86,14 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
         const indexeddb = dbs?.find((db) => db.name === dbName);
         if (indexeddb && indexeddb.objectStores.includes(storeName)) {
           _setActiveStore(lastViewedStore);
+          setHistory({ index: 0, stack: [lastViewedStore] });
         } else {
           _setActiveStore(null);
+          setHistory({ index: null, stack: [] });
         }
       } else {
         _setActiveStore(null);
+        setHistory({ index: null, stack: [] });
       }
     }
   });
@@ -79,6 +109,7 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
       const objStore = db?.objectStores.find((st) => st === storeName);
       if (!objStore) {
         _setActiveStore(null);
+        setHistory({ index: null, stack: [] });
       }
     } else if (dbs) {
       const currentOrigin = untrack(() => origin());
@@ -90,10 +121,58 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
           const indexeddb = dbs.find((db) => db.name === dbName);
           if (indexeddb && indexeddb.objectStores.includes(storeName)) {
             _setActiveStore(lastViewedStore);
+            setHistory({ index: 0, stack: [lastViewedStore] });
           }
         }
       }
     }
+  });
+
+  const goToPreviousStore = ({ index, stack }: ActiveStoreHistory) => {
+    if (index) {
+      _setActiveStore(stack[index - 1]);
+      setHistory({ index: index - 1, stack });
+    }
+  };
+  const goToNextStore = ({ index, stack }: ActiveStoreHistory) => {
+    if (index !== null && index < stack.length - 1) {
+      _setActiveStore(stack[index + 1]);
+      setHistory({ index: index + 1, stack });
+    }
+  };
+  const backForwardClickHandler = (event: PointerEvent) => {
+    if (event.button === 3) {
+      goToPreviousStore(history());
+    } else if (event.button === 4) {
+      goToNextStore(history());
+    }
+  };
+  const backForwardShortcutsHandler = (event: KeyboardEvent) => {
+    if (
+      event.ctrlKey &&
+      event.altKey &&
+      event.key === "ArrowLeft" &&
+      !event.shiftKey &&
+      !event.metaKey
+    ) {
+      goToPreviousStore(history());
+    } else if (
+      event.ctrlKey &&
+      event.altKey &&
+      event.key === "ArrowRight" &&
+      !event.shiftKey &&
+      !event.metaKey
+    ) {
+      goToNextStore(history());
+    }
+  };
+  onMount(() => {
+    document.addEventListener("auxclick", backForwardClickHandler);
+    document.addEventListener("keydown", backForwardShortcutsHandler);
+  });
+  onCleanup(() => {
+    document.removeEventListener("auxclick", backForwardClickHandler);
+    document.removeEventListener("keydown", backForwardShortcutsHandler);
   });
 
   return (
@@ -123,3 +202,7 @@ interface ActiveObjectStoreContextType {
   activeObjectStore: Accessor<ActiveObjectStore | null>;
   setActiveObjectStore: (activeStore: ActiveObjectStore) => void;
 }
+
+type ActiveStoreHistory =
+  | { index: null; stack: [] }
+  | { index: number; stack: ActiveObjectStore[] };
