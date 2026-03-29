@@ -7,7 +7,6 @@ import {
   getObjectStoreMetadata,
 } from "@/devtools/utils/inspected-window-data-fetch-polling";
 import {
-  DATA_ERROR_MSG,
   DATA_FETCH_TIMEOUT_IN_MS,
   sleep,
 } from "@/devtools/utils/inspected-window-helpers";
@@ -119,25 +118,23 @@ export function createTableDataQuery() {
         // and finally the data). That's to allow for retrieving the columns
         // config even if the rows contain unsupported datatypes
         const response = await checkForObjectStoreDataStatus();
-        if (response.requestID === requestID) {
-          if (response.status === "success") {
-            const metadata = await getObjectStoreMetadata();
-            if (metadata.canDisplay) {
-              const rows = await getObjectStoreData();
-              responseData = { ...metadata, rows };
-            } else {
-              responseData = { ...metadata, rows: null };
-            }
-            break;
-          } else if (response.status === "failure") {
-            throw new Error(response.errorMsg);
+        if (response.requestID !== requestID) return;
+
+        if (response.status === "success") {
+          const metadata = await getObjectStoreMetadata();
+          if (metadata.canDisplay) {
+            const rows = await getObjectStoreData();
+            responseData = { ...metadata, rows };
           } else {
-            iteration++;
-            timeSinceStart += sleepTime;
-            setLoadingMsg(timeSinceStart);
+            responseData = { ...metadata, rows: null };
           }
+          break;
+        } else if (response.status === "failure") {
+          throw new Error(response.errorMsg);
         } else {
-          throw new Error(DATA_ERROR_MSG);
+          iteration++;
+          timeSinceStart += sleepTime;
+          setLoadingMsg(timeSinceStart);
         }
       }
       if (!responseData) throw new Error("Request timed out.");
@@ -149,7 +146,6 @@ export function createTableDataQuery() {
         saveColumnsConfig(origin, dbName, storeName, cols);
       }
       markQueryAsSuccessful(responseData);
-      return responseData;
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "An unexpected error occurred";
