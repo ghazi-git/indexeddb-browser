@@ -2,6 +2,7 @@ import {
   Accessor,
   createContext,
   createEffect,
+  createMemo,
   createSignal,
   FlowProps,
   onCleanup,
@@ -37,31 +38,19 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
   // track the list of object stores visited along with an index that *always*
   // indicates the currently active store (if the active store is set to null,
   // the history will reset)
-  const [history, setHistory] = createSignal<ActiveStoreHistory>({
-    index: null,
-    stack: [],
-  });
+  const history = createMemo<ActiveStoreHistory>(
+    (prev) => {
+      const storeUpdate = activeObjectStore();
+      // reset history when the active store is null
+      if (storeUpdate === null) return { index: null, stack: [] };
+
+      return getUpdatedHistory(prev, storeUpdate);
+    },
+    { index: null, stack: [] },
+  );
 
   const setActiveObjectStore = (activeStore: ActiveObjectStore) => {
-    let prevEqualsNew = false;
-    _setActiveStore((prev) => {
-      prevEqualsNew =
-        prev?.dbName === activeStore.dbName &&
-        prev?.storeName === activeStore.storeName;
-      return activeStore;
-    });
-    if (!prevEqualsNew) {
-      setHistory((prev) => {
-        if (prev.index === null) {
-          return { index: 0, stack: [activeStore] };
-        } else {
-          return {
-            index: prev.index + 1,
-            stack: [...prev.stack.slice(0, prev.index + 1), activeStore],
-          };
-        }
-      });
-    }
+    _setActiveStore({ ...activeStore, trigger: "breadcrumbsOrSidebar" });
     const currentOrigin = untrack(() => origin());
     if (currentOrigin) {
       saveLastViewedStore(
@@ -85,15 +74,12 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
         const dbs = untrack(() => databases());
         const indexeddb = dbs?.find((db) => db.name === dbName);
         if (indexeddb && indexeddb.objectStores.includes(storeName)) {
-          _setActiveStore(lastViewedStore);
-          setHistory({ index: 0, stack: [lastViewedStore] });
+          _setActiveStore({ ...lastViewedStore, trigger: "originChange" });
         } else {
           _setActiveStore(null);
-          setHistory({ index: null, stack: [] });
         }
       } else {
         _setActiveStore(null);
-        setHistory({ index: null, stack: [] });
       }
     }
   });
@@ -109,7 +95,6 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
       const objStore = db?.objectStores.find((st) => st === storeName);
       if (!objStore) {
         _setActiveStore(null);
-        setHistory({ index: null, stack: [] });
       }
     } else if (dbs) {
       const currentOrigin = untrack(() => origin());
@@ -120,8 +105,10 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
           const { dbName, storeName } = lastViewedStore;
           const indexeddb = dbs.find((db) => db.name === dbName);
           if (indexeddb && indexeddb.objectStores.includes(storeName)) {
-            _setActiveStore(lastViewedStore);
-            setHistory({ index: 0, stack: [lastViewedStore] });
+            _setActiveStore({
+              ...lastViewedStore,
+              trigger: "databasesRefresh",
+            });
           }
         }
       }
@@ -130,14 +117,12 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
 
   const goToPreviousStore = ({ index, stack }: ActiveStoreHistory) => {
     if (index) {
-      _setActiveStore(stack[index - 1]);
-      setHistory({ index: index - 1, stack });
+      _setActiveStore({ ...stack[index - 1], trigger: "back" });
     }
   };
   const goToNextStore = ({ index, stack }: ActiveStoreHistory) => {
     if (index !== null && index < stack.length - 1) {
-      _setActiveStore(stack[index + 1]);
-      setHistory({ index: index + 1, stack });
+      _setActiveStore({ ...stack[index + 1], trigger: "forward" });
     }
   };
   const backForwardClickHandler = (event: PointerEvent) => {
@@ -187,8 +172,8 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
   );
 }
 
-function createActiveObjectStore(): Signal<ActiveObjectStore | null> {
-  const [accessor, setter] = createSignal<ActiveObjectStore | null>(null, {
+function createActiveObjectStore(): Signal<ActiveStoreUpdate | null> {
+  const [accessor, setter] = createSignal<ActiveStoreUpdate | null>(null, {
     equals: (prev, next) => {
       return (
         prev?.dbName === next?.dbName && prev?.storeName === next?.storeName
@@ -198,8 +183,48 @@ function createActiveObjectStore(): Signal<ActiveObjectStore | null> {
   return [accessor, setter];
 }
 
+function getUpdatedHistory(
+  prev: ActiveStoreHistory,
+  { dbName, storeName, trigger }: ActiveStoreUpdate,
+): ActiveStoreHistory {
+  if (trigger === "databasesRefresh" || trigger === "originChange") {
+    // reset history after origin change or db refresh and there is
+    // a saved object store
+    return { index: 0, stack: [{ dbName, storeName }] };
+  } else if (trigger === "back") {
+    // decrease the index value
+    return prev.index ? { index: prev.index - 1, stack: prev.stack } : prev;
+  } else if (trigger === "forward") {
+    // increase the index value
+    if (prev.index !== null && prev.index < prev.stack.length - 1) {
+      return { index: prev.index + 1, stack: prev.stack };
+    } else {
+      return prev;
+    }
+  } else {
+    // trigger=breadcrumbsOrSidebar
+    if (prev.index === null) {
+      return { index: 0, stack: [{ dbName, storeName }] };
+    } else {
+      return {
+        index: prev.index + 1,
+        stack: [...prev.stack.slice(0, prev.index + 1), { dbName, storeName }],
+      };
+    }
+  }
+}
+
+interface ActiveStoreUpdate extends ActiveObjectStore {
+  trigger:
+    | "breadcrumbsOrSidebar"
+    | "originChange"
+    | "databasesRefresh"
+    | "back"
+    | "forward";
+}
+
 interface ActiveObjectStoreContextType {
-  activeObjectStore: Accessor<ActiveObjectStore | null>;
+  activeObjectStore: Accessor<ActiveStoreUpdate | null>;
   setActiveObjectStore: (activeStore: ActiveObjectStore) => void;
 }
 
