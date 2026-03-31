@@ -169,8 +169,9 @@ export type StoreValue = any;
 // the extension to add/update/delete data
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Window
-    extends Partial<Record<MutationResponseAttr, DataMutationResponse>> {}
+  interface Window extends Partial<
+    Record<MutationResponseAttr, DataMutationResponse>
+  > {}
 }
 
 export type MutationResponseAttr =

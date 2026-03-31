@@ -75,8 +75,10 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
   );
 }
 
-interface ObjectStoreItemProps
-  extends Omit<JSX.LiHTMLAttributes<HTMLLIElement>, "children"> {
+interface ObjectStoreItemProps extends Omit<
+  JSX.LiHTMLAttributes<HTMLLIElement>,
+  "children"
+> {
   dbName: string;
   dbIndex: number;
   objectStore: ObjectStore;

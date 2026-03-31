@@ -28,8 +28,10 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
 // some css styles are based on the empty value
 export const EMPTY_VALUE = "---";
 
-interface BreadcrumbSelectProps
-  extends Omit<JSX.HTMLAttributes<HTMLSelectElement>, "children"> {
+interface BreadcrumbSelectProps extends Omit<
+  JSX.HTMLAttributes<HTMLSelectElement>,
+  "children"
+> {
   options: { label: string; value: string }[];
   value?: string;
 }

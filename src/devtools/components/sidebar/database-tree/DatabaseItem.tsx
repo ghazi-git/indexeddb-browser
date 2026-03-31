@@ -105,8 +105,10 @@ export default function DatabaseItem(props: DatabaseItemProps) {
   );
 }
 
-interface DatabaseItemProps
-  extends Omit<JSX.HTMLAttributes<HTMLLIElement>, "children"> {
+interface DatabaseItemProps extends Omit<
+  JSX.HTMLAttributes<HTMLLIElement>,
+  "children"
+> {
   db: Database;
   dbIndex: number;
 }
