@@ -14,6 +14,7 @@ Chrome extension that adds a DevTools panel to manage IndexedDB data.
 ### Nice Extras
 
 - Automatically display the data of the last viewed object store in the current origin.
+- Move between previously selected objects stores using ctrl+alt+left/right or back/forward mouse buttons.
 - Table columns can be hidden (from the "Table Settings" popover) or re-ordered (via drag and drop).
 - Datatypes of each column are auto-detected but can still be changed from the "Table Settings" popover.
 - The timestamp datatype can be used to format values that are milliseconds since epoch as a date.

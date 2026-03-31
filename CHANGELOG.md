@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Track the history of selected object stores and add shortcuts to move between them using:
+  - Ctrl+Alt+LeftArrow/RightArrow to go to the previous/next object store.
+  - back and forward buttons of the mouse (if the mouse has them).
+- Preserve sorting and column filters when reloading the table data from the header.
+- Add the page size to table settings to be saved and used the next time the store data is loaded.
+
+### Changed
+
+- Dependencies upgrades.
+- Refactor bigint columns support to use the newly introduced bigint datatype in ag-grid.
+
+### Fixed
+
+- Catch all errors that happen when creating/updating/deleting indexedDB data and display them to the user.
+- Reset the table settings when the user changes the object store and there are no saved table settings.
+- Completely ignore canceled data-load requests.
+
 ## [1.2.0] - 2025-12-11
 
 ### Added
