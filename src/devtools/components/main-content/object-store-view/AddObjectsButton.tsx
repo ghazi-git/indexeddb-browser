@@ -13,7 +13,9 @@ import DatatypeValidationCheckbox from "@/devtools/components/main-content/objec
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
-import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
+import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
+import ModalFooter from "@/devtools/components/modal/ModalFooter";
+import ModalHeader from "@/devtools/components/modal/ModalHeader";
 import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
@@ -132,17 +134,7 @@ export default function AddObjectsButton() {
         class={styles.dialog}
         onClose={() => setError([])}
       >
-        <header>
-          <h2>{title()}</h2>
-          <UnstyledButton
-            title="Close Modal"
-            aria-label="Close Modal"
-            command="close"
-            commandfor="add-edit-objects-modal"
-          >
-            <CloseIcon />
-          </UnstyledButton>
-        </header>
+        <ModalHeader title={title()} modalId="add-edit-objects-modal" />
         <div ref={editorRef} />
         <div class={styles.hint}>
           <div>The JSON value entered must be an array of objects.</div>
@@ -164,18 +156,12 @@ export default function AddObjectsButton() {
             onClick={() => setError([])}
           />
         </Show>
-        <footer>
-          <UnstyledButton command="close" commandfor="add-edit-objects-modal">
-            Cancel
-          </UnstyledButton>
-          <UnstyledButton
-            onClick={() => {
-              onSaveClick();
-            }}
-          >
+        <ModalFooter>
+          <ModalCancelButton modalId="add-edit-objects-modal" />
+          <UnstyledButton class={styles.save} onClick={() => onSaveClick()}>
             Save
           </UnstyledButton>
-        </footer>
+        </ModalFooter>
       </dialog>
     </>
   );

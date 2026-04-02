@@ -1,8 +1,11 @@
 import { createMemo, Match, Show, Switch } from "solid-js";
 
+import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
-import CloseIcon from "@/devtools/components/svg-icons/CloseIcon";
+import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
+import ModalFooter from "@/devtools/components/modal/ModalFooter";
+import ModalHeader from "@/devtools/components/modal/ModalHeader";
 import DeleteIcon from "@/devtools/components/svg-icons/DeleteIcon";
 import LoadingIcon from "@/devtools/components/svg-icons/LoadingIcon";
 import { getIndexedDBKey } from "@/devtools/utils/grid-options";
@@ -53,17 +56,7 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
         </Show>
       </UnstyledButton>
       <dialog id="delete-objects-modal" class={styles.dialog} closedby="any">
-        <header>
-          <h2>Delete Objects</h2>
-          <UnstyledButton
-            title="Close Modal"
-            aria-label="Close Modal"
-            command="close"
-            commandfor="delete-objects-modal"
-          >
-            <CloseIcon />
-          </UnstyledButton>
-        </header>
+        <ModalHeader title="Delete Objects" modalId="delete-objects-modal" />
         <Switch>
           <Match when={!canDelete()}>
             <div>No objects selected.</div>
@@ -79,11 +72,9 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
           </Match>
           <Match when={validObjectKeys().length}>
             <div>{deletionMsg()}</div>
-            <footer>
-              <UnstyledButton command="close" commandfor="delete-objects-modal">
-                Cancel
-              </UnstyledButton>
-              <UnstyledButton
+            <ModalFooter>
+              <ModalCancelButton modalId="delete-objects-modal" />
+              <ModalDeleteButton
                 command="close"
                 commandfor="delete-objects-modal"
                 onClick={() => {
@@ -100,8 +91,8 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
                 }}
               >
                 Delete
-              </UnstyledButton>
-            </footer>
+              </ModalDeleteButton>
+            </ModalFooter>
           </Match>
         </Switch>
       </dialog>
