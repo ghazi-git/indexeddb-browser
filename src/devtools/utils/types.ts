@@ -131,6 +131,12 @@ export interface DataCreationRequest {
   objects: SerializedObject[];
 }
 
+export interface StoreClearRequest {
+  requestID: string;
+  dbName: string;
+  storeName: string;
+}
+
 export type SerializedObject = {
   name: string;
   value: JSONSerializable;
@@ -177,7 +183,8 @@ declare global {
 export type MutationResponseAttr =
   | "__indexeddb_browser_data_update"
   | "__indexeddb_browser_data_delete"
-  | "__indexeddb_browser_data_create";
+  | "__indexeddb_browser_data_create"
+  | "__indexeddb_browser_store_clear";
 
 export type DataMutationResponse =
   | {

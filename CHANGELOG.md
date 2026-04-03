@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Add the ability to clear the object store
+
 ## [1.3.0] - 2026-03-31
 
 ### Added

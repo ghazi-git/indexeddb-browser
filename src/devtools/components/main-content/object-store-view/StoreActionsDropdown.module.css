@@ -1,0 +1,75 @@
+.actions {
+  /* margin auto allows pushing the btn to the far right inside its parent container */
+  margin-inline: auto var(--size-2);
+  border: var(--border-size-1) solid var(--surface-3);
+
+  svg {
+    inline-size: var(--size-3);
+    block-size: auto;
+    transform: rotate(90deg);
+  }
+}
+
+.menu {
+  margin-block-start: var(--size-1);
+  padding: var(--size-2);
+  background-color: var(--surface-2);
+  border-radius: var(--radius-2);
+  border: var(--border-size-1) solid var(--surface-4);
+  outline: none;
+  animation: hide-dropdown 150ms ease-in forwards;
+  transform-origin: var(--kb-menu-content-transform-origin);
+  z-index: var(--layer-2);
+
+  &[data-expanded] {
+    animation: show-dropdown 150ms ease-out;
+  }
+
+  .item {
+    display: block;
+    inline-size: 100%;
+    text-align: start;
+    background-color: transparent;
+    user-select: none;
+    border-radius: var(--radius-2);
+    padding: var(--size-1) var(--size-2);
+
+    &[data-disabled] {
+      color: var(--text-2);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    &[data-highlighted] {
+      background-color: var(--surface-4);
+    }
+  }
+}
+
+.dialog {
+  max-inline-size: min(calc(100% - var(--size-3)), 400px);
+}
+
+@keyframes show-dropdown {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes hide-dropdown {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}

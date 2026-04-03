@@ -13,10 +13,11 @@ import {
 export async function isDataMutationSuccessful(
   attr: MutationResponseAttr,
   requestID: string,
+  timeout = 3_000,
 ) {
   let timeSinceStart = 0;
   let iteration = 0;
-  while (timeSinceStart < 3_000) {
+  while (timeSinceStart < timeout) {
     const sleepTime = Math.min(5 * Math.pow(2, iteration), 500);
     await sleep(sleepTime);
     const response = await checkForDataMutationResponse(attr);
