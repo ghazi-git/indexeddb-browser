@@ -9,10 +9,16 @@ import {
 } from "solid-js";
 
 import { useOriginContext } from "@/devtools/components/origin-context";
+import {
+  createDataMutation,
+  Mutation,
+} from "@/devtools/utils/create-data-mutation";
+import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
 import { triggerIndexedDBsFetching } from "@/devtools/utils/inspected-window-databases";
 import { fetchIndexedDBs } from "@/devtools/utils/inspected-window-databases-polling";
 import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
-import { IndexedDB } from "@/devtools/utils/types";
+import { triggerStoreClear } from "@/devtools/utils/inspected-window-store-clear";
+import { IndexedDB, StoreClearRequest } from "@/devtools/utils/types";
 
 const IndexedDBContext = createContext<IndexedDBContextType>();
 
@@ -61,8 +67,27 @@ export function IndexedDBContextProvider(props: FlowProps) {
     }
   });
 
+  // place the clear-store mutation at the top level to allow a single clear
+  // request at any time.
+  const { mutation: clearStoreMutation, mutate: clearStore } =
+    createDataMutation(async (request: StoreClearRequest) => {
+      await triggerStoreClear(request);
+      await isDataMutationSuccessful(
+        "__indexeddb_browser_store_clear",
+        request.requestID,
+        15_000,
+      );
+    });
+
   return (
-    <IndexedDBContext.Provider value={{ databases: data, refetchIndexedDBs }}>
+    <IndexedDBContext.Provider
+      value={{
+        databases: data,
+        refetchIndexedDBs,
+        clearStoreMutation,
+        clearStore,
+      }}
+    >
       {props.children}
     </IndexedDBContext.Provider>
   );
@@ -71,4 +96,6 @@ export function IndexedDBContextProvider(props: FlowProps) {
 interface IndexedDBContextType {
   databases: Resource<IndexedDB[]>;
   refetchIndexedDBs: () => void;
+  clearStoreMutation: Mutation;
+  clearStore: (params: StoreClearRequest) => Promise<void>;
 }

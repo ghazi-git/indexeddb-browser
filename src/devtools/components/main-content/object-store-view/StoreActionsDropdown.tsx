@@ -3,16 +3,14 @@ import { createSignal, onCleanup, onMount } from "solid-js";
 
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
 import ThreeDotIcon from "@/devtools/components/svg-icons/ThreeDotIcon";
-import { createDataMutation } from "@/devtools/utils/create-data-mutation";
-import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
 import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
-import { triggerStoreClear } from "@/devtools/utils/inspected-window-store-clear";
-import { ActiveObjectStore, StoreClearRequest } from "@/devtools/utils/types";
+import { ActiveObjectStore } from "@/devtools/utils/types";
 
 import styles from "./StoreActionsDropdown.module.css";
 
@@ -40,16 +38,7 @@ export default function StoreActionsDropdown(props: StoreActionsDropdownProps) {
   onMount(() => window.addEventListener("keydown", closeOverlay, true));
   onCleanup(() => window.removeEventListener("keydown", closeOverlay, true));
 
-  const { mutation: clearOperation, mutate: clearStore } = createDataMutation(
-    async (request: StoreClearRequest) => {
-      await triggerStoreClear(request);
-      await isDataMutationSuccessful(
-        "__indexeddb_browser_store_clear",
-        request.requestID,
-        15_000,
-      );
-    },
-  );
+  const { clearStoreMutation, clearStore } = useIndexedDBContext();
   const { refetch: reloadTableData } = useTableContext();
 
   return (
@@ -66,7 +55,7 @@ export default function StoreActionsDropdown(props: StoreActionsDropdownProps) {
           <DropdownMenu.Content ref={menu} class={styles.menu}>
             <DropdownMenu.Item
               class={styles.item}
-              disabled={clearOperation.isLoading}
+              disabled={clearStoreMutation.isLoading}
               as="button"
               command="show-modal"
               commandfor="clear-store-modal"
@@ -90,7 +79,7 @@ export default function StoreActionsDropdown(props: StoreActionsDropdownProps) {
         <ModalFooter>
           <ModalCancelButton modalId="clear-store-modal" />
           <ModalDeleteButton
-            loading={clearOperation.isLoading}
+            loading={clearStoreMutation.isLoading}
             onClick={() => {
               clearStore({
                 requestID: generateRequestID(),
