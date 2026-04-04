@@ -16,6 +16,7 @@ import { useTableMutationContext } from "@/devtools/components/main-content/obje
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
+import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
@@ -35,7 +36,8 @@ import styles from "./AddObjectsButton.module.css";
 
 export default function AddObjectsButton() {
   const { tableMutationStore, createData } = useTableMutationContext();
-  const { query, refetch } = useTableContext();
+  const { query } = useTableContext();
+  const { reloadTableData } = useTableReloadContext();
   const [validateDatatypes, setValidateDatatypes] = createSignal(true);
   const [error, setError] = createSignal<string[]>([]);
   let dialogRef!: HTMLDialogElement;
@@ -91,7 +93,7 @@ export default function AddObjectsButton() {
         storeName: query.data.activeStore.storeName,
         objects: newObjects,
       });
-      refetch();
+      reloadTableData();
       dialogRef.close();
       editor.setOptions({ value: editorData() });
     } catch (e) {

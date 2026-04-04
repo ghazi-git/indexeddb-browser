@@ -25,6 +25,7 @@ import { unwrap } from "solid-js/store";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
+import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import { formatBigint, getBigintColdef } from "@/devtools/utils/coldef-bigint";
 import { getBooleanColdef } from "@/devtools/utils/coldef-boolean";
 import {
@@ -122,7 +123,7 @@ export default function Table(props: TableProps) {
     }
   };
 
-  const { updateColumnOrder, refetch } = useTableContext();
+  const { updateColumnOrder } = useTableContext();
   onMount(() => {
     let uneditableTimer: number;
     let cellWithLock: Element | undefined;
@@ -337,9 +338,10 @@ export default function Table(props: TableProps) {
     }
   });
   // allow alt/option+s to reload the store data
+  const { reloadTableData } = useTableReloadContext();
   const reloadStore = (event: KeyboardEvent) => {
     if (event.key === "s" && event.altKey && !event.metaKey && !event.ctrlKey) {
-      refetch();
+      reloadTableData();
     }
   };
   onMount(() => document.addEventListener("keydown", reloadStore));

@@ -3,8 +3,8 @@ import { createContext, createEffect, FlowProps, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
-import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
+import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import {
   DEFAULT_AUTOSIZE_COLUMNS,
   DEFAULT_OBJECTS_COUNT,
@@ -105,7 +105,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
       )
     );
   };
-  const { refetch } = useTableContext();
+  const { reloadTableData } = useTableReloadContext();
   const deleteSavedSettings = () => {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
@@ -117,7 +117,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
       );
       // reset table settings and refetch table data to reset columns state
       setSettings(getInitialSettingsValue());
-      refetch();
+      reloadTableData();
     }
   };
 

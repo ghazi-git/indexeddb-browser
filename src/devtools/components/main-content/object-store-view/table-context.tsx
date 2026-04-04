@@ -2,13 +2,14 @@ import {
   createContext,
   createEffect,
   FlowProps,
-  untrack,
+  on,
   useContext,
 } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import { useOriginContext } from "@/devtools/components/origin-context";
+import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import {
   createTableDataQuery,
   Query,
@@ -32,20 +33,34 @@ export function TableContextProvider(props: FlowProps) {
   const { origin } = useOriginContext();
   const { activeObjectStore } = useActiveObjectStoreContext();
   const { query, setQuery, fetchTableData } = createTableDataQuery();
-  const loadTableData = () => {
-    const activeStore = activeObjectStore();
-    if (activeStore) {
-      untrack(() => {
+  // get the obj store data when activeObjectStore is updated
+  createEffect(
+    on(activeObjectStore, (activeStore) => {
+      if (activeStore) {
         fetchTableData({
-          ...activeStore,
+          dbName: activeStore.dbName,
+          storeName: activeStore.storeName,
           origin: origin(),
           requestID: generateRequestID(),
         });
-      });
-    }
-  };
-  // get the obj store data when activeObjectStore is updated
-  createEffect(() => loadTableData());
+      }
+    }),
+  );
+  // reload table data on request (i.e., signal change)
+  const { tableReloadTrigger } = useTableReloadContext();
+  createEffect(
+    on(tableReloadTrigger, (trigger) => {
+      const activeStore = activeObjectStore();
+      if (trigger && activeStore) {
+        fetchTableData({
+          dbName: activeStore.dbName,
+          storeName: activeStore.storeName,
+          origin: origin(),
+          requestID: generateRequestID(),
+        });
+      }
+    }),
+  );
 
   const _saveColumnsToLocalStorage = (
     colIndex?: number,
@@ -99,7 +114,15 @@ export function TableContextProvider(props: FlowProps) {
           // still want the new datatype to be saved to local storage so we
           // can convert the data to that type the next time we reload the table
           _saveColumnsToLocalStorage(index, datatype);
-          loadTableData();
+          const activeStore = activeObjectStore();
+          if (activeStore) {
+            fetchTableData({
+              dbName: activeStore.dbName,
+              storeName: activeStore.storeName,
+              origin: origin(),
+              requestID: generateRequestID(),
+            });
+          }
         } else {
           _saveColumnsToLocalStorage();
         }
@@ -123,7 +146,6 @@ export function TableContextProvider(props: FlowProps) {
     <TableContext.Provider
       value={{
         query,
-        refetch: loadTableData,
         setColumnVisibility,
         setColumnDatatype,
         updateColumnOrder,
@@ -145,7 +167,6 @@ const DATATYPES_FORCING_RELOAD: TableColumnDatatype[] = [
 
 interface TableContextType {
   query: Query;
-  refetch: () => void;
   setColumnVisibility: (columnName: string, isVisible: boolean) => void;
   setColumnDatatype: (
     columnName: string,

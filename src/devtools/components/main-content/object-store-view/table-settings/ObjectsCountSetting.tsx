@@ -1,10 +1,10 @@
-import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
+import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 
 import styles from "./ObjectsCountSetting.module.css";
 
 export default function ObjectsCountSetting() {
-  const { refetch } = useTableContext();
+  const { reloadTableData } = useTableReloadContext();
   const { settings, setObjectsCount } = useTableSettingsContext();
 
   return (
@@ -20,7 +20,7 @@ export default function ObjectsCountSetting() {
           const val = parseInt(event.target.value) || null;
           if (val === null || val >= 0) {
             setObjectsCount(parseInt(event.target.value) || null);
-            refetch();
+            reloadTableData();
           } else {
             event.target.value =
               typeof settings.objectsCount === "number"

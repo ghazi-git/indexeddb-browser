@@ -4,11 +4,11 @@ import { createSignal, onCleanup, onMount } from "solid-js";
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
-import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
 import ThreeDotIcon from "@/devtools/components/svg-icons/ThreeDotIcon";
+import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
 import { ActiveObjectStore } from "@/devtools/utils/types";
 
@@ -39,8 +39,7 @@ export default function StoreActionsDropdown(props: StoreActionsDropdownProps) {
   onCleanup(() => window.removeEventListener("keydown", closeOverlay, true));
 
   const { clearStoreMutation, clearStore } = useIndexedDBContext();
-  const { refetch: reloadTableData } = useTableContext();
-
+  const { reloadTableData } = useTableReloadContext();
   return (
     <>
       <DropdownMenu open={open()} onOpenChange={setOpen}>
