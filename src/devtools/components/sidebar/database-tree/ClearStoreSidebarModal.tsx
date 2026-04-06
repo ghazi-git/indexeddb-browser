@@ -1,7 +1,6 @@
 import { JSX, onCleanup, onMount } from "solid-js";
 
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
-import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
@@ -15,12 +14,16 @@ import styles from "./ClearStoreSidebarModal.module.css";
 export default function ClearStoreSidebarModal(
   props: ClearStoreSidebarModalProps,
 ) {
-  const { clearStoreMutation, clearStore } = useIndexedDBContext();
   const { reloadTableData } = useTableReloadContext();
   const { tree } = useDatabaseTreeContext();
-  const { store, registerModalRef } = useClearStoreContext();
+  const { store, registerModalRef, clearStoreMutation, clearStore } =
+    useClearStoreContext();
 
   const closeModal = (event: KeyboardEvent) => {
+    // The default action for escape press is to toggle the bottom tools drawer
+    // in chrome devtools. The only way to stop that is to stop event propagation
+    // at the window level during the capture phase. After doing that, we also
+    // need to manually close the modal.
     if (
       event.key === "Escape" &&
       store.modalRef?.contains(event.target as HTMLElement)

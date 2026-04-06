@@ -4,7 +4,6 @@ import { createMemo, JSX, splitProps } from "solid-js";
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import MenuContent from "@/devtools/components/context-menu/MenuContent";
 import MenuItem from "@/devtools/components/context-menu/MenuItem";
-import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import { useClearStoreContext } from "@/devtools/components/sidebar/database-tree/clear-store-context";
 import {
   ObjectStore,
@@ -46,8 +45,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
       tree.selectedItem[1] === local.objectStoreIndex
     );
   });
-  const { clearStoreMutation } = useIndexedDBContext();
-  const { openModal } = useClearStoreContext();
+  const { openModal, clearStoreMutation } = useClearStoreContext();
 
   return (
     <ContextMenu>
