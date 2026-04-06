@@ -1,0 +1,15 @@
+.item {
+  user-select: none;
+  border-radius: var(--radius-2);
+  padding: var(--size-1) var(--size-2);
+
+  &[data-disabled] {
+    color: var(--text-2);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &[data-highlighted] {
+    background-color: var(--surface-4);
+  }
+}

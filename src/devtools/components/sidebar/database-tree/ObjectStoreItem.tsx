@@ -1,6 +1,11 @@
+import { ContextMenu } from "@kobalte/core/context-menu";
 import { createMemo, JSX, splitProps } from "solid-js";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
+import MenuContent from "@/devtools/components/context-menu/MenuContent";
+import MenuItem from "@/devtools/components/context-menu/MenuItem";
+import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
+import { useClearStoreContext } from "@/devtools/components/sidebar/database-tree/clear-store-context";
 import {
   ObjectStore,
   useDatabaseTreeContext,
@@ -41,37 +46,55 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
       tree.selectedItem[1] === local.objectStoreIndex
     );
   });
+  const { clearStoreMutation } = useIndexedDBContext();
+  const { openModal } = useClearStoreContext();
 
   return (
-    <li
-      class={`${styles["object-store"]} ${local.class ?? ""}`}
-      data-active-store={isActiveStore()}
-      aria-selected={isSelected()}
-      onClick={() => {
-        setSelectedItem(local.dbIndex, local.objectStoreIndex);
-      }}
-      role="treeitem"
-      tabindex={tabindex()}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowLeft") {
-          event.stopPropagation();
-          focusItem(local.dbIndex);
-        } else if (event.key === "ArrowRight") {
-          // don't let the event bubble up to DatabaseItem to avoid triggering
-          // its event listener
-          event.stopPropagation();
-        } else if (event.key === "Enter") {
-          event.stopPropagation();
-          setSelectedItem(local.dbIndex, local.objectStoreIndex);
-        }
-      }}
-      {...rest}
-    >
-      <div class={styles["object-store-icon"]}>
-        <StoreIcon />
-      </div>
-      <SingleLineText text={local.objectStore.name} />
-    </li>
+    <ContextMenu>
+      <ContextMenu.Trigger>
+        <li
+          class={`${styles["object-store"]} ${local.class ?? ""}`}
+          data-active-store={isActiveStore()}
+          aria-selected={isSelected()}
+          onClick={() => {
+            setSelectedItem(local.dbIndex, local.objectStoreIndex);
+          }}
+          role="treeitem"
+          tabindex={tabindex()}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft") {
+              event.stopPropagation();
+              focusItem(local.dbIndex);
+            } else if (event.key === "ArrowRight") {
+              // don't let the event bubble up to DatabaseItem to avoid triggering
+              // its event listener
+              event.stopPropagation();
+            } else if (event.key === "Enter") {
+              event.stopPropagation();
+              setSelectedItem(local.dbIndex, local.objectStoreIndex);
+            }
+          }}
+          {...rest}
+        >
+          <div class={styles["object-store-icon"]}>
+            <StoreIcon />
+          </div>
+          <SingleLineText text={local.objectStore.name} />
+        </li>
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <MenuContent>
+          <MenuItem
+            disabled={clearStoreMutation.isLoading}
+            onSelect={() => {
+              openModal(local.dbIndex, local.objectStoreIndex);
+            }}
+          >
+            Clear
+          </MenuItem>
+        </MenuContent>
+      </ContextMenu.Portal>
+    </ContextMenu>
   );
 }
 

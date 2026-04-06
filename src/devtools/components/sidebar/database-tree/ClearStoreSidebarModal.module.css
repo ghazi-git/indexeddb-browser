@@ -1,0 +1,3 @@
+.dialog {
+  max-inline-size: min(calc(100% - var(--size-3)), 400px);
+}

@@ -2,6 +2,7 @@ import { batch, createEffect, For, untrack } from "solid-js";
 import { createStore } from "solid-js/store";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
+import { ClearStoreContextProvider } from "@/devtools/components/sidebar/database-tree/clear-store-context";
 import {
   Database,
   DatabaseTreeContext,
@@ -174,9 +175,11 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
           }
         }}
       >
-        <For each={tree.databases}>
-          {(db, index) => <DatabaseItem db={db} dbIndex={index()} />}
-        </For>
+        <ClearStoreContextProvider>
+          <For each={tree.databases}>
+            {(db, index) => <DatabaseItem db={db} dbIndex={index()} />}
+          </For>
+        </ClearStoreContextProvider>
       </ul>
     </DatabaseTreeContext.Provider>
   );
