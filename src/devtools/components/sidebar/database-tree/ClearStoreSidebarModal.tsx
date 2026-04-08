@@ -13,15 +13,15 @@ import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
 export default function ClearStoreSidebarModal(
   props: ClearStoreSidebarModalProps,
 ) {
+  let modalRef: HTMLDialogElement;
   const { reloadTableData } = useTableReloadContext();
   const { tree } = useDatabaseTreeContext();
-  const { store, registerModalRef, clearStoreMutation, clearStore } =
-    useClearStoreContext();
+  const { store, clearStoreMutation, clearStore } = useClearStoreContext();
 
   const msg = () => {
-    if (store.trigger) {
-      const db = tree.databases[store.trigger.dbIndex];
-      const storeName = db.objectStores[store.trigger.storeIndex].name;
+    if (store.storeIndex !== null) {
+      const db = tree.databases[store.dbIndex];
+      const storeName = db.objectStores[store.storeIndex].name;
       return `Are you sure you want to delete all objects stored in '${storeName}'?`;
     } else {
       return "Unable to determine the store to be cleared.";
@@ -30,7 +30,9 @@ export default function ClearStoreSidebarModal(
 
   return (
     <Modal
-      ref={(elt) => registerModalRef(elt)}
+      ref={(elt) => {
+        modalRef = elt;
+      }}
       id="clear-store-sidebar-modal"
       onClose={(e) => props.onClose(e)}
     >
@@ -41,16 +43,16 @@ export default function ClearStoreSidebarModal(
         <ModalDeleteButton
           loading={clearStoreMutation.isLoading}
           onClick={() => {
-            if (store.trigger) {
-              const db = tree.databases[store.trigger.dbIndex];
+            if (store.storeIndex !== null) {
+              const db = tree.databases[store.dbIndex];
               const dbName = db.name;
-              const storeName = db.objectStores[store.trigger.storeIndex].name;
+              const storeName = db.objectStores[store.storeIndex].name;
               clearStore({
                 requestID: generateRequestID(),
                 dbName,
                 storeName,
               }).then(() => {
-                store.modalRef?.close();
+                modalRef.close();
                 reloadTableData();
               });
             }

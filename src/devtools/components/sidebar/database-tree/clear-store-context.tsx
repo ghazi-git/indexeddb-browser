@@ -17,15 +17,11 @@ export function ClearStoreContextProvider(props: FlowProps) {
   const { focusItem } = useDatabaseTreeContext();
 
   const [store, setStore] = createStore<ClearStore>({
-    modalRef: null,
-    trigger: null,
+    dbIndex: null,
+    storeIndex: null,
   });
-  const registerModalRef = (elt: HTMLDialogElement) => {
-    setStore("modalRef", elt);
-  };
-  const openModal = (dbIndex: number, storeIndex: number) => {
-    setStore("trigger", { dbIndex, storeIndex });
-    store.modalRef?.showModal();
+  const setStoreToBeCleared = (dbIndex: number, storeIndex: number) => {
+    setStore({ dbIndex, storeIndex });
   };
 
   // place the clear-store mutation in this provider to allow a single clear
@@ -44,8 +40,7 @@ export function ClearStoreContextProvider(props: FlowProps) {
     <ClearStoreContext.Provider
       value={{
         store,
-        openModal,
-        registerModalRef,
+        setStoreToBeCleared,
         clearStoreMutation,
         clearStore,
       }}
@@ -53,9 +48,9 @@ export function ClearStoreContextProvider(props: FlowProps) {
       {props.children}
       <ClearStoreSidebarModal
         onClose={() => {
-          if (store.trigger) {
-            focusItem(store.trigger.dbIndex, store.trigger.storeIndex);
-            setStore("trigger", null);
+          if (store.storeIndex !== null) {
+            focusItem(store.dbIndex, store.storeIndex);
+            setStore({ dbIndex: null, storeIndex: null });
           }
         }}
       />
@@ -74,15 +69,11 @@ export function useClearStoreContext() {
 
 interface ClearStoreContextType {
   store: ClearStore;
-  openModal: (dbIndex: number, storeIndex: number) => void;
-  registerModalRef: (elt: HTMLDialogElement) => void;
+  setStoreToBeCleared: (dbIndex: number, storeIndex: number) => void;
   clearStoreMutation: Mutation;
   clearStore: (params: StoreClearRequest) => Promise<void>;
 }
 
 type ClearStore =
-  | {
-      modalRef: HTMLDialogElement;
-      trigger: { dbIndex: number; storeIndex: number } | null;
-    }
-  | { modalRef: null; trigger: null };
+  | { dbIndex: number; storeIndex: number }
+  | { dbIndex: null; storeIndex: null };

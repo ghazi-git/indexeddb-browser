@@ -3,7 +3,7 @@ import { createMemo, JSX, splitProps } from "solid-js";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import MenuContent from "@/devtools/components/context-menu/MenuContent";
-import MenuItem from "@/devtools/components/context-menu/MenuItem";
+import ModalTriggerMenuItem from "@/devtools/components/context-menu/ModalTriggerMenuItem";
 import { useClearStoreContext } from "@/devtools/components/sidebar/database-tree/clear-store-context";
 import {
   ObjectStore,
@@ -45,7 +45,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
       tree.selectedItem[1] === local.objectStoreIndex
     );
   });
-  const { openModal, clearStoreMutation } = useClearStoreContext();
+  const { setStoreToBeCleared, clearStoreMutation } = useClearStoreContext();
 
   return (
     <ContextMenu>
@@ -82,14 +82,15 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <MenuContent>
-          <MenuItem
+          <ModalTriggerMenuItem
+            modalId="clear-store-sidebar-modal"
             disabled={clearStoreMutation.isLoading}
             onSelect={() => {
-              openModal(local.dbIndex, local.objectStoreIndex);
+              setStoreToBeCleared(local.dbIndex, local.objectStoreIndex);
             }}
           >
             Clear
-          </MenuItem>
+          </ModalTriggerMenuItem>
         </MenuContent>
       </ContextMenu.Portal>
     </ContextMenu>

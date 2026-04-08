@@ -1,4 +1,8 @@
 .item {
+  display: block;
+  inline-size: 100%;
+  text-align: start;
+  background-color: transparent;
   user-select: none;
   border-radius: var(--radius-2);
   padding: var(--size-1) var(--size-2);
