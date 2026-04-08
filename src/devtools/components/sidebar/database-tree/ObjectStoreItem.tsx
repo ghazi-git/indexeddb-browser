@@ -1,5 +1,5 @@
 import { ContextMenu } from "@kobalte/core/context-menu";
-import { createMemo, JSX, splitProps } from "solid-js";
+import { createMemo, createSignal, JSX, splitProps } from "solid-js";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import MenuContent from "@/devtools/components/context-menu/MenuContent";
@@ -46,9 +46,13 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
     );
   });
   const { setStoreToBeCleared, clearStoreMutation } = useClearStoreContext();
+  const [open, setOpen] = createSignal(false);
 
   return (
-    <ContextMenu>
+    // @ts-expect-error open is not part of ContextMenu props, but it is
+    // possible to pass it since ContextMenu and DropdownMenu use the same
+    // underlying Menu component under the hood
+    <ContextMenu open={open()} onOpenChange={setOpen}>
       <ContextMenu.Trigger>
         <li
           class={`${styles["object-store"]} ${local.class ?? ""}`}
@@ -72,6 +76,7 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
               setSelectedItem(local.dbIndex, local.objectStoreIndex);
             }
           }}
+          onContextMenu={() => setOpen(true)}
           {...rest}
         >
           <div class={styles["object-store-icon"]}>
@@ -81,12 +86,15 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
         </li>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
-        <MenuContent>
+        <MenuContent closeMenu={() => setOpen(false)}>
           <ModalTriggerMenuItem
             modalId="clear-store-sidebar-modal"
             disabled={clearStoreMutation.isLoading}
             onSelect={() => {
               setStoreToBeCleared(local.dbIndex, local.objectStoreIndex);
+              // need to delay closing the menu for the modal to display properly.
+              // this should not be needed in solid 2.0
+              setTimeout(() => setOpen(false));
             }}
           >
             Clear
