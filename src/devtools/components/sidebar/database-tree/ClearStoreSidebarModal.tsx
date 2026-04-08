@@ -1,6 +1,7 @@
-import { JSX, onCleanup, onMount } from "solid-js";
+import { JSX } from "solid-js";
 
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
+import Modal from "@/devtools/components/modal/Modal";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
@@ -9,8 +10,6 @@ import { useDatabaseTreeContext } from "@/devtools/components/sidebar/database-t
 import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import { generateRequestID } from "@/devtools/utils/inspected-window-helpers";
 
-import styles from "./ClearStoreSidebarModal.module.css";
-
 export default function ClearStoreSidebarModal(
   props: ClearStoreSidebarModalProps,
 ) {
@@ -18,22 +17,6 @@ export default function ClearStoreSidebarModal(
   const { tree } = useDatabaseTreeContext();
   const { store, registerModalRef, clearStoreMutation, clearStore } =
     useClearStoreContext();
-
-  const closeModal = (event: KeyboardEvent) => {
-    // The default action for escape press is to toggle the bottom tools drawer
-    // in chrome devtools. The only way to stop that is to stop event propagation
-    // at the window level during the capture phase. After doing that, we also
-    // need to manually close the modal.
-    if (
-      event.key === "Escape" &&
-      store.modalRef?.contains(event.target as HTMLElement)
-    ) {
-      event.stopPropagation();
-      store.modalRef?.close();
-    }
-  };
-  onMount(() => window.addEventListener("keydown", closeModal, true));
-  onCleanup(() => window.removeEventListener("keydown", closeModal, true));
 
   const msg = () => {
     if (store.trigger) {
@@ -46,10 +29,9 @@ export default function ClearStoreSidebarModal(
   };
 
   return (
-    <dialog
+    <Modal
       ref={(elt) => registerModalRef(elt)}
       id="clear-store-sidebar-modal"
-      class={styles.dialog}
       onClose={(e) => props.onClose(e)}
     >
       <ModalHeader title="Clear Store" modalId="clear-store-sidebar-modal" />
@@ -77,7 +59,7 @@ export default function ClearStoreSidebarModal(
           Clear
         </ModalDeleteButton>
       </ModalFooter>
-    </dialog>
+    </Modal>
   );
 }
 

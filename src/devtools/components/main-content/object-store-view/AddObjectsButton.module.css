@@ -3,7 +3,7 @@
 }
 
 .dialog {
-  inline-size: min(calc(100% - var(--size-3)), 800px);
+  max-inline-size: min(calc(100% - var(--size-3)), 800px);
 
   .hint {
     display: flex;

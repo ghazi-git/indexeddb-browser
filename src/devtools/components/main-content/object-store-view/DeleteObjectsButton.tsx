@@ -3,6 +3,7 @@ import { createMemo, Match, Show, Switch } from "solid-js";
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
+import Modal from "@/devtools/components/modal/Modal";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
@@ -55,7 +56,7 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
           <DeleteIcon />
         </Show>
       </UnstyledButton>
-      <dialog id="delete-objects-modal" class={styles.dialog} closedby="any">
+      <Modal id="delete-objects-modal" closedby="any">
         <ModalHeader title="Delete Objects" modalId="delete-objects-modal" />
         <Switch>
           <Match when={!canDelete()}>
@@ -95,7 +96,7 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
             </ModalFooter>
           </Match>
         </Switch>
-      </dialog>
+      </Modal>
     </>
   );
 }

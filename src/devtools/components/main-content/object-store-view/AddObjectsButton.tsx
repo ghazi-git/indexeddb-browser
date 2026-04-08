@@ -13,6 +13,7 @@ import DatatypeValidationCheckbox from "@/devtools/components/main-content/objec
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
+import Modal from "@/devtools/components/modal/Modal";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
@@ -40,7 +41,7 @@ export default function AddObjectsButton() {
   const { reloadTableData } = useTableReloadContext();
   const [validateDatatypes, setValidateDatatypes] = createSignal(true);
   const [error, setError] = createSignal<string[]>([]);
-  let dialogRef!: HTMLDialogElement;
+  let dialogRef: HTMLDialogElement;
   let editorRef!: HTMLDivElement;
   let editor: PrismEditor;
 
@@ -130,8 +131,10 @@ export default function AddObjectsButton() {
       >
         {title()}
       </UnstyledButton>
-      <dialog
-        ref={dialogRef}
+      <Modal
+        ref={(elt) => {
+          dialogRef = elt;
+        }}
         id="add-edit-objects-modal"
         class={styles.dialog}
         onClose={() => setError([])}
@@ -164,7 +167,7 @@ export default function AddObjectsButton() {
             Save
           </UnstyledButton>
         </ModalFooter>
-      </dialog>
+      </Modal>
     </>
   );
 }
