@@ -7,7 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Added
 
-- Add the ability to clear the object store by right-clicking the object store in the sidebar.
+- Add the ability to clear the object store by right-clicking it in the sidebar.
+- Add the ability to delete the database by right-clicking it in the sidebar.
 
 ## [1.3.0] - 2026-03-31
 

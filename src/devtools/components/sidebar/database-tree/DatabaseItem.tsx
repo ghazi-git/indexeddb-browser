@@ -1,9 +1,21 @@
-import { createMemo, For, JSX, onMount, Show, splitProps } from "solid-js";
+import { ContextMenu } from "@kobalte/core/context-menu";
+import {
+  createMemo,
+  createSignal,
+  For,
+  JSX,
+  onMount,
+  Show,
+  splitProps,
+} from "solid-js";
 
+import MenuContent from "@/devtools/components/context-menu/MenuContent";
+import ModalTriggerMenuItem from "@/devtools/components/context-menu/ModalTriggerMenuItem";
 import {
   Database,
   useDatabaseTreeContext,
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
+import { useDeleteDatabaseContext } from "@/devtools/components/sidebar/database-tree/delete-database-context";
 import ObjectStoreItem from "@/devtools/components/sidebar/database-tree/ObjectStoreItem";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
@@ -36,6 +48,10 @@ export default function DatabaseItem(props: DatabaseItemProps) {
     setRefs(local.dbIndex, dbRef, storeRefs);
   });
 
+  const { deleteDBMutation, setDBToDelete } = useDeleteDatabaseContext();
+  const [open, setOpen] = createSignal(false);
+  let contextMenuTrigger: HTMLDivElement;
+
   return (
     <li
       ref={dbRef}
@@ -59,31 +75,75 @@ export default function DatabaseItem(props: DatabaseItemProps) {
           }
         }
       }}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        // forward the event to the element under the `ContextMenu.Trigger`
+        // this is needed for keyboard navigation since this is the element
+        // whose tabindex is set
+        const customEvent = new MouseEvent("contextmenu", {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          button: 2,
+          clientY: event.clientY,
+          clientX: event.clientX,
+        });
+        contextMenuTrigger.dispatchEvent(customEvent);
+      }}
       {...rest}
     >
-      <div
-        class={styles.database}
-        onClick={() => {
-          setSelectedItem(local.dbIndex);
-          if (hasStores()) {
-            toggleExpandedDatabase(local.dbIndex);
-          }
-        }}
+      <ContextMenu
+        // @ts-expect-error open is not part of ContextMenu props, but it is
+        // possible to pass it since ContextMenu and DropdownMenu use the same
+        // underlying Menu component under the hood. We need to control closing
+        // the menu so that escape press when the menu is open closes it without
+        // bringing up the bottom tools drawer in chrome dev tools
+        open={open()}
+        onOpenChange={setOpen}
       >
-        <Show
-          when={hasStores()}
-          fallback={<div class={styles["no-object-stores"]} />}
-        >
-          <div class={styles.chevron}>
-            <TriangleIcon
-              orientation={local.db.isExpanded ? "down" : "right"}
+        <ContextMenu.Trigger>
+          <div
+            ref={(elt) => {
+              contextMenuTrigger = elt;
+            }}
+            class={styles.database}
+            onClick={() => {
+              setSelectedItem(local.dbIndex);
+              if (hasStores()) {
+                toggleExpandedDatabase(local.dbIndex);
+              }
+            }}
+            onContextMenu={() => setOpen(true)}
+          >
+            <Show
+              when={hasStores()}
+              fallback={<div class={styles["no-object-stores"]} />}
+            >
+              <div class={styles.chevron}>
+                <TriangleIcon
+                  orientation={local.db.isExpanded ? "down" : "right"}
+                />
+              </div>
+            </Show>
+            <SingleLineText
+              text={`${local.db.name}${hasStores() ? "" : " (empty)"}`}
             />
           </div>
-        </Show>
-        <SingleLineText
-          text={`${local.db.name}${hasStores() ? "" : " (empty)"}`}
-        />
-      </div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <MenuContent closeMenu={() => setOpen(false)}>
+            <ModalTriggerMenuItem
+              modalId="delete-database-modal"
+              disabled={deleteDBMutation.isLoading}
+              onSelect={() => {
+                setDBToDelete(local.dbIndex);
+              }}
+            >
+              Delete
+            </ModalTriggerMenuItem>
+          </MenuContent>
+        </ContextMenu.Portal>
+      </ContextMenu>
       <Show when={hasStores()}>
         <ul role="group">
           <For each={local.db.objectStores}>

@@ -137,6 +137,11 @@ export interface StoreClearRequest {
   storeName: string;
 }
 
+export interface DatabaseDeleteRequest {
+  requestID: string;
+  dbName: string;
+}
+
 export type SerializedObject = {
   name: string;
   value: JSONSerializable;
@@ -184,21 +189,10 @@ export type MutationResponseAttr =
   | "__indexeddb_browser_data_update"
   | "__indexeddb_browser_data_delete"
   | "__indexeddb_browser_data_create"
-  | "__indexeddb_browser_store_clear";
+  | "__indexeddb_browser_store_clear"
+  | "__indexeddb_browser_database_delete";
 
 export type DataMutationResponse =
-  | {
-      requestID: string;
-      status: "in_progress";
-      errorMsg: null;
-    }
-  | {
-      requestID: string;
-      status: "success";
-      errorMsg: null;
-    }
-  | {
-      requestID: string;
-      status: "failure";
-      errorMsg: string;
-    };
+  | { requestID: string; status: "in_progress"; errorMsg: null }
+  | { requestID: string; status: "success"; errorMsg: null }
+  | { requestID: string; status: "failure"; errorMsg: string };

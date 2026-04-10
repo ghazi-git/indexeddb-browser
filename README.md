@@ -27,6 +27,7 @@ Chrome extension that adds a DevTools panel to manage IndexedDB data.
   "Enter" to save or "Escape" to cancel.
 - A JSON data editor is provided to add objects to the store or update the values of JSON columns.
 - Automatically update the indexedDB list when the origin of the inspected page changes.
+- Right-click the object store/database in the sidebar to clear/delete it.
 - A light or dark theme is used according to the OS settings.
 
 ## Limitations

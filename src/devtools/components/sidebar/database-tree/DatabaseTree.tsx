@@ -11,6 +11,7 @@ import {
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
 import DatabaseItem from "@/devtools/components/sidebar/database-tree/DatabaseItem";
 import styles from "@/devtools/components/sidebar/database-tree/DatabaseTree.module.css";
+import { DeleteDatabaseContextProvider } from "@/devtools/components/sidebar/database-tree/delete-database-context";
 import { IndexedDB } from "@/devtools/utils/types";
 
 /**
@@ -175,11 +176,13 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
           }
         }}
       >
-        <ClearStoreContextProvider>
-          <For each={tree.databases}>
-            {(db, index) => <DatabaseItem db={db} dbIndex={index()} />}
-          </For>
-        </ClearStoreContextProvider>
+        <DeleteDatabaseContextProvider>
+          <ClearStoreContextProvider>
+            <For each={tree.databases}>
+              {(db, index) => <DatabaseItem db={db} dbIndex={index()} />}
+            </For>
+          </ClearStoreContextProvider>
+        </DeleteDatabaseContextProvider>
       </ul>
     </DatabaseTreeContext.Provider>
   );
