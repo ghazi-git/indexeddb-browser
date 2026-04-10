@@ -1,16 +1,11 @@
-import { JSX, onCleanup, onMount, splitProps } from "solid-js";
+import { JSX, splitProps } from "solid-js";
+
+import { registerEscapeHandler } from "@/devtools/utils/escape-handler";
 
 export default function Select(props: SelectProps) {
   const [local, rest] = splitProps(props, ["ref"]);
   let ref: HTMLSelectElement;
-  const handler = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && ref.contains(event.target as HTMLElement)) {
-      // prevent bringing up the bottom tools drawer of the chrome devtools
-      event.stopPropagation();
-    }
-  };
-  onMount(() => window.addEventListener("keydown", handler, true));
-  onCleanup(() => window.removeEventListener("keydown", handler, true));
+  registerEscapeHandler(() => ref);
 
   return (
     <select

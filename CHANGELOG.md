@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - Add the ability to clear the object store by right-clicking it in the sidebar.
 - Add the ability to delete the database by right-clicking it in the sidebar.
 
+### Fixed
+
+- Ensure pressing `Escape` results in closing overlays (modals, select dropdowns, popovers) instead of bringing up
+  the bottom tools drawer of chrome devtools.
+
 ## [1.3.0] - 2026-03-31
 
 ### Added

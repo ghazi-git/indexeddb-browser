@@ -3,14 +3,18 @@ import { Setter } from "solid-js";
 import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 import DeleteIcon from "@/devtools/components/svg-icons/DeleteIcon";
+import { registerEscapeHandler } from "@/devtools/utils/escape-handler";
 
 import styles from "./DeleteSavedSettings.module.css";
 
 export default function DeleteSavedSettings(props: DeleteSavedSettingsProps) {
   const { deleteSavedSettings } = useTableSettingsContext();
+  let ref: HTMLButtonElement;
+  registerEscapeHandler(() => ref);
 
   return (
     <UnstyledButton
+      ref={(elt) => (ref = elt)}
       class={styles["delete-settings"]}
       disabled={props.disabled}
       title={props.disabled ? "No saved settings to delete" : undefined}
