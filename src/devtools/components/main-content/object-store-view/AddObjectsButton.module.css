@@ -15,6 +15,10 @@
     font-size: 0.9rem;
   }
 
+  .error {
+    margin-inline-start: var(--size-2);
+  }
+
   .save {
     border: var(--border-size-1) solid var(--surface-3);
   }

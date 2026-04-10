@@ -157,6 +157,7 @@ export default function AddObjectsButton() {
         <Show when={error().length}>
           <ErrorAlert
             useMonoFont={true}
+            class={styles.error}
             errorMsg={error()}
             onClick={() => setError([])}
           />

@@ -1,6 +1,7 @@
-import { JSX } from "solid-js";
+import { createEffect, createSignal, JSX, Show } from "solid-js";
 
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
+import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import Modal from "@/devtools/components/modal/Modal";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
 import ModalFooter from "@/devtools/components/modal/ModalFooter";
@@ -27,6 +28,10 @@ export default function ClearStoreSidebarModal(
       return "Unable to determine the store to be cleared.";
     }
   };
+  const [errorMsg, setErrorMsg] = createSignal<string | null>(null);
+  createEffect(() => {
+    if (clearStoreMutation.errorMsg) setErrorMsg(clearStoreMutation.errorMsg);
+  });
 
   return (
     <Modal
@@ -34,9 +39,17 @@ export default function ClearStoreSidebarModal(
         modalRef = elt;
       }}
       id="clear-store-sidebar-modal"
-      onClose={(e) => props.onClose(e)}
+      onClose={(e) => {
+        props.onClose(e);
+        setErrorMsg(null);
+      }}
     >
       <ModalHeader title="Clear Store" modalId="clear-store-sidebar-modal" />
+      <Show when={errorMsg()}>
+        {(error) => (
+          <ErrorAlert errorMsg={error()} onClick={() => setErrorMsg(null)} />
+        )}
+      </Show>
       <div>{msg()}</div>
       <ModalFooter>
         <ModalCancelButton modalId="clear-store-sidebar-modal" />

@@ -14,7 +14,7 @@ export default function ErrorAlert(props: ErrorAlertProps) {
 
   return (
     <div
-      class={`${styles.alert} ${props.useMonoFont && styles.mono}`}
+      class={`${styles.alert} ${props.useMonoFont && styles.mono} ${props.class ?? ""}`}
       role="alert"
     >
       <Show
@@ -43,4 +43,5 @@ interface ErrorAlertProps {
   errorMsg: string | string[];
   onClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
   useMonoFont?: boolean;
+  class?: string;
 }

@@ -92,9 +92,6 @@ export default function ObjectStoreItem(props: ObjectStoreItemProps) {
             disabled={clearStoreMutation.isLoading}
             onSelect={() => {
               setStoreToBeCleared(local.dbIndex, local.objectStoreIndex);
-              // need to delay closing the menu for the modal to display properly.
-              // this should not be needed in solid 2.0
-              setTimeout(() => setOpen(false));
             }}
           >
             Clear
