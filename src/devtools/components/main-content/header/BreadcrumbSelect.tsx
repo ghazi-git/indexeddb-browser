@@ -1,12 +1,14 @@
 import { For, JSX, splitProps } from "solid-js";
 
+import Select from "@/devtools/components/buttons/Select";
+
 import styles from "./BreadcrumbSelect.module.css";
 
 export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
   const [local, selectProps] = splitProps(props, ["options", "class", "value"]);
 
   return (
-    <select
+    <Select
       class={`${styles["base-select"]} ${local.class ?? ""}`}
       {...selectProps}
     >
@@ -21,7 +23,7 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
           </option>
         )}
       </For>
-    </select>
+    </Select>
   );
 }
 
@@ -29,9 +31,10 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
 export const EMPTY_VALUE = "---";
 
 interface BreadcrumbSelectProps extends Omit<
-  JSX.HTMLAttributes<HTMLSelectElement>,
+  JSX.SelectHTMLAttributes<HTMLSelectElement>,
   "children"
 > {
+  ref?: (elt: HTMLSelectElement) => void;
   options: { label: string; value: string }[];
   value?: string;
 }

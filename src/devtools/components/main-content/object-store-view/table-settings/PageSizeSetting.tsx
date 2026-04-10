@@ -1,5 +1,6 @@
 import { For } from "solid-js";
 
+import Select from "@/devtools/components/buttons/Select";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
 import { PAGE_SIZES } from "@/devtools/utils/saved-settings";
 
@@ -12,7 +13,7 @@ export default function PageSizeSetting() {
   return (
     <div class={styles["page-size"]}>
       <label for="page-size">Page size</label>
-      <select
+      <Select
         id="page-size"
         name="page-size"
         onChange={(event) => {
@@ -27,7 +28,7 @@ export default function PageSizeSetting() {
             </option>
           )}
         </For>
-      </select>
+      </Select>
     </div>
   );
 }

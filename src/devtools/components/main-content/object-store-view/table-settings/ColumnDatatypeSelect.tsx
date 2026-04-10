@@ -1,5 +1,6 @@
 import { createUniqueId, For, JSX } from "solid-js";
 
+import Select from "@/devtools/components/buttons/Select";
 import { TableColumnDatatype } from "@/devtools/utils/types";
 
 import styles from "./ColumnDatatypeSelect.module.css";
@@ -18,7 +19,7 @@ export default function ColumnDatatypeSelect(props: ColumnDatatypeProps) {
   const id = createUniqueId();
 
   return (
-    <select
+    <Select
       id={id}
       class={styles.datatype}
       aria-label="Datatype Selector"
@@ -33,7 +34,7 @@ export default function ColumnDatatypeSelect(props: ColumnDatatypeProps) {
           </option>
         )}
       </For>
-    </select>
+    </Select>
   );
 }
 
