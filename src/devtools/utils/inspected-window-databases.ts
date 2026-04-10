@@ -74,6 +74,7 @@ function getObjectStores(dbName: string) {
         name: dbName,
         objectStores: Array.from(db.objectStoreNames),
       });
+      db.close();
     };
     dbRequest.onerror = () => {
       resolve({ name: dbName, objectStores: [] });

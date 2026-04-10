@@ -66,6 +66,7 @@ function clearStore(dbName: string, storeName: string) {
       const db = dbRequest.result;
       if (!Array.from(db.objectStoreNames).includes(storeName)) {
         reject(new Error(`Object store '${storeName}' not found.`));
+        db.close();
         return;
       }
 
