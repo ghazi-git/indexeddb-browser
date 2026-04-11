@@ -56,6 +56,7 @@ export default function ClearStoreSidebarModal(
         <ModalDeleteButton
           loading={clearStoreMutation.isLoading}
           onClick={() => {
+            setErrorMsg(null);
             if (store.storeIndex !== null) {
               const db = tree.databases[store.dbIndex];
               const dbName = db.name;

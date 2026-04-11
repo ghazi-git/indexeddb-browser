@@ -54,6 +54,7 @@ export default function DeleteDatabaseModal(props: DeleteDatabaseModalProps) {
         <ModalDeleteButton
           loading={deleteDBMutation.isLoading}
           onClick={() => {
+            setErrorMsg(null);
             const dbIndex = dbToDelete();
             if (dbIndex !== null) {
               const dbName = tree.databases[dbIndex].name;
