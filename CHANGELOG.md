@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-04-11
+
 ### Added
 
 - Add the ability to clear the object store by right-clicking it in the sidebar.
