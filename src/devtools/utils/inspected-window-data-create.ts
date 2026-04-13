@@ -7,7 +7,7 @@ import {
   markInProgress,
 } from "@/devtools/utils/inspected-window-data-mutation";
 import { DATA_MUTATION_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
-import { DataCreationRequest, StoreValue } from "@/devtools/utils/types";
+import { DataCreationRequest, TableRow } from "@/devtools/utils/types";
 
 export function triggerDataCreation(request: DataCreationRequest) {
   const code = getDataCreationCode(request);
@@ -47,7 +47,7 @@ async function processDataCreationRequest(request: DataCreationRequest) {
   try {
     const objects = request.objects.map((obj) => {
       const keyValuePairs = obj.map((field) => {
-        return [field.name, getStoreValue(field)] as [string, StoreValue];
+        return [field.name, getStoreValue(field)] as const;
       });
       return Object.fromEntries(keyValuePairs);
     });
@@ -62,11 +62,7 @@ async function processDataCreationRequest(request: DataCreationRequest) {
   }
 }
 
-function insertObjects(
-  dbName: string,
-  storeName: string,
-  objects: Record<string, StoreValue>[],
-) {
+function insertObjects(dbName: string, storeName: string, objects: TableRow[]) {
   return new Promise<void>((resolve, reject) => {
     const dbRequest = indexedDB.open(dbName);
     const genericErrorMsg = `An unexpected error occurred when inserting the data.`;
