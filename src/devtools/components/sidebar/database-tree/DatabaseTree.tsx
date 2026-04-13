@@ -4,9 +4,9 @@ import { createStore } from "solid-js/store";
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import { ClearStoreContextProvider } from "@/devtools/components/sidebar/database-tree/clear-store-context";
 import {
-  Database,
   DatabaseTreeContext,
   DatabaseTreeStore,
+  SidebarDatabase,
   TreeItem,
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
 import DatabaseItem from "@/devtools/components/sidebar/database-tree/DatabaseItem";
@@ -189,7 +189,7 @@ export default function DatabaseTree(props: DatabaseTreeProps) {
 }
 
 function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
-  const initialData: Database[] = databases.map((db) => ({
+  const initialData: SidebarDatabase[] = databases.map((db) => ({
     ref: null,
     name: db.name,
     isExpanded: false,
@@ -206,7 +206,7 @@ function getInitialTreeData(databases: IndexedDB[]): DatabaseTreeStore {
   };
 }
 
-function _getFlatItems(databases: Database[]) {
+function _getFlatItems(databases: SidebarDatabase[]) {
   const flatItems: TreeItem[] = [];
   for (let i = 0; i < databases.length; i++) {
     flatItems.push([i, undefined]);

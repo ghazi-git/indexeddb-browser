@@ -12,7 +12,7 @@ import {
 import MenuContent from "@/devtools/components/context-menu/MenuContent";
 import ModalTriggerMenuItem from "@/devtools/components/context-menu/ModalTriggerMenuItem";
 import {
-  Database,
+  SidebarDatabase,
   useDatabaseTreeContext,
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
 import { useDeleteDatabaseContext } from "@/devtools/components/sidebar/database-tree/delete-database-context";
@@ -169,6 +169,6 @@ interface DatabaseItemProps extends Omit<
   JSX.HTMLAttributes<HTMLLIElement>,
   "children"
 > {
-  db: Database;
+  db: SidebarDatabase;
   dbIndex: number;
 }

@@ -26,21 +26,21 @@ interface DatabaseTreeContextType {
 export type TreeItem = [dbIndex: number, storeIndex: number | undefined];
 
 export interface DatabaseTreeStore {
-  databases: Database[];
+  databases: SidebarDatabase[];
   // for accessibility
   selectedItem: TreeItem | null; // aria-selected=true
   focusedItem: TreeItem | null;
   focusableItem: TreeItem; // tabindex=0
 }
 
-export interface Database {
+export interface SidebarDatabase {
   ref: HTMLLIElement | null;
   name: string;
   isExpanded: boolean;
-  objectStores: ObjectStore[];
+  objectStores: SidebarStore[];
 }
 
-export interface ObjectStore {
+export interface SidebarStore {
   ref: HTMLLIElement | null;
   name: string;
 }

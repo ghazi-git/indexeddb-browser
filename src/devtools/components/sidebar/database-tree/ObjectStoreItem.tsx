@@ -6,7 +6,7 @@ import MenuContent from "@/devtools/components/context-menu/MenuContent";
 import ModalTriggerMenuItem from "@/devtools/components/context-menu/ModalTriggerMenuItem";
 import { useClearStoreContext } from "@/devtools/components/sidebar/database-tree/clear-store-context";
 import {
-  ObjectStore,
+  SidebarStore,
   useDatabaseTreeContext,
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
 import SingleLineText from "@/devtools/components/SingleLineText";
@@ -108,6 +108,6 @@ interface ObjectStoreItemProps extends Omit<
 > {
   dbName: string;
   dbIndex: number;
-  objectStore: ObjectStore;
+  objectStore: SidebarStore;
   objectStoreIndex: number;
 }
