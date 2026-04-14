@@ -116,18 +116,16 @@ export function createTableDataQuery() {
         await sleep(sleepTime);
         // we are getting the response in "parts" (request status, then metadata
         // and finally the data). That's to allow for retrieving the columns
-        // config even if the rows contain unsupported datatypes
+        // config even if the rows contain unsupported datatypes and errors out
+        // on retrieval (for example, an object with a property value as bigint
+        // but the column set as number)
         const response = await checkForObjectStoreDataStatus();
         if (response.requestID !== requestID) return;
 
         if (response.status === "success") {
           const metadata = await getObjectStoreMetadata();
-          if (metadata.canDisplay) {
-            const rows = await getObjectStoreData();
-            responseData = { ...metadata, rows };
-          } else {
-            responseData = { ...metadata, rows: null };
-          }
+          const rows = await getObjectStoreData();
+          responseData = { ...metadata, rows };
           break;
         } else if (response.status === "failure") {
           throw new Error(response.errorMsg);

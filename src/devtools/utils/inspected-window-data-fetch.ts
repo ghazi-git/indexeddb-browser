@@ -1,11 +1,12 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 import {
+  InspectedWindowTableData,
   ObjectStoreData,
   ObjectStoreResponse,
+  OutOfLineRecord,
   TableColumn,
   TableColumnDatatype,
   TableColumnValue,
-  TableData,
   TableRow,
 } from "@/devtools/utils/types";
 
@@ -60,6 +61,8 @@ function getDataRequestCode(
   ${cleanupData.toString()}
   ${isRequestActive.toString()}
   ${getColumns.toString()}
+  ${determineColumnDatatype.toString()}
+  ${getOutOfLineStoreColumns.toString()}
   ${getStrings.toString()}
   ${isString.toString()}
   ${getTimestamps.toString()}
@@ -111,27 +114,24 @@ async function processDataRequest(
   }
 
   try {
-    const data = await getObjectStoreData(
-      requestID,
-      dbName,
-      storeName,
-      objectsCount,
-    );
-    let resp: TableData;
-    const activeStore = { dbName, storeName };
-    if (data.canDisplay) {
-      let columns = getColumns(data.keypath, data.values);
-      if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
-        columns = savedColumns;
-      }
-      const keypath = data.keypath;
-      const rows = convertStoreData(columns, data.values);
-      resp = { canDisplay: true, keypath, columns, rows, activeStore };
-    } else {
-      // prettier-ignore
-      resp = { canDisplay: false, keypath: null, columns: null, rows: null, activeStore };
+    const { keyType, keypath, autoincrement, values } =
+      await getObjectStoreData(requestID, dbName, storeName, objectsCount);
+    let columns =
+      keyType === "inLine"
+        ? getColumns(keypath, values)
+        : getOutOfLineStoreColumns(values);
+    if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
+      columns = savedColumns;
     }
-    markRequestAsSuccessful(requestID, resp);
+    const rows = convertStoreData(columns, values);
+    markRequestAsSuccessful(requestID, {
+      keyType,
+      keypath,
+      autoincrement,
+      columns,
+      rows,
+      activeStore: { dbName, storeName },
+    });
   } catch (e) {
     console.error("fetch-data: failure", e);
     const msg =
@@ -176,11 +176,11 @@ function getObjectStoreData(
 
       tx = db.transaction(storeName, "readonly");
       tx.onerror = () => {
+        console.error("fetch-data", tx.error);
         const msg =
           "An unexpected error occurred. Please try fetching the object store " +
           "data again by clicking the reload icon in the header.";
         reject(new Error(msg));
-        clearInterval(timerID);
       };
       tx.onabort = () => {
         reject(new Error("Request timed out or canceled."));
@@ -188,34 +188,41 @@ function getObjectStoreData(
         db.close();
       };
       tx.oncomplete = () => {
-        // this is more of a fail-safe for when an unexpected error occurs
         clearInterval(timerID);
         db.close();
       };
 
       const objectStore = tx.objectStore(storeName);
-      if (!objectStore.keyPath) {
-        resolve({ canDisplay: false, keypath: null, values: null });
-        clearInterval(timerID);
-        return;
+      if (objectStore.keyPath) {
+        const keypath =
+          typeof objectStore.keyPath === "string"
+            ? [objectStore.keyPath]
+            : objectStore.keyPath;
+        const getAllReq = objectStore.getAll(null, objectsCount);
+        getAllReq.onsuccess = () => {
+          resolve({
+            keyType: "inLine",
+            keypath,
+            autoincrement: objectStore.autoIncrement,
+            values: getAllReq.result,
+          });
+        };
+      } else {
+        // @ts-expect-error getAllRecords types not yet recognized by typescript
+        const getAllReq = objectStore.getAllRecords({ count: objectsCount });
+        getAllReq.onsuccess = () => {
+          resolve({
+            keyType: "outOfLine",
+            keypath: ["key"],
+            autoincrement: objectStore.autoIncrement,
+            // remove the primaryKey prop in IDBRecord
+            // https://w3c.github.io/IndexedDB/#record-interface
+            values: (getAllReq.result as OutOfLineRecord[]).map(
+              ({ key, value }) => ({ key, value }),
+            ),
+          });
+        };
       }
-      const keypath =
-        typeof objectStore.keyPath === "string"
-          ? [objectStore.keyPath]
-          : objectStore.keyPath;
-
-      const getAllReq = objectStore.getAll(null, objectsCount);
-      getAllReq.onerror = () => {
-        const msg =
-          "An unexpected error occurred. Please try fetching the object store " +
-          "data again by clicking the reload icon in the header.";
-        reject(new Error(msg));
-        clearInterval(timerID);
-      };
-      getAllReq.onsuccess = () => {
-        resolve({ canDisplay: true, keypath, values: getAllReq.result });
-        clearInterval(timerID);
-      };
     };
   });
 }
@@ -229,7 +236,10 @@ function markRequestInProgress(requestID: string) {
   };
 }
 
-function markRequestAsSuccessful(requestID: string, data: TableData) {
+function markRequestAsSuccessful(
+  requestID: string,
+  data: InspectedWindowTableData,
+) {
   if (isRequestActive(requestID)) {
     window.__indexeddb_browser_data = {
       requestID,
@@ -302,34 +312,73 @@ function getColumns(keypath: string[], rows: TableRow[]) {
   for (const name of columnNames) {
     nonNullishData[name] = first100Rows
       .map((row) => row[name])
-      .filter((value) => value !== null && value !== undefined);
+      .filter((value) => value != null);
   }
-  const setDatatype = (column: TableColumn, datatype: TableColumnDatatype) => {
-    column.datatype = datatype;
-    column.isVisible = true;
-  };
   for (const column of columns) {
     const columnData = nonNullishData[column.name];
-    if (columnData.length) {
-      if (hasHighPercentage(columnData, getStrings(columnData))) {
-        setDatatype(column, "string");
-      } else if (hasHighPercentage(columnData, getTimestamps(columnData))) {
-        setDatatype(column, "timestamp");
-      } else if (hasHighPercentage(columnData, getNumbers(columnData))) {
-        setDatatype(column, "number");
-      } else if (hasHighPercentage(columnData, getBooleans(columnData))) {
-        setDatatype(column, "boolean");
-      } else if (hasHighPercentage(columnData, getBigInts(columnData))) {
-        setDatatype(column, "bigint");
-      } else if (hasHighPercentage(columnData, getDates(columnData))) {
-        setDatatype(column, "date");
-      } else if (hasHighPercentage(columnData, getJSONData(columnData))) {
-        setDatatype(column, "json_data");
-      }
-    }
+    const datatype = determineColumnDatatype(columnData, 80);
+    column.datatype = datatype;
+    column.isVisible = datatype !== "unsupported";
   }
 
   return columns;
+}
+
+function determineColumnDatatype(
+  columnData: TableColumnValue[],
+  percent: number,
+): TableColumnDatatype {
+  if (hasHighPercentage(columnData, getStrings(columnData), percent)) {
+    return "string";
+  } else if (
+    hasHighPercentage(columnData, getTimestamps(columnData), percent)
+  ) {
+    return "timestamp";
+  } else if (hasHighPercentage(columnData, getNumbers(columnData), percent)) {
+    return "number";
+  } else if (hasHighPercentage(columnData, getBooleans(columnData), percent)) {
+    return "boolean";
+  } else if (hasHighPercentage(columnData, getBigInts(columnData), percent)) {
+    return "bigint";
+  } else if (hasHighPercentage(columnData, getDates(columnData), percent)) {
+    return "date";
+  } else if (hasHighPercentage(columnData, getJSONData(columnData), percent)) {
+    return "json_data";
+  } else {
+    return "unsupported";
+  }
+}
+
+function getOutOfLineStoreColumns(records: OutOfLineRecord[]): TableColumn[] {
+  if (records.length === 0) return [];
+
+  // Auto-detect columns datatypes based on the first 100 records:
+  // - key column: all values should match the datatype.
+  // - value column: At least 80%, of the column data should match the datatype.
+  const first100 = records.slice(0, 100);
+
+  const keys = first100.map(({ key }) => key);
+  const keyDatatype = determineColumnDatatype(keys, 100);
+
+  const values = first100
+    .map(({ value }) => value)
+    .filter((value) => value != null);
+  const valueDatatype = determineColumnDatatype(values, 80);
+
+  return [
+    {
+      name: "key",
+      isKey: true,
+      isVisible: keyDatatype !== "unsupported",
+      datatype: keyDatatype,
+    },
+    {
+      name: "value",
+      isKey: false,
+      isVisible: valueDatatype !== "unsupported",
+      datatype: valueDatatype,
+    },
+  ];
 }
 
 function getStrings(colData: TableColumnValue[]) {
@@ -410,8 +459,11 @@ function isObject(value: TableColumnValue) {
 function hasHighPercentage(
   colData: TableColumnValue[],
   colDataOfType: TableColumnValue[],
+  percent: number,
 ) {
-  return colDataOfType.length / colData.length >= 0.8;
+  if (colData.length > 0)
+    return (colDataOfType.length * 100) / colData.length >= percent;
+  return false;
 }
 
 function canUseSavedColumns(

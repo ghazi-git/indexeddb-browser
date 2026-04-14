@@ -13,21 +13,19 @@ export type ActiveObjectStore = {
 };
 export type AutosizeColumns = "fit-grid-width" | "fit-cell-contents";
 
-export type TableData =
-  | {
-      canDisplay: true;
-      keypath: string[];
-      rows: TableRow[] | null;
-      columns: TableColumn[];
-      activeStore: ActiveObjectStore;
-    }
-  | {
-      canDisplay: false;
-      keypath: null;
-      rows: null;
-      columns: null;
-      activeStore: ActiveObjectStore;
-    };
+export interface InspectedWindowTableData {
+  keyType: "inLine" | "outOfLine";
+  keypath: string[];
+  autoincrement: boolean;
+  rows: TableRow[];
+  columns: TableColumn[];
+  activeStore: ActiveObjectStore;
+}
+export type TableData = Omit<InspectedWindowTableData, "rows"> & {
+  // null indicates an error occurred when retrieving the table data (usually
+  // due to unsupported datatypes)
+  rows: TableRow[] | null;
+};
 export type TableRow = Record<string, TableColumnValue>;
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type TableColumnValue = any;
@@ -86,7 +84,7 @@ export type ObjectStoreResponse =
   | {
       requestID: string;
       status: "success";
-      data: TableData;
+      data: InspectedWindowTableData;
       errorMsg: null;
     }
   | {
@@ -98,15 +96,18 @@ export type ObjectStoreResponse =
 
 export type ObjectStoreData =
   | {
-      canDisplay: true;
+      keyType: "inLine";
       keypath: string[];
+      autoincrement: boolean;
       values: TableRow[];
     }
   | {
-      canDisplay: false;
-      keypath: null;
-      values: null;
+      keyType: "outOfLine";
+      keypath: string[];
+      autoincrement: boolean;
+      values: OutOfLineRecord[];
     };
+export type OutOfLineRecord = { key: IDBValidKey; value: TableColumnValue };
 
 export interface DataUpdateRequest {
   requestID: string;

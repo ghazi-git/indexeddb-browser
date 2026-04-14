@@ -32,8 +32,8 @@ export function getObjectStoreMetadata() {
     chrome.devtools.inspectedWindow.eval(
       `
       (function() {
-        const {canDisplay, keypath, columns, activeStore} = window.__indexeddb_browser_data.data;
-        return {canDisplay, keypath, columns, activeStore};
+        const {keyType, keypath, autoincrement, columns, activeStore} = window.__indexeddb_browser_data.data;
+        return {keyType, keypath, autoincrement, columns, activeStore};
       })()
       `,
       (result: ObjectStoreMetadata, exceptionInfo) => {
@@ -66,19 +66,13 @@ export function getObjectStoreData() {
   });
 }
 
-type ObjectStoreMetadata =
-  | {
-      canDisplay: true;
-      keypath: string[];
-      columns: TableColumn[];
-      activeStore: ActiveObjectStore;
-    }
-  | {
-      canDisplay: false;
-      keypath: null;
-      columns: null;
-      activeStore: ActiveObjectStore;
-    };
+interface ObjectStoreMetadata {
+  keyType: "inLine" | "outOfLine";
+  keypath: string[];
+  autoincrement: boolean;
+  columns: TableColumn[];
+  activeStore: ActiveObjectStore;
+}
 
 type ObjectStoreStatus =
   | {

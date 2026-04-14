@@ -15,14 +15,11 @@ import { TableData } from "@/devtools/utils/types";
 
 export default function TableStateWrapper() {
   const { query } = useTableContext();
-  const displayableData = () => {
-    if (query.data?.canDisplay) return query.data;
-  };
 
   return (
     <TableSettingsContextProvider>
       <TableMutationContextProvider>
-        <Show when={displayableData()}>
+        <Show when={query.data}>
           {(data) => (
             <TableSettingsWrapper>
               <TableSearch />
@@ -57,67 +54,43 @@ export default function TableStateWrapper() {
 }
 
 function TableWrapper(props: { tableData: TableData }) {
-  const table = () => {
-    if (!props.tableData.canDisplay) return undefined;
-    if (props.tableData.rows?.length === 0) return null;
-
-    return {
-      columns: props.tableData.columns,
-      rows: props.tableData.rows,
-      keypath: props.tableData.keypath,
-      activeStore: props.tableData.activeStore,
-    };
-  };
-
   return (
-    <Switch>
-      <Match when={table() === undefined}>
-        <MainContentBanner>
-          <span>
-            This object store has no keypath. This <i>usually</i> means that it
-            has data not suitable for display in a table. Use the native
-            IndexedDB viewer instead.
-          </span>
+    <Show
+      when={props.tableData.rows}
+      fallback={
+        <MainContentBanner isError={true}>
+          <h1>Unable to retrieve the data.</h1>
+          <p>
+            This might be due to the object store containing unsupported
+            datatypes. The supported datatypes are primitive datatypes (string,
+            number, boolean, bigint), dates and objects/arrays holding primitive
+            datatypes. If you know which columns have unsupported datatypes,
+            open the "Table Settings" dropdown and set the datatype as
+            "Unsupported". Or, you can use the native IndexedDB viewer instead.
+          </p>
         </MainContentBanner>
-      </Match>
-      <Match when={table() === null}>
-        <MainContentBanner>
-          This object store has no data yet.
-        </MainContentBanner>
-      </Match>
-      <Match when={table()}>
-        {(t) => (
+      }
+    >
+      {(tableRows) => (
+        <>
           <Show
-            when={t().rows}
+            when={tableRows().length > 0}
             fallback={
-              <MainContentBanner isError={true}>
-                <h1>Unable to retrieve the data.</h1>
-                <p>
-                  This might be due to the object store containing unsupported
-                  datatypes. The supported datatypes are primitive datatypes
-                  (string, number, boolean, bigint), dates and objects/arrays
-                  holding primitive datatypes. If you know which columns have
-                  unsupported datatypes, open the "Table Settings" dropdown and
-                  set the datatype as "Unsupported". Or, you can use the native
-                  IndexedDB viewer instead.
-                </p>
+              <MainContentBanner>
+                This object store has no data yet.
               </MainContentBanner>
             }
           >
-            {(tableRows) => (
-              <>
-                <TableError />
-                <Table
-                  rows={tableRows()}
-                  columns={t().columns}
-                  keypath={t().keypath}
-                  activeStore={t().activeStore}
-                />
-              </>
-            )}
+            <TableError />
+            <Table
+              rows={tableRows()}
+              columns={props.tableData.columns}
+              keypath={props.tableData.keypath}
+              activeStore={props.tableData.activeStore}
+            />
           </Show>
-        )}
-      </Match>
-    </Switch>
+        </>
+      )}
+    </Show>
   );
 }
