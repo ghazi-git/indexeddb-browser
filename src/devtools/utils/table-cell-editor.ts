@@ -162,7 +162,7 @@ export class JSONEditor implements ICellEditorComp {
         if (isJSON(parsed)) {
           gridApi.stopEditing();
         } else {
-          this._showError("Value must be an object or an array.");
+          this._showError("Invalid JSON.");
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Invalid JSON.";

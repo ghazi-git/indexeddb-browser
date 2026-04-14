@@ -33,9 +33,9 @@ export default function ColumnsConfigNotes() {
             not work correctly.
           </li>
           <li>
-            The "JSON Data" datatype refers to columns containing objects or
-            arrays. The data is converted to a json string and treated as text
-            when searching or sorting.
+            The "JSON Data" datatype refers to columns containing numbers,
+            strings, booleans, null, objects or arrays. The data is converted to
+            a json string and treated as text when searching or sorting.
           </li>
           <li>
             The "Unsupported" datatype refers to a column holding data of a type

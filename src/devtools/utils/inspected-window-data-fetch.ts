@@ -74,7 +74,6 @@ function getDataRequestCode(
   ${isBigint.toString()}
   ${getJSONData.toString()}
   ${isJSON.toString()}
-  ${isJSONSerializable.toString()}
   ${isArray.toString()}
   ${isObject.toString()}
   ${hasHighPercentage.toString()}
@@ -389,22 +388,13 @@ function getJSONData(colData: TableColumnValue[]) {
   return colData.filter((v) => isJSON(v));
 }
 
-export function isJSON(value: TableColumnValue) {
-  // the value must be an object or an array
-  return (isObject(value) || isArray(value)) && isJSONSerializable(value);
-}
-
-function isJSONSerializable(obj: TableColumnValue) {
-  if (obj === null || ["string", "number", "boolean"].includes(typeof obj)) {
+export function isJSON(obj: TableColumnValue) {
+  if (obj === null || typeof obj === "string" || typeof obj === "boolean")
     return true;
-  }
 
-  if (isObject(obj)) {
-    return Object.values(obj).every(isJSONSerializable);
-  }
-  if (isArray(obj)) {
-    return obj.every(isJSONSerializable);
-  }
+  if (typeof obj === "number") return Number.isFinite(obj);
+  if (isArray(obj)) return obj.every(isJSON);
+  if (isObject(obj)) return Object.values(obj).every(isJSON);
 
   return false;
 }
