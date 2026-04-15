@@ -1,0 +1,157 @@
+import { Validator } from "jsonschema";
+
+import { parseJSONFromUser } from "@/devtools/utils/json-editor";
+import {
+  SerializedObject,
+  TableColumn,
+  TableColumnValue,
+  TableRow,
+} from "@/devtools/utils/types";
+
+export function validateColumns(columns: TableColumn[]) {
+  if (columns.length === 0) {
+    const msg = `Unable to save any object due to inability to determine the object store key.`;
+    throw new SaveObjectError(msg);
+  }
+}
+
+export function parseInput(input: string) {
+  const value = input.trim();
+  if (!value) throw new SaveObjectError("No value entered.");
+
+  try {
+    return parseJSONFromUser(value);
+  } catch (e) {
+    console.error("data-create: failure to parse", e);
+    const msg = e instanceof Error ? e.message : "Invalid JSON";
+    throw new SaveObjectError(msg, { cause: e });
+  }
+}
+
+export function validateObjectsWithInLineKeys(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any,
+  validateDatatypes: boolean,
+  columns: TableColumn[],
+): asserts value is TableRow[] {
+  const v = new Validator();
+  const schema = validateDatatypes
+    ? getJSONSchemaWithDatatypesValidation(columns)
+    : getSimpleJSONSchema();
+  const result = v.validate(value, schema);
+  if (!result.valid && result.errors.length) {
+    const error = result.errors[0];
+    const msg = `${error.property.replace("instance", "object")} ${error.message}`;
+    throw new Error(msg);
+  }
+}
+
+function getJSONSchemaWithDatatypesValidation(columns: TableColumn[]) {
+  return {
+    type: "array",
+    items: {
+      type: "object",
+      properties: Object.fromEntries(
+        columns.map((col) => [col.name, getPropertySchema(col)]),
+      ),
+    },
+    minItems: 1,
+  };
+}
+
+function getPropertySchema(column: TableColumn) {
+  const getType = (type: string, isKey: boolean) => {
+    return isKey ? [type] : [type, "null"];
+  };
+  if (column.datatype === "string") {
+    return { type: getType("string", column.isKey) };
+  } else if (column.datatype === "number") {
+    return { type: getType("number", column.isKey) };
+  } else if (column.datatype === "timestamp") {
+    return { type: getType("integer", column.isKey), minimum: 0 };
+  } else if (column.datatype === "boolean") {
+    return { type: getType("boolean", column.isKey) };
+  } else if (column.datatype === "date") {
+    return { type: getType("string", column.isKey), format: "date-time" };
+  } else if (column.datatype === "bigint") {
+    return { type: ["string", "null"], pattern: "^-?\\d+$" };
+  } else {
+    // no validation for json-data and unsupported datatypes
+    return {};
+  }
+}
+
+function getSimpleJSONSchema() {
+  return { type: "array", items: { type: "object" }, minItems: 1 };
+}
+
+export function serializeObjects(
+  parsedObj: TableRow[],
+  cols: TableColumn[],
+): SerializedObject[] {
+  return parsedObj.map((row) => {
+    return Object.entries(row).map(([colName, colValue]) => {
+      const col = cols.find((col) => col.name === colName);
+      return {
+        name: colName,
+        value: colValue,
+        // user can specify columns that the extension doesn't know about or
+        // the user is adding the first objects when we have no info about
+        // the datatypes
+        datatype: col?.datatype ?? "unsupported",
+      };
+    });
+  });
+}
+
+export function stringifyObjectsWithInlineKeys(
+  data: TableRow[],
+  columns: TableColumn[],
+) {
+  // sort the data keys according to columns' order
+  const objects = data.map((row) => {
+    const keyValuePairs = columns.map((col) => [col.name, row[col.name]]);
+    return Object.fromEntries(keyValuePairs);
+  });
+
+  return stringifyData(objects);
+}
+
+export function stringifyData(value: TableColumnValue) {
+  return JSON.stringify(
+    value,
+    // replace undefined with null
+    (_, val) => (val === undefined ? null : val),
+    2,
+  );
+}
+
+export function getSampleValue(columns: TableColumn[]) {
+  const now = new Date();
+  const keyValuePairs = columns.map((column) => {
+    let value: TableColumnValue = null;
+    if (column.datatype === "string") {
+      value = "string";
+    } else if (column.datatype === "number") {
+      value = 0;
+    } else if (column.datatype === "timestamp") {
+      value = now.getTime();
+    } else if (column.datatype === "boolean") {
+      value = true;
+    } else if (column.datatype === "date") {
+      value = now.toISOString();
+    } else if (column.datatype === "bigint") {
+      value = "1234567890";
+    }
+    return [column.name, value] as [string, TableColumnValue];
+  });
+  const obj = Object.fromEntries(keyValuePairs);
+  return [obj];
+}
+
+export class SaveObjectError extends Error {
+  constructor(message?: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "SaveObjectError";
+  }
+}
