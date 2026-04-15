@@ -109,12 +109,12 @@ export type ObjectStoreData =
     };
 export type OutOfLineRecord = { key: IDBValidKey; value: TableColumnValue };
 
-export interface DataUpdateRequest {
+export interface ColumnUpdateRequest {
   requestID: string;
   dbName: string;
   storeName: string;
   key: DataValue[];
-  fieldToUpdate: string;
+  columnToUpdate: string;
   newValue: DataValue;
 }
 
@@ -184,7 +184,7 @@ declare global {
 }
 
 export type MutationResponseAttr =
-  | "__indexeddb_browser_data_update"
+  | "__indexeddb_browser_column_update"
   | "__indexeddb_browser_data_delete"
   | "__indexeddb_browser_data_save_in_line_key"
   | "__indexeddb_browser_store_clear"

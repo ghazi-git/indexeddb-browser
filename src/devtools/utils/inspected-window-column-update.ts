@@ -8,14 +8,14 @@ import {
   markInProgress,
 } from "@/devtools/utils/inspected-window-data-mutation";
 import { DATA_MUTATION_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
-import { DataUpdateRequest, DataValue } from "@/devtools/utils/types";
+import { ColumnUpdateRequest, DataValue } from "@/devtools/utils/types";
 
-export function triggerDataUpdate(request: DataUpdateRequest) {
-  const code = getDataUpdateCode(request);
+export function triggerColumnUpdate(request: ColumnUpdateRequest) {
+  const code = getColumnUpdateCode(request);
   return new Promise<void>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(code, (_, exceptionInfo) => {
       if (exceptionInfo) {
-        console.error("data-update: failure to trigger", exceptionInfo);
+        console.error("column-update: failure to trigger", exceptionInfo);
         reject(new Error(DATA_MUTATION_ERROR_MSG));
       } else {
         resolve();
@@ -24,14 +24,14 @@ export function triggerDataUpdate(request: DataUpdateRequest) {
   });
 }
 
-function getDataUpdateCode(request: DataUpdateRequest) {
+function getColumnUpdateCode(request: ColumnUpdateRequest) {
   const serializedRequest = JSON.stringify(request);
   return `
 (function() {
-  ${processDataUpdateRequest.name}(${serializedRequest})
+  ${processColumnUpdateRequest.name}(${serializedRequest})
 
-  ${processDataUpdateRequest.toString()}
-  ${updateObjectField.toString()}
+  ${processColumnUpdateRequest.toString()}
+  ${updateColumnData.toString()}
   ${createIndexedDBKey.toString()}
   ${getStoreValue.toString()}
   ${markInProgress.toString()}
@@ -43,40 +43,40 @@ function getDataUpdateCode(request: DataUpdateRequest) {
 `;
 }
 
-async function processDataUpdateRequest(request: DataUpdateRequest) {
-  markInProgress("__indexeddb_browser_data_update", request.requestID);
+async function processColumnUpdateRequest(request: ColumnUpdateRequest) {
+  markInProgress("__indexeddb_browser_column_update", request.requestID);
   try {
     const idbKey = createIndexedDBKey(request.key) as IDBValidKey;
-    await updateObjectField(
+    await updateColumnData(
       request.dbName,
       request.storeName,
       idbKey,
-      request.fieldToUpdate,
+      request.columnToUpdate,
       request.newValue,
     );
-    markAsSuccessful("__indexeddb_browser_data_update", request.requestID);
+    markAsSuccessful("__indexeddb_browser_column_update", request.requestID);
   } catch (e) {
     const msg =
       e instanceof Error
         ? e.message
-        : "An unexpected error occurred when updating the data.";
-    markAsFailed("__indexeddb_browser_data_update", request.requestID, msg);
+        : "An unexpected error occurred when updating the column data.";
+    markAsFailed("__indexeddb_browser_column_update", request.requestID, msg);
   }
 }
 
-function updateObjectField(
+function updateColumnData(
   dbName: string,
   storeName: string,
   idbKey: IDBValidKey,
-  field: string,
-  fieldValue: DataValue,
+  column: string,
+  columnValue: DataValue,
 ) {
   return new Promise<void>((resolve, reject) => {
     const dbRequest = indexedDB.open(dbName);
-    const genericErrorMsg = `An unexpected error occurred when updating the data.`;
+    const genericErrorMsg = `An unexpected error occurred when updating the column data.`;
     dbRequest.onerror = () => {
       // generic handler for errors that bubble up
-      console.error("data-update: db error", dbRequest.error);
+      console.error("column-update: db error", dbRequest.error);
       reject(new Error(genericErrorMsg));
     };
     dbRequest.onsuccess = () => {
@@ -91,7 +91,7 @@ function updateObjectField(
       const objStore = tx.objectStore(storeName);
       const getRequest = objStore.get(idbKey);
       getRequest.onerror = () => {
-        console.error("data-update: get error", getRequest.error);
+        console.error("column-update: get error", getRequest.error);
         const msg = `Unable to get the object with the key=${idbKey} from the object store.`;
         reject(new Error(msg));
       };
@@ -103,7 +103,7 @@ function updateObjectField(
           return;
         }
 
-        const updated = { ...obj, [field]: getStoreValue(fieldValue) };
+        const updated = { ...obj, [column]: getStoreValue(columnValue) };
         objStore.put(updated);
       };
     };

@@ -68,8 +68,8 @@ export default function Table(props: TableProps) {
   const {
     setErrorMsg,
     setSelectedObjects,
-    updateOperation,
-    updateField,
+    updateColumnOperation,
+    updateColumn,
     deleteOperation,
     resetDeleteOperation,
     tableMutationStore,
@@ -78,7 +78,7 @@ export default function Table(props: TableProps) {
 
   const columnsSort = untrack(() => settings.sort);
   const columnDefs = (): ColDef[] => {
-    const isLoading = updateOperation.isLoading;
+    const isLoading = updateColumnOperation.isLoading;
 
     return props.columns.map((column) => {
       const canEdit = !isLoading && !column.isKey;
@@ -223,8 +223,8 @@ export default function Table(props: TableProps) {
           return;
         }
 
-        const fieldToUpdate = params.colDef.field!;
-        const col = props.columns.find((col) => col.name === fieldToUpdate);
+        const columnToUpdate = params.colDef.field!;
+        const col = props.columns.find((col) => col.name === columnToUpdate);
         if (!col || col.datatype === "unsupported") {
           setErrorMsg(`Cell update reverted: ${DATA_MUTATION_ERROR_MSG}`);
           return;
@@ -237,12 +237,12 @@ export default function Table(props: TableProps) {
         updateRowData(params.api, params.data, col, newValue);
 
         try {
-          await updateField({
+          await updateColumn({
             requestID: generateRequestID(),
             dbName: props.activeStore.dbName,
             storeName: props.activeStore.storeName,
             key,
-            fieldToUpdate,
+            columnToUpdate,
             newValue: { value: newValue, datatype: col.datatype },
           });
         } catch (e) {
