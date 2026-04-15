@@ -36,7 +36,11 @@ import {
 import styles from "./AddObjectsButton.module.css";
 
 export default function AddObjectsButton() {
-  const { tableMutationStore, createData } = useTableMutationContext();
+  const {
+    tableMutationStore,
+    saveDataWithInLineKeysOperation,
+    saveDataWithInLineKeys,
+  } = useTableMutationContext();
   const { query } = useTableContext();
   const { reloadTableData } = useTableReloadContext();
   const [validateDatatypes, setValidateDatatypes] = createSignal(true);
@@ -88,7 +92,7 @@ export default function AddObjectsButton() {
 
     const newObjects = serializeObjects(parsedObj as TableRow[], cols);
     try {
-      await createData({
+      await saveDataWithInLineKeys({
         requestID: generateRequestID(),
         dbName: query.data.activeStore.dbName,
         storeName: query.data.activeStore.storeName,
@@ -164,7 +168,11 @@ export default function AddObjectsButton() {
         </Show>
         <ModalFooter>
           <ModalCancelButton modalId="add-edit-objects-modal" />
-          <UnstyledButton class={styles.save} onClick={() => onSaveClick()}>
+          <UnstyledButton
+            disabled={saveDataWithInLineKeysOperation.isLoading}
+            class={styles.save}
+            onClick={() => onSaveClick()}
+          >
             Save
           </UnstyledButton>
         </ModalFooter>

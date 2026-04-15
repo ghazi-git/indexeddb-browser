@@ -7,14 +7,14 @@ import {
   markInProgress,
 } from "@/devtools/utils/inspected-window-data-mutation";
 import { DATA_MUTATION_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
-import { DataCreationRequest, TableRow } from "@/devtools/utils/types";
+import { DataSaveInLineKeyRequest, TableRow } from "@/devtools/utils/types";
 
-export function triggerDataCreation(request: DataCreationRequest) {
-  const code = getDataCreationCode(request);
+export function triggerDataSaveInLineKey(request: DataSaveInLineKeyRequest) {
+  const code = getDataSaveInLineKeyCode(request);
   return new Promise<void>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(code, (_, exceptionInfo) => {
       if (exceptionInfo) {
-        console.error("data-creation: failure to trigger", exceptionInfo);
+        console.error("data-save: failure to trigger", exceptionInfo);
         reject(new Error(DATA_MUTATION_ERROR_MSG));
       } else {
         resolve();
@@ -23,14 +23,14 @@ export function triggerDataCreation(request: DataCreationRequest) {
   });
 }
 
-function getDataCreationCode(request: DataCreationRequest) {
+function getDataSaveInLineKeyCode(request: DataSaveInLineKeyRequest) {
   const serializedRequest = JSON.stringify(request);
   return `
 (function() {
-  ${processDataCreationRequest.name}(${serializedRequest})
+  ${processDataSaveInLineKeyRequest.name}(${serializedRequest})
 
-  ${processDataCreationRequest.toString()}
-  ${insertObjects.toString()}
+  ${processDataSaveInLineKeyRequest.toString()}
+  ${saveObjects.toString()}
   ${getStoreValue.toString()}
   ${markInProgress.toString()}
   ${markAsSuccessful.toString()}
@@ -41,8 +41,13 @@ function getDataCreationCode(request: DataCreationRequest) {
 `;
 }
 
-async function processDataCreationRequest(request: DataCreationRequest) {
-  markInProgress("__indexeddb_browser_data_create", request.requestID);
+async function processDataSaveInLineKeyRequest(
+  request: DataSaveInLineKeyRequest,
+) {
+  markInProgress(
+    "__indexeddb_browser_data_save_in_line_key",
+    request.requestID,
+  );
 
   try {
     const objects = request.objects.map((obj) => {
@@ -51,23 +56,30 @@ async function processDataCreationRequest(request: DataCreationRequest) {
       });
       return Object.fromEntries(keyValuePairs);
     });
-    await insertObjects(request.dbName, request.storeName, objects);
-    markAsSuccessful("__indexeddb_browser_data_create", request.requestID);
+    await saveObjects(request.dbName, request.storeName, objects);
+    markAsSuccessful(
+      "__indexeddb_browser_data_save_in_line_key",
+      request.requestID,
+    );
   } catch (e) {
     const msg =
       e instanceof Error
         ? e.message
-        : "An unexpected error occurred when inserting the data.";
-    markAsFailed("__indexeddb_browser_data_create", request.requestID, msg);
+        : "An unexpected error occurred when saving the data.";
+    markAsFailed(
+      "__indexeddb_browser_data_save_in_line_key",
+      request.requestID,
+      msg,
+    );
   }
 }
 
-function insertObjects(dbName: string, storeName: string, objects: TableRow[]) {
+function saveObjects(dbName: string, storeName: string, objects: TableRow[]) {
   return new Promise<void>((resolve, reject) => {
     const dbRequest = indexedDB.open(dbName);
-    const genericErrorMsg = `An unexpected error occurred when inserting the data.`;
+    const genericErrorMsg = `An unexpected error occurred when saving the data.`;
     dbRequest.onerror = () => {
-      console.error("data-creation: db error", dbRequest.error);
+      console.error("data-save: db error", dbRequest.error);
       reject(new Error(genericErrorMsg));
     };
     dbRequest.onsuccess = () => {
@@ -84,13 +96,13 @@ function insertObjects(dbName: string, storeName: string, objects: TableRow[]) {
         try {
           const putRequest = objStore.put(obj);
           putRequest.onerror = () => {
-            console.error("data-creation: put error", putRequest.error);
+            console.error("data-save: put error", putRequest.error);
             // better to just return the indexedDB error given that many things
             // can go wrong
             // https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/put#exceptions
             const msg =
               putRequest.error?.message ??
-              `Unable to insert the object=${JSON.stringify(obj)}.`;
+              `Unable to save the object=${JSON.stringify(obj)}.`;
             reject(new Error(msg));
           };
         } catch (e) {

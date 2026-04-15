@@ -125,7 +125,7 @@ export interface DataDeletionRequest {
   keys: DataValue[][];
 }
 
-export interface DataCreationRequest {
+export interface DataSaveInLineKeyRequest {
   requestID: string;
   dbName: string;
   storeName: string;
@@ -186,7 +186,7 @@ declare global {
 export type MutationResponseAttr =
   | "__indexeddb_browser_data_update"
   | "__indexeddb_browser_data_delete"
-  | "__indexeddb_browser_data_create"
+  | "__indexeddb_browser_data_save_in_line_key"
   | "__indexeddb_browser_store_clear"
   | "__indexeddb_browser_database_delete";
 

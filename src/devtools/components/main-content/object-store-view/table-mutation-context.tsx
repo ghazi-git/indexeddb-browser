@@ -6,13 +6,13 @@ import {
   createDataMutation,
   Mutation,
 } from "@/devtools/utils/create-data-mutation";
-import { triggerDataCreation } from "@/devtools/utils/inspected-window-data-create";
 import { triggerDataDeletion } from "@/devtools/utils/inspected-window-data-delete";
 import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
+import { triggerDataSaveInLineKey } from "@/devtools/utils/inspected-window-data-save-in-line-key";
 import { triggerDataUpdate } from "@/devtools/utils/inspected-window-data-update";
 import {
-  DataCreationRequest,
   DataDeletionRequest,
+  DataSaveInLineKeyRequest,
   DataUpdateRequest,
   TableRow,
 } from "@/devtools/utils/types";
@@ -62,13 +62,12 @@ export function TableMutationContextProvider(props: FlowProps) {
     );
   });
   const {
-    mutation: createOperation,
-    mutate: createData,
-    reset: resetCreateOperation,
-  } = createDataMutation<DataCreationRequest>(async (request) => {
-    await triggerDataCreation(request);
+    mutation: saveDataWithInLineKeysOperation,
+    mutate: saveDataWithInLineKeys,
+  } = createDataMutation<DataSaveInLineKeyRequest>(async (request) => {
+    await triggerDataSaveInLineKey(request);
     await isDataMutationSuccessful(
-      "__indexeddb_browser_data_create",
+      "__indexeddb_browser_data_save_in_line_key",
       request.requestID,
     );
   });
@@ -91,9 +90,8 @@ export function TableMutationContextProvider(props: FlowProps) {
         deleteOperation,
         deleteData,
         resetDeleteOperation,
-        createOperation,
-        createData,
-        resetCreateOperation,
+        saveDataWithInLineKeysOperation,
+        saveDataWithInLineKeys,
       }}
     >
       {props.children}
@@ -110,9 +108,8 @@ interface TableMutationContextType {
   deleteOperation: Mutation;
   deleteData: (params: DataDeletionRequest) => Promise<void>;
   resetDeleteOperation: () => void;
-  createOperation: Mutation;
-  createData: (params: DataCreationRequest) => Promise<void>;
-  resetCreateOperation: () => void;
+  saveDataWithInLineKeysOperation: Mutation;
+  saveDataWithInLineKeys: (params: DataSaveInLineKeyRequest) => Promise<void>;
 }
 
 interface TableMutationStore {
