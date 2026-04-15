@@ -1,6 +1,6 @@
 import { createEffect, createSignal, JSX, Show } from "solid-js";
 
-import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
+import DeleteButton from "@/devtools/components/buttons/DeleteButton";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import Modal from "@/devtools/components/modal/Modal";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
@@ -53,7 +53,7 @@ export default function ClearStoreSidebarModal(
       <div>{msg()}</div>
       <ModalFooter>
         <ModalCancelButton modalId="clear-store-sidebar-modal" />
-        <ModalDeleteButton
+        <DeleteButton
           loading={clearStoreMutation.isLoading}
           onClick={() => {
             setErrorMsg(null);
@@ -73,7 +73,7 @@ export default function ClearStoreSidebarModal(
           }}
         >
           Clear
-        </ModalDeleteButton>
+        </DeleteButton>
       </ModalFooter>
     </Modal>
   );

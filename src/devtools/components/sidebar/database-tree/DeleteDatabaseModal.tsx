@@ -1,6 +1,6 @@
 import { createEffect, createSignal, JSX, Show } from "solid-js";
 
-import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
+import DeleteButton from "@/devtools/components/buttons/DeleteButton";
 import { useIndexedDBContext } from "@/devtools/components/indexeddb-context";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import Modal from "@/devtools/components/modal/Modal";
@@ -51,7 +51,7 @@ export default function DeleteDatabaseModal(props: DeleteDatabaseModalProps) {
       <div>{msg()}</div>
       <ModalFooter>
         <ModalCancelButton modalId="delete-database-modal" />
-        <ModalDeleteButton
+        <DeleteButton
           loading={deleteDBMutation.isLoading}
           onClick={() => {
             setErrorMsg(null);
@@ -66,7 +66,7 @@ export default function DeleteDatabaseModal(props: DeleteDatabaseModalProps) {
           }}
         >
           Delete
-        </ModalDeleteButton>
+        </DeleteButton>
       </ModalFooter>
     </Modal>
   );
