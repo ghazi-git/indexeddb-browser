@@ -7,7 +7,7 @@ import {
   Show,
 } from "solid-js";
 
-import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import ButtonWithBorder from "@/devtools/components/buttons/ButtonWithBorder";
 import DatatypeValidationCheckbox from "@/devtools/components/main-content/object-store-view/DatatypeValidationCheckbox";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
@@ -116,13 +116,12 @@ export default function AddEditObjectsWithInLineKeys(
 
   return (
     <>
-      <UnstyledButton
-        class={styles["dialog-trigger"]}
+      <ButtonWithBorder
         command="show-modal"
         commandfor="add-edit-objects-modal"
       >
         {title()}
-      </UnstyledButton>
+      </ButtonWithBorder>
       <Modal
         ref={(elt) => {
           dialogRef = elt;
@@ -158,13 +157,12 @@ export default function AddEditObjectsWithInLineKeys(
         </Show>
         <ModalFooter>
           <ModalCancelButton modalId="add-edit-objects-modal" />
-          <UnstyledButton
+          <ButtonWithBorder
             disabled={saveDataWithInLineKeysOperation.isLoading}
-            class={styles.save}
             onClick={() => onSaveClick()}
           >
             Save
-          </UnstyledButton>
+          </ButtonWithBorder>
         </ModalFooter>
       </Modal>
     </>

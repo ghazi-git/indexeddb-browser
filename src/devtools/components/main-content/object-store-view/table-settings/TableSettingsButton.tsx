@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 
-import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
+import ButtonWithBorder from "@/devtools/components/buttons/ButtonWithBorder";
 import ColumnsAutosize from "@/devtools/components/main-content/object-store-view/table-settings/ColumnsAutosize";
 import ColumnsConfig from "@/devtools/components/main-content/object-store-view/table-settings/ColumnsConfig";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
@@ -19,13 +19,13 @@ export default function TableSettingsButton() {
 
   return (
     <>
-      <UnstyledButton
+      <ButtonWithBorder
         class={`${styles["popover-trigger"]} ${isOpen() ? styles.open : ""}`}
         popovertarget="columns-popover"
       >
         Table Settings
         <TriangleIcon orientation={isOpen() ? "up" : "down"} />
-      </UnstyledButton>
+      </ButtonWithBorder>
       <div
         class={styles.popover}
         popover

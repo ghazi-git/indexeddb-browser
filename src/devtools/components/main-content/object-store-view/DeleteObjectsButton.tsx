@@ -1,7 +1,7 @@
 import { createMemo, Match, Show, Switch } from "solid-js";
 
+import ButtonWithBorder from "@/devtools/components/buttons/ButtonWithBorder";
 import ModalDeleteButton from "@/devtools/components/buttons/ModalDeleteButton";
-import UnstyledButton from "@/devtools/components/buttons/UnstyledButton";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import Modal from "@/devtools/components/modal/Modal";
 import ModalCancelButton from "@/devtools/components/modal/ModalCancelButton";
@@ -44,7 +44,7 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
 
   return (
     <>
-      <UnstyledButton
+      <ButtonWithBorder
         class={styles["dialog-trigger"]}
         title="Delete Selected Object(s)"
         aria-label="Delete Selected Object(s)"
@@ -55,7 +55,7 @@ export default function DeleteObjectsButton(props: DeleteObjectsButtonProps) {
         <Show when={!deleteOperation.isLoading} fallback={<LoadingIcon />}>
           <DeleteIcon />
         </Show>
-      </UnstyledButton>
+      </ButtonWithBorder>
       <Modal id="delete-objects-modal" closedby="any">
         <ModalHeader title="Delete Objects" modalId="delete-objects-modal" />
         <Switch>
