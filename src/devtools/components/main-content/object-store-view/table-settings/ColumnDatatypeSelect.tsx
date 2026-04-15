@@ -1,6 +1,6 @@
 import { createUniqueId, For, JSX } from "solid-js";
 
-import Select from "@/devtools/components/buttons/Select";
+import Select from "@/devtools/components/Select";
 import { TableColumnDatatype } from "@/devtools/utils/types";
 
 import styles from "./ColumnDatatypeSelect.module.css";

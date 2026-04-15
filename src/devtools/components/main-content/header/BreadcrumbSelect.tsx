@@ -1,6 +1,6 @@
 import { For, JSX, splitProps } from "solid-js";
 
-import Select from "@/devtools/components/buttons/Select";
+import Select from "@/devtools/components/Select";
 
 import styles from "./BreadcrumbSelect.module.css";
 

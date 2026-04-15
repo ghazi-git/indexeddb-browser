@@ -1,7 +1,7 @@
 import { For } from "solid-js";
 
-import Select from "@/devtools/components/buttons/Select";
 import { useTableSettingsContext } from "@/devtools/components/main-content/object-store-view/table-settings/context";
+import Select from "@/devtools/components/Select";
 import { PAGE_SIZES } from "@/devtools/utils/saved-settings";
 
 import styles from "./PageSizeSetting.module.css";
