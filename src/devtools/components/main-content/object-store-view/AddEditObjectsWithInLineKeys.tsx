@@ -17,13 +17,14 @@ import ModalFooter from "@/devtools/components/modal/ModalFooter";
 import ModalHeader from "@/devtools/components/modal/ModalHeader";
 import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import {
+  getDataWithInLineKeysSchema,
   getSampleValue,
   parseInput,
   SaveObjectError,
   serializeObjects,
   stringifyObjectsWithInlineKeys,
   validateColumns,
-  validateObjectsWithInLineKeys,
+  validateDataSchema,
 } from "@/devtools/utils/add-edit-objects";
 import {
   DATA_MUTATION_ERROR_MSG,
@@ -34,6 +35,7 @@ import {
   ActiveObjectStore,
   SerializedObject,
   TableColumn,
+  TableRow,
 } from "@/devtools/utils/types";
 
 import styles from "./AddEditObjectsWithInLineKeys.module.css";
@@ -65,17 +67,20 @@ export default function AddEditObjectsWithInLineKeys(
     try {
       validateColumns(props.columns);
       const parsedValue = parseInput(editor.value);
-      validateObjectsWithInLineKeys(
-        parsedValue,
+      const schema = getDataWithInLineKeysSchema(
         validateDatatypes(),
         props.columns,
       );
-      newObjects = serializeObjects(parsedValue, props.columns);
+      validateDataSchema(parsedValue, schema);
+      newObjects = serializeObjects(
+        parsedValue as unknown as TableRow[],
+        props.columns,
+      );
     } catch (e) {
       const msg =
         e instanceof SaveObjectError
           ? e.message
-          : "An unexpected occurred during save.";
+          : "An unexpected error occurred during save.";
       setError(msg);
       return;
     }

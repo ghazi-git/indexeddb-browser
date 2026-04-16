@@ -1,4 +1,4 @@
-import { Validator } from "jsonschema";
+import { Schema, Validator } from "jsonschema";
 
 import { parseJSONFromUser } from "@/devtools/utils/json-editor";
 import {
@@ -28,35 +28,38 @@ export function parseInput(input: string) {
   }
 }
 
-export function validateObjectsWithInLineKeys(
+export function validateDataSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
-  validateDatatypes: boolean,
-  columns: TableColumn[],
-): asserts value is TableRow[] {
+  schema: Schema,
+) {
   const v = new Validator();
-  const schema = validateDatatypes
-    ? getJSONSchemaWithDatatypesValidation(columns)
-    : getSimpleJSONSchema();
   const result = v.validate(value, schema);
   if (!result.valid && result.errors.length) {
-    const error = result.errors[0];
-    const msg = `${error.property.replace("instance", "object")} ${error.message}`;
-    throw new Error(msg);
+    const errors = result.errors.map(
+      (err) => `${err.property.replace("instance", "object")} ${err.message}`,
+    );
+    const msg = errors.join("\n");
+    throw new SaveObjectError(msg);
   }
 }
 
-function getJSONSchemaWithDatatypesValidation(columns: TableColumn[]) {
-  return {
-    type: "array",
-    items: {
-      type: "object",
-      properties: Object.fromEntries(
-        columns.map((col) => [col.name, getPropertySchema(col)]),
-      ),
-    },
-    minItems: 1,
-  };
+export function getDataWithInLineKeysSchema(
+  validateDatatypes: boolean,
+  columns: TableColumn[],
+) {
+  if (validateDatatypes)
+    return {
+      type: "array",
+      items: {
+        type: "object",
+        properties: Object.fromEntries(
+          columns.map((col) => [col.name, getPropertySchema(col)]),
+        ),
+      },
+      minItems: 1,
+    };
+  else return { type: "array", items: { type: "object" }, minItems: 1 };
 }
 
 function getPropertySchema(column: TableColumn) {
@@ -79,10 +82,6 @@ function getPropertySchema(column: TableColumn) {
     // no validation for json-data and unsupported datatypes
     return {};
   }
-}
-
-function getSimpleJSONSchema() {
-  return { type: "array", items: { type: "object" }, minItems: 1 };
 }
 
 export function serializeObjects(
