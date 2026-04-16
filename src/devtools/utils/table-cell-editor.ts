@@ -53,6 +53,17 @@ export class JSONEditor implements ICellEditorComp {
     });
 
     const editorContainer = document.createElement("div");
+    // Seems like "Chrome's own devtools frontend" has a keydown listener
+    // that calls `event.preventDefault()`. Removing the listener from
+    // "Elements panel > Event Listeners" results in the character being
+    // written as expected. Usually, the listener ignores textarea and inputs
+    // when they are the current `document.activeElement`. But, it doesn't
+    // in this case, because the editor uses shadow dom to render, making
+    // the `document.activeElement` equal to the div acting as the editor
+    // container rather than the inner textarea. Thus setting contenteditable
+    // to avoid listener intercepting what the user types.
+    // https://source.chromium.org/chromium/chromium/src/+/main:third_party/devtools-frontend/src/front_end/models/extensions/ExtensionAPI.ts;drc=036d07d8c68f4b0322530fbe1f0061f2d8c84366;l=1377-1425
+    editorContainer.setAttribute("contenteditable", "true");
     const editorFooter = document.createElement("div");
     editorFooter.className = styles.footer;
     this.errorContainer = this._createErrorsContainer();

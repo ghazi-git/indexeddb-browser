@@ -62,7 +62,7 @@ export function getDataWithInLineKeysSchema(
   else return { type: "array", items: { type: "object" }, minItems: 1 };
 }
 
-function getPropertySchema(column: TableColumn) {
+export function getPropertySchema(column: TableColumn) {
   const getType = (type: string, isKey: boolean) => {
     return isKey ? [type] : [type, "null"];
   };
@@ -127,6 +127,7 @@ export function stringifyData(value: TableColumnValue) {
 
 export function getSampleValue(columns: TableColumn[]) {
   const now = new Date();
+  now.setMinutes(0, 0, 0);
   const keyValuePairs = columns.map((column) => {
     let value: TableColumnValue = null;
     if (column.datatype === "string") {

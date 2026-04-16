@@ -1,14 +1,8 @@
-import { PrismEditor } from "prism-code-editor";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onMount,
-  Show,
-} from "solid-js";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
 
 import ButtonWithBorder from "@/devtools/components/buttons/ButtonWithBorder";
 import DatatypeValidationCheckbox from "@/devtools/components/main-content/object-store-view/DatatypeValidationCheckbox";
+import Editor from "@/devtools/components/main-content/object-store-view/Editor";
 import ErrorAlert from "@/devtools/components/main-content/object-store-view/ErrorAlert";
 import { useTableMutationContext } from "@/devtools/components/main-content/object-store-view/table-mutation-context";
 import Modal from "@/devtools/components/modal/Modal";
@@ -30,7 +24,6 @@ import {
   DATA_MUTATION_ERROR_MSG,
   generateRequestID,
 } from "@/devtools/utils/inspected-window-helpers";
-import { createJSONEditor } from "@/devtools/utils/json-editor";
 import {
   ActiveObjectStore,
   SerializedObject,
@@ -52,8 +45,6 @@ export default function AddEditObjectsWithInLineKeys(
   const [validateDatatypes, setValidateDatatypes] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
   let dialogRef: HTMLDialogElement;
-  let editorRef!: HTMLDivElement;
-  let editor: PrismEditor;
 
   const title = () => {
     return tableMutationStore.selectedObjects.length > 0
@@ -66,7 +57,7 @@ export default function AddEditObjectsWithInLineKeys(
     let newObjects: SerializedObject[];
     try {
       validateColumns(props.columns);
-      const parsedValue = parseInput(editor.value);
+      const parsedValue = parseInput(editorValue());
       const schema = getDataWithInLineKeysSchema(
         validateDatatypes(),
         props.columns,
@@ -94,16 +85,14 @@ export default function AddEditObjectsWithInLineKeys(
       });
       reloadTableData();
       dialogRef.close();
-      editor.setOptions({ value: editorData() });
+      setEditorValue(editorData());
     } catch (e) {
       const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
       setError(msg);
     }
   };
 
-  onMount(() => {
-    editor = createJSONEditor(editorRef, "");
-  });
+  const [editorValue, setEditorValue] = createSignal("");
   const editorData = createMemo(() => {
     if (tableMutationStore.selectedObjects.length > 0) {
       return stringifyObjectsWithInlineKeys(
@@ -116,7 +105,7 @@ export default function AddEditObjectsWithInLineKeys(
     }
   });
   createEffect(() => {
-    editor.setOptions({ value: editorData() });
+    setEditorValue(editorData());
   });
 
   return (
@@ -136,7 +125,7 @@ export default function AddEditObjectsWithInLineKeys(
         onClose={() => setError(null)}
       >
         <ModalHeader title={title()} modalId="add-edit-objects-modal" />
-        <div ref={(elt) => (editorRef = elt)} />
+        <Editor value={editorValue()} setValue={setEditorValue} />
         <div class={styles.hint}>
           <div>The JSON value entered must be an array of objects.</div>
           <div>

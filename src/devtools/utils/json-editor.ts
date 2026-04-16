@@ -1,38 +1,27 @@
 import "prism-code-editor/prism/languages/json";
 
 import { parse } from "@prantlf/jsonlint";
+import { PrismEditor } from "prism-code-editor";
 import { basicEditor } from "prism-code-editor/setups";
 
 export function createJSONEditor(
   container: HTMLDivElement,
   initialValue: string,
+  onUpdate?: (value: string, editor: PrismEditor) => void,
 ) {
   const systemScheme = getSystemTheme();
   // when using createEditor, for some reason, enter click inside a curly
   // braces doesn't auto-indent in the next like (behavior that can't
-  // be seen in their docs site)
-  const editor = basicEditor(container, {
+  // be seen in their docs site). Maybe this is also linked to some listener
+  // in chrome devtools and is no longer an issue after adding contenteditable
+  // to the editor container (need to test this at some point in the future)
+  return basicEditor(container, {
     value: initialValue,
     language: "json",
     wordWrap: true,
     theme: systemScheme === "light" ? "night-owl-light" : "night-owl",
+    onUpdate,
   });
-  editor.container.addEventListener("keydown", (event) => {
-    if (event.key === "a" || event.key === "A") {
-      // letting the event bubble results in the character not being written
-      // to the textarea.
-      // Seems like "Chrome's own devtools frontend" has a keydown listener
-      // that calls `event.preventDefault()`. Removing the listener from
-      // "Elements panel > Event Listeners" results in the character being
-      // written as expected. Usually, the listener ignores textarea and inputs
-      // when they are the current `document.activeElement`. But, it doesn't
-      // in this case, because the editor uses shadow dom to render, making
-      // the `document.activeElement` equal to the div acting as the editor
-      // container rather than the inner textarea.
-      event.stopImmediatePropagation();
-    }
-  });
-  return editor;
 }
 
 function getSystemTheme() {
