@@ -41,6 +41,7 @@ import { formatNumber, getNumberColdef } from "@/devtools/utils/coldef-number";
 import { formatString, getStringColdef } from "@/devtools/utils/coldef-string";
 import { getUnsupportedColdef } from "@/devtools/utils/coldef-unsupported";
 import {
+  AllColumnsHiddenOverlay,
   convertGetterValueToRowDataValue,
   getIndexedDBKey,
   parseBooleanNull,
@@ -347,6 +348,12 @@ export default function Table(props: TableProps) {
     } else {
       gridApi.sizeColumnsToFit({ defaultMinWidth: 100, defaultMaxWidth: 500 });
     }
+  });
+  createEffect(() => {
+    const hidden =
+      props.columns.length > 0 && props.columns.every((c) => !c.isVisible);
+    if (hidden) gridApi.setGridOption("activeOverlay", AllColumnsHiddenOverlay);
+    else gridApi.setGridOption("activeOverlay", undefined);
   });
   // allow alt/option+s to reload the store data
   const { reloadTableData } = useTableReloadContext();

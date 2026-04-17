@@ -1,3 +1,4 @@
+import type { IOverlayComp } from "ag-grid-community";
 import { GridApi } from "ag-grid-community";
 
 import {
@@ -94,5 +95,18 @@ export function convertGetterValueToRowDataValue(
     }
   } else {
     return value;
+  }
+}
+
+export class AllColumnsHiddenOverlay implements IOverlayComp {
+  private gui!: HTMLDivElement;
+
+  public init() {
+    this.gui = document.createElement("div");
+    this.gui.textContent = "All columns are hidden.";
+  }
+
+  public getGui() {
+    return this.gui;
   }
 }
