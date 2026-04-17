@@ -102,6 +102,7 @@ function TableWrapper(props: { tableData: TableData }) {
               columns={props.tableData.columns}
               keypath={props.tableData.keypath}
               activeStore={props.tableData.activeStore}
+              keyType={props.tableData.keyType}
             />
           </Show>
         </>

@@ -75,6 +75,7 @@ export default function Table(props: TableProps) {
     tableMutationStore,
   } = useTableMutationContext();
   const { settings, setSort, setColumnFilters } = useTableSettingsContext();
+  const { saveDataWithOutOfLineKeys } = useTableMutationContext();
 
   const columnsSort = untrack(() => settings.sort);
   const columnDefs = (): ColDef[] => {
@@ -237,14 +238,24 @@ export default function Table(props: TableProps) {
         updateRowData(params.api, params.data, col, newValue);
 
         try {
-          await updateColumn({
-            requestID: generateRequestID(),
-            dbName: props.activeStore.dbName,
-            storeName: props.activeStore.storeName,
-            key,
-            columnToUpdate,
-            newValue: { value: newValue, datatype: col.datatype },
-          });
+          if (props.keyType === "outOfLine") {
+            await saveDataWithOutOfLineKeys({
+              requestID: generateRequestID(),
+              dbName: props.activeStore.dbName,
+              storeName: props.activeStore.storeName,
+              key: key[0],
+              value: { value: newValue, datatype: col.datatype },
+            });
+          } else {
+            await updateColumn({
+              requestID: generateRequestID(),
+              dbName: props.activeStore.dbName,
+              storeName: props.activeStore.storeName,
+              key,
+              columnToUpdate,
+              newValue: { value: newValue, datatype: col.datatype },
+            });
+          }
         } catch (e) {
           updateRowData(params.api, params.data, col, oldValue);
           const msg = e instanceof Error ? e.message : DATA_MUTATION_ERROR_MSG;
@@ -383,4 +394,5 @@ interface TableProps {
   rows: TableRow[];
   keypath: string[];
   activeStore: ActiveObjectStore;
+  keyType: "inLine" | "outOfLine";
 }
