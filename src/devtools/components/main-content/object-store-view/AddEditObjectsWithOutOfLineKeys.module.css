@@ -1,0 +1,16 @@
+.dialog {
+  max-inline-size: min(calc(100% - var(--size-3)), 800px);
+
+  .key-editor {
+    margin-block-end: var(--size-1);
+  }
+
+  .hint {
+    padding-inline-start: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .error {
+    margin-inline-start: var(--size-2);
+  }
+}

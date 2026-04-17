@@ -132,6 +132,14 @@ export interface DataSaveInLineKeyRequest {
   objects: SerializedObject[];
 }
 
+export interface DataSaveOutOfLineKeyRequest {
+  requestID: string;
+  dbName: string;
+  storeName: string;
+  key: DataValue;
+  value: DataValue;
+}
+
 export interface StoreClearRequest {
   requestID: string;
   dbName: string;
@@ -187,6 +195,7 @@ export type MutationResponseAttr =
   | "__indexeddb_browser_column_update"
   | "__indexeddb_browser_data_delete"
   | "__indexeddb_browser_data_save_in_line_key"
+  | "__indexeddb_browser_data_save_out_of_line_key"
   | "__indexeddb_browser_store_clear"
   | "__indexeddb_browser_database_delete";
 

@@ -15,16 +15,17 @@ export function validateColumns(columns: TableColumn[]) {
   }
 }
 
-export function parseInput(input: string) {
+export function parseInput(input: string, errorPrefix?: string) {
   const value = input.trim();
-  if (!value) throw new SaveObjectError("No value entered.");
+  if (!value)
+    throw new SaveObjectError(`${errorPrefix || ""}This field is required.`);
 
   try {
     return parseJSONFromUser(value);
   } catch (e) {
     console.error("data-create: failure to parse", e);
     const msg = e instanceof Error ? e.message : "Invalid JSON";
-    throw new SaveObjectError(msg, { cause: e });
+    throw new SaveObjectError(`${errorPrefix || ""}${msg}`, { cause: e });
   }
 }
 
@@ -32,12 +33,14 @@ export function validateDataSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   schema: Schema,
+  errorPrefix?: string,
 ) {
   const v = new Validator();
   const result = v.validate(value, schema);
   if (!result.valid && result.errors.length) {
     const errors = result.errors.map(
-      (err) => `${err.property.replace("instance", "object")} ${err.message}`,
+      (err) =>
+        `${errorPrefix ?? ""}${err.property.replace("instance", "object")} ${err.message}`,
     );
     const msg = errors.join("\n");
     throw new SaveObjectError(msg);

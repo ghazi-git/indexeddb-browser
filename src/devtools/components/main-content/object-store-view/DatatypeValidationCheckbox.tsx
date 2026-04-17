@@ -9,12 +9,12 @@ export default function DatatypeValidationCheckbox(props: CheckboxProps) {
     <div class={styles.checkbox}>
       <label>
         <input type="checkbox" {...props} />
-        <span>Validate object properties datatypes</span>
+        <span>Validate datatypes</span>
       </label>
       <UnstyledButton
         command="toggle-popover"
         commandfor="datatypes-popover"
-        aria-label="Informantion on object properties validation"
+        aria-label="Informantion about datatypes validation"
       >
         i
       </UnstyledButton>

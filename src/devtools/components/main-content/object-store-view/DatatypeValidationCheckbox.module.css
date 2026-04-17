@@ -31,11 +31,12 @@
     inset: auto;
     /* stylelint-disable declaration-property-value-no-unknown */
     inset-block-end: anchor(start);
-    inset-inline-end: anchor(end);
+    inset-inline-start: anchor(center);
+    transform: translateX(-50%);
     /* stylelint-enable declaration-property-value-no-unknown */
     margin-block-start: var(--size-1);
-    min-inline-size: min(var(--size-13), calc(100vi - var(--size-8)));
-    max-inline-size: min(var(--size-14), calc(100vi - var(--size-8)));
+    min-inline-size: min(var(--size-13), calc(100vi - var(--size-11)));
+    max-inline-size: min(var(--size-14), calc(100vi - var(--size-11)));
     max-block-size: var(--size-12);
     padding: var(--size-2);
     background-color: var(--surface-2);

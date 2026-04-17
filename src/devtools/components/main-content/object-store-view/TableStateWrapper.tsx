@@ -2,6 +2,7 @@ import { Match, Show, Switch } from "solid-js";
 
 import MainContentBanner from "@/devtools/components/main-content/MainContentBanner";
 import AddEditObjectsWithInLineKeys from "@/devtools/components/main-content/object-store-view/AddEditObjectsWithInLineKeys";
+import AddEditObjectsWithOutOfLineKeys from "@/devtools/components/main-content/object-store-view/AddEditObjectsWithOutOfLineKeys";
 import DeleteObjectsButton from "@/devtools/components/main-content/object-store-view/DeleteObjectsButton";
 import Table from "@/devtools/components/main-content/object-store-view/Table";
 import { useTableContext } from "@/devtools/components/main-content/object-store-view/table-context";
@@ -30,10 +31,21 @@ export default function TableStateWrapper() {
                   columns={data().columns}
                 />
               </Show>
-              <AddEditObjectsWithInLineKeys
-                columns={data().columns}
-                activeStore={data().activeStore}
-              />
+              <Show
+                when={data().keyType === "inLine"}
+                fallback={
+                  <AddEditObjectsWithOutOfLineKeys
+                    columns={data().columns}
+                    activeStore={data().activeStore}
+                    autoincrement={data().autoincrement}
+                  />
+                }
+              >
+                <AddEditObjectsWithInLineKeys
+                  columns={data().columns}
+                  activeStore={data().activeStore}
+                />
+              </Show>
               <TableSettingsButton />
             </TableSettingsWrapper>
           )}

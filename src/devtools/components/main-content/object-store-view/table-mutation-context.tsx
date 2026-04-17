@@ -10,10 +10,12 @@ import { triggerColumnUpdate } from "@/devtools/utils/inspected-window-column-up
 import { triggerDataDeletion } from "@/devtools/utils/inspected-window-data-delete";
 import { isDataMutationSuccessful } from "@/devtools/utils/inspected-window-data-mutation";
 import { triggerDataSaveInLineKey } from "@/devtools/utils/inspected-window-data-save-in-line-key";
+import { triggerDataSaveOutOfLineKey } from "@/devtools/utils/inspected-window-data-save-out-of-line-key";
 import {
   ColumnUpdateRequest,
   DataDeletionRequest,
   DataSaveInLineKeyRequest,
+  DataSaveOutOfLineKeyRequest,
   TableRow,
 } from "@/devtools/utils/types";
 
@@ -71,6 +73,16 @@ export function TableMutationContextProvider(props: FlowProps) {
       request.requestID,
     );
   });
+  const {
+    mutation: saveDataWithOutOfLineKeysOperation,
+    mutate: saveDataWithOutOfLineKeys,
+  } = createDataMutation<DataSaveOutOfLineKeyRequest>(async (request) => {
+    await triggerDataSaveOutOfLineKey(request);
+    await isDataMutationSuccessful(
+      "__indexeddb_browser_data_save_out_of_line_key",
+      request.requestID,
+    );
+  });
 
   // reset the error msg and selected objects on store change
   const { activeObjectStore } = useActiveObjectStoreContext();
@@ -92,6 +104,8 @@ export function TableMutationContextProvider(props: FlowProps) {
         resetDeleteOperation,
         saveDataWithInLineKeysOperation,
         saveDataWithInLineKeys,
+        saveDataWithOutOfLineKeysOperation,
+        saveDataWithOutOfLineKeys,
       }}
     >
       {props.children}
@@ -110,6 +124,10 @@ interface TableMutationContextType {
   resetDeleteOperation: () => void;
   saveDataWithInLineKeysOperation: Mutation;
   saveDataWithInLineKeys: (params: DataSaveInLineKeyRequest) => Promise<void>;
+  saveDataWithOutOfLineKeysOperation: Mutation;
+  saveDataWithOutOfLineKeys: (
+    params: DataSaveOutOfLineKeyRequest,
+  ) => Promise<void>;
 }
 
 interface TableMutationStore {
