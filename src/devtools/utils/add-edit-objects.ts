@@ -8,13 +8,6 @@ import {
   TableRow,
 } from "@/devtools/utils/types";
 
-export function validateColumns(columns: TableColumn[]) {
-  if (columns.length === 0) {
-    const msg = `Unable to save any object due to inability to determine the object store key.`;
-    throw new SaveObjectError(msg);
-  }
-}
-
 export function parseInput(input: string, errorPrefix?: string) {
   const value = input.trim();
   if (!value)

@@ -17,7 +17,6 @@ import {
   SaveObjectError,
   serializeObjects,
   stringifyObjectsWithInlineKeys,
-  validateColumns,
   validateDataSchema,
 } from "@/devtools/utils/add-edit-objects";
 import {
@@ -56,7 +55,6 @@ export default function AddEditObjectsWithInLineKeys(
     setError(null);
     let newObjects: SerializedObject[];
     try {
-      validateColumns(props.columns);
       const parsedValue = parseInput(editorValue());
       const schema = getDataWithInLineKeysSchema(
         validateDatatypes(),
