@@ -38,6 +38,7 @@ export default function TableStateWrapper() {
                     columns={data().columns}
                     activeStore={data().activeStore}
                     autoincrement={data().autoincrement}
+                    isEmptyStore={data().rows?.length === 0}
                   />
                 }
               >

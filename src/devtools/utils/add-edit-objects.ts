@@ -4,9 +4,25 @@ import { parseJSONFromUser } from "@/devtools/utils/json-editor";
 import {
   SerializedObject,
   TableColumn,
+  TableColumnDatatype,
   TableColumnValue,
   TableRow,
 } from "@/devtools/utils/types";
+
+export function validateColumn(name: "key" | "value", columns: TableColumn[]) {
+  const column = columns.find((c) => c.name === name);
+  if (!column) {
+    throw new SaveObjectError(`Unable to determine the ${name} column.`);
+  }
+  if (column.datatype === "unsupported") {
+    const msg = `Unable to save because the ${name} datatype is unsupported.`;
+    throw new SaveObjectError(msg);
+  }
+
+  return column as TableColumn & {
+    datatype: Exclude<TableColumnDatatype, "unsupported">;
+  };
+}
 
 export function parseInput(input: string, errorPrefix?: string) {
   const value = input.trim();

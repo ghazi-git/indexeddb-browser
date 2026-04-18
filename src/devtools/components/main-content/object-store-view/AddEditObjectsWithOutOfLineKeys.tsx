@@ -15,6 +15,7 @@ import {
   parseInput,
   SaveObjectError,
   stringifyData,
+  validateColumn,
   validateDataSchema,
 } from "@/devtools/utils/add-edit-objects";
 import {
@@ -69,39 +70,28 @@ export default function AddEditObjectsWithOutOfLineKeys(
   const onSaveClick = async () => {
     setError(null);
 
-    const keyColumn = props.columns.find((c) => c.name === "key");
-    const valueColumn = props.columns.find((c) => c.name === "value");
-    if (!keyColumn || !valueColumn) {
-      setError("Unable to determine the key or value columns.");
-      return;
-    }
-    if (
-      keyColumn.datatype === "unsupported" ||
-      valueColumn.datatype === "unsupported"
-    ) {
-      const msg = `Unable to save because the key or value datatype is unsupported.`;
-      setError(msg);
-      return;
-    }
-
     let objKey: DataValue, objValue: DataValue;
     try {
       if (addMode()) {
         if (props.autoincrement && !key().trim()) {
           // the key is optional when `store.autoincrement` is true
-          objKey = { value: undefined, datatype: keyColumn.datatype };
+          objKey = { value: undefined, datatype: "json_data" };
         } else {
           const parsedKey = parseInput(key(), "Key: ");
-          if (validateDatatypes()) {
+          if (validateDatatypes() && !props.isEmptyStore) {
+            const keyColumn = validateColumn("key", props.columns);
             const schema = getPropertySchema(keyColumn);
             validateDataSchema(parsedKey, schema, "Key: ");
+            objKey = {
+              value: parsedKey,
+              datatype: keyColumn.datatype,
+            } as DataValue;
+          } else {
+            objKey = { value: parsedKey, datatype: "json_data" } as DataValue;
           }
-          objKey = {
-            value: parsedKey,
-            datatype: keyColumn.datatype,
-          } as DataValue;
         }
       } else {
+        const keyColumn = validateColumn("key", props.columns);
         const selected = tableMutationStore.selectedObjects[0];
         if (selected?.key == null) {
           const msg = "Unable to determine the selected object key.";
@@ -111,14 +101,17 @@ export default function AddEditObjectsWithOutOfLineKeys(
       }
       const errorPrefix = addMode() ? "Value: " : undefined;
       const parsedValue = parseInput(value(), errorPrefix);
-      if (validateDatatypes()) {
+      if (validateDatatypes() && !props.isEmptyStore) {
+        const valueColumn = validateColumn("value", props.columns);
         const schema = getPropertySchema(valueColumn);
         validateDataSchema(parsedValue, schema, errorPrefix);
+        objValue = {
+          value: parsedValue,
+          datatype: valueColumn.datatype,
+        } as DataValue;
+      } else {
+        objValue = { value: parsedValue, datatype: "json_data" } as DataValue;
       }
-      objValue = {
-        value: parsedValue,
-        datatype: valueColumn.datatype,
-      } as DataValue;
     } catch (e) {
       const msg =
         e instanceof SaveObjectError
@@ -216,4 +209,5 @@ interface AddEditObjectsWithOutOfLineKeysProps {
   columns: TableColumn[];
   activeStore: ActiveObjectStore;
   autoincrement: boolean;
+  isEmptyStore: boolean;
 }
