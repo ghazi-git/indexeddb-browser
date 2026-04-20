@@ -15,12 +15,14 @@ export type AutosizeColumns = "fit-grid-width" | "fit-cell-contents";
 
 export interface InspectedWindowTableData {
   keyType: "inLine" | "outOfLine";
+  viewType: ViewType;
   keypath: string[];
   autoincrement: boolean;
   rows: TableRow[];
   columns: TableColumn[];
   activeStore: ActiveObjectStore;
 }
+export type ViewType = "tableView" | "keyValueView";
 export type TableData = Omit<InspectedWindowTableData, "rows"> & {
   // null indicates an error occurred when retrieving the table data (usually
   // due to unsupported datatypes)

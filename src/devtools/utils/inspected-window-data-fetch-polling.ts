@@ -3,6 +3,7 @@ import {
   ActiveObjectStore,
   TableColumn,
   TableRow,
+  ViewType,
 } from "@/devtools/utils/types";
 
 export function checkForObjectStoreDataStatus() {
@@ -32,8 +33,8 @@ export function getObjectStoreMetadata() {
     chrome.devtools.inspectedWindow.eval(
       `
       (function() {
-        const {keyType, keypath, autoincrement, columns, activeStore} = window.__indexeddb_browser_data.data;
-        return {keyType, keypath, autoincrement, columns, activeStore};
+        const {keyType, viewType, keypath, autoincrement, columns, activeStore} = window.__indexeddb_browser_data.data;
+        return {keyType, viewType, keypath, autoincrement, columns, activeStore};
       })()
       `,
       (result: ObjectStoreMetadata, exceptionInfo) => {
@@ -68,6 +69,7 @@ export function getObjectStoreData() {
 
 interface ObjectStoreMetadata {
   keyType: "inLine" | "outOfLine";
+  viewType: ViewType;
   keypath: string[];
   autoincrement: boolean;
   columns: TableColumn[];

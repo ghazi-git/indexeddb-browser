@@ -8,6 +8,7 @@ import {
   TableColumnDatatype,
   TableColumnValue,
   TableRow,
+  ViewType,
 } from "@/devtools/utils/types";
 
 export function triggerDataFetching(
@@ -61,8 +62,12 @@ function getDataRequestCode(
   ${cleanupData.toString()}
   ${isRequestActive.toString()}
   ${getColumns.toString()}
+  ${determineColumnNames.toString()}
+  ${autodetectColumnsDatatypes.toString()}
   ${determineColumnDatatype.toString()}
   ${getOutOfLineStoreColumns.toString()}
+  ${determineViewType.toString()}
+  ${getOutOfLineKeyColumn.toString()}
   ${getStrings.toString()}
   ${isString.toString()}
   ${getTimestamps.toString()}
@@ -116,16 +121,30 @@ async function processDataRequest(
   try {
     const { keyType, keypath, autoincrement, values } =
       await getObjectStoreData(requestID, dbName, storeName, objectsCount);
+
+    // determine viewType and columns based on the first 100 objects
+    const viewType =
+      keyType === "inLine"
+        ? "tableView"
+        : determineViewType(values.slice(0, 100));
     let columns =
       keyType === "inLine"
-        ? getColumns(keypath, values)
-        : getOutOfLineStoreColumns(values);
+        ? getColumns(keypath, values.slice(0, 100))
+        : getOutOfLineStoreColumns(values.slice(0, 100), viewType);
     if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
       columns = savedColumns;
     }
-    const rows = convertStoreData(columns, values);
+    let data = values;
+    if (keyType === "outOfLine" && viewType === "tableView") {
+      // ignore non-object store values since we decided on a tableView
+      data = values
+        .filter(({ value }) => isObject(value))
+        .map(({ key, value }) => ({ key, ...value }));
+    }
+    const rows = convertStoreData(columns, data);
     markRequestAsSuccessful(requestID, {
       keyType,
+      viewType,
       keypath,
       autoincrement,
       columns,
@@ -278,10 +297,6 @@ function isRequestActive(requestID: string) {
 }
 
 function getColumns(keypath: string[], rows: TableRow[]) {
-  // determine column names based on the first 10 rows
-  const first10Rows = rows.slice(0, 10);
-  const uniqueColumns = new Set(first10Rows.flatMap(Object.keys));
-
   // order columns: keys first according to the keypath ordering,
   // then the rest alphabetically
   const keyColumns: TableColumn[] = keypath.map((key) => ({
@@ -291,7 +306,8 @@ function getColumns(keypath: string[], rows: TableRow[]) {
     datatype: "unsupported",
   }));
   const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-  const otherColumns: TableColumn[] = [...uniqueColumns]
+  const colNames = determineColumnNames(rows);
+  const otherColumns: TableColumn[] = colNames
     .filter((col) => !keypath.includes(col))
     .toSorted(collator.compare)
     .map((name) => ({
@@ -302,15 +318,27 @@ function getColumns(keypath: string[], rows: TableRow[]) {
     }));
   const columns = keyColumns.concat(otherColumns);
 
-  // Auto-detect columns datatypes based on non-null data in the first 100
-  // rows. At least 80%, of the column data should match the datatype.
-  // Users will be able to manually set the column datatype from the UI
-  // in case auto-detection doesn't work as expected
-  const first100Rows = rows.slice(0, 100);
+  autodetectColumnsDatatypes(rows, columns);
+  return columns;
+}
+
+function determineColumnNames(rows: TableRow[]) {
+  // determine column names based on the first 10 rows
+  const first10Rows = rows.slice(0, 10);
+  const uniqueColumns = new Set(first10Rows.flatMap(Object.keys));
+  return [...uniqueColumns];
+}
+
+/**
+ * Auto-detect columns datatypes based on non-null data: At least 80% of the
+ * column data should match the datatype. Users will be able to manually set
+ * the column datatype from the UI in case auto-detection doesn't work as expected
+ */
+function autodetectColumnsDatatypes(objs: TableRow[], columns: TableColumn[]) {
   const columnNames = columns.map(({ name }) => name);
   const nonNullishData: Record<string, TableColumnValue[]> = {};
   for (const name of columnNames) {
-    nonNullishData[name] = first100Rows
+    nonNullishData[name] = objs
       .map((row) => row[name])
       .filter((value) => value != null);
   }
@@ -320,8 +348,6 @@ function getColumns(keypath: string[], rows: TableRow[]) {
     column.datatype = datatype;
     column.isVisible = datatype !== "unsupported";
   }
-
-  return columns;
 }
 
 function determineColumnDatatype(
@@ -349,36 +375,63 @@ function determineColumnDatatype(
   }
 }
 
-function getOutOfLineStoreColumns(records: OutOfLineRecord[]): TableColumn[] {
+function getOutOfLineStoreColumns(
+  records: OutOfLineRecord[],
+  viewType: ViewType,
+): TableColumn[] {
   if (records.length === 0) return [];
 
-  // Auto-detect columns datatypes based on the first 100 records:
-  // - key column: all values should match the datatype.
-  // - value column: At least 80%, of the column data should match the datatype.
-  const first100 = records.slice(0, 100);
-
-  const keys = first100.map(({ key }) => key);
-  const keyDatatype = determineColumnDatatype(keys, 100);
-
-  const values = first100
-    .map(({ value }) => value)
-    .filter((value) => value != null);
-  const valueDatatype = determineColumnDatatype(values, 80);
-
-  return [
-    {
-      name: "key",
-      isKey: true,
-      isVisible: keyDatatype !== "unsupported",
-      datatype: keyDatatype,
-    },
-    {
-      name: "value",
+  const values = records.map(({ value }) => value);
+  let valueColumns: TableColumn[];
+  if (viewType === "tableView") {
+    const colNames = determineColumnNames(values);
+    valueColumns = colNames.map((prop) => ({
+      name: prop,
       isKey: false,
-      isVisible: valueDatatype !== "unsupported",
-      datatype: valueDatatype,
-    },
-  ];
+      isVisible: false,
+      datatype: "unsupported",
+    }));
+  } else {
+    valueColumns = [
+      {
+        name: "value",
+        isKey: false,
+        isVisible: false,
+        datatype: "unsupported",
+      },
+    ];
+  }
+  autodetectColumnsDatatypes(values, valueColumns);
+  const keyColumn = getOutOfLineKeyColumn(records);
+  return [keyColumn, ...valueColumns];
+}
+
+function getOutOfLineKeyColumn(records: OutOfLineRecord[]): TableColumn {
+  const keys = records.map(({ key }) => key);
+  // key column: all values should match the datatype.
+  const keyDatatype = determineColumnDatatype(keys, 100);
+  return {
+    name: "key",
+    isKey: true,
+    isVisible: keyDatatype !== "unsupported",
+    datatype: keyDatatype,
+  };
+}
+
+/**
+ * display store data similar to stores with in-line keys if:
+ * - all store values are object literals
+ * - there is no property named `key` (that name is reserved for the value
+ * of the out-of-line key)
+ */
+function determineViewType(records: OutOfLineRecord[]): ViewType {
+  const values = records.map(({ value }) => value);
+  if (values.length === 0 || !values.every(isObject)) return "keyValueView";
+
+  const colNames = determineColumnNames(values);
+  return colNames.length > 0 && !colNames.includes("key")
+    ? "tableView"
+    : "keyValueView";
 }
 
 function getStrings(colData: TableColumnValue[]) {
@@ -452,7 +505,8 @@ function isArray(value: TableColumnValue) {
   return Array.isArray(value);
 }
 
-function isObject(value: TableColumnValue) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isObject(value: TableColumnValue): value is Record<string, any> {
   return value != null && Object.getPrototypeOf(value) === Object.prototype;
 }
 
