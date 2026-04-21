@@ -38,6 +38,7 @@ export function getPaginationAndSizingSettings(
   pageSize: number;
   objectsCount: number | null;
   autosizeColumns: AutosizeColumns;
+  tryTableView: boolean;
 } | null {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
@@ -57,6 +58,7 @@ export function getPaginationAndSizingSettings(
     pageSize,
     objectsCount,
     autosizeColumns,
+    tryTableView: !!store.tryTableView,
   };
 }
 
@@ -68,6 +70,7 @@ export function savePaginationAndSizingSettings(
   pageSize: number,
   objectsCount: number | null,
   autosizeColumns: AutosizeColumns,
+  tryTableView: boolean,
 ) {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
@@ -77,6 +80,7 @@ export function savePaginationAndSizingSettings(
     store.pageSize = pageSize;
     store.objectsCount = objectsCount;
     store.autosizeColumns = autosizeColumns;
+    store.tryTableView = tryTableView;
   } else {
     stores.push({
       dbName,
@@ -85,6 +89,7 @@ export function savePaginationAndSizingSettings(
       pageSize,
       objectsCount,
       autosizeColumns,
+      tryTableView,
       columns: [],
     });
   }
@@ -143,6 +148,7 @@ export function saveColumnsConfig(
       pageSize: DEFAULT_PAGE_SIZE,
       autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
       objectsCount: DEFAULT_OBJECTS_COUNT,
+      tryTableView: DEFAULT_TRY_TABLE_VIEW,
       columns,
     });
   }
@@ -201,6 +207,7 @@ function getStores(
         objectsCount,
         autosizeColumns,
         columns,
+        tryTableView,
       } = store;
       stores.push({
         dbName,
@@ -210,6 +217,7 @@ function getStores(
         objectsCount,
         autosizeColumns,
         columns,
+        tryTableView,
       });
     }
   } catch (e) {
@@ -244,6 +252,7 @@ export const PAGE_SIZES = [20, 100, 500, 1000];
 export const DEFAULT_PAGE_SIZE = PAGE_SIZES[0];
 export const DEFAULT_AUTOSIZE_COLUMNS = "fit-grid-width";
 export const DEFAULT_OBJECTS_COUNT = null;
+export const DEFAULT_TRY_TABLE_VIEW = true;
 
 interface OriginSettings {
   lastViewedStore: ActiveObjectStore | null;
@@ -256,6 +265,7 @@ interface StoreSettings extends ActiveObjectStore {
   autosizeColumns: AutosizeColumns;
   objectsCount: number | null;
   columns: TableColumn[];
+  tryTableView: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -273,5 +283,6 @@ interface SavedStoreSettings {
   pageSize: ANY;
   objectsCount: ANY;
   autosizeColumns: ANY;
+  tryTableView: ANY;
   columns: ANY;
 }

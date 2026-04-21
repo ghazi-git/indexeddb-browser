@@ -10,6 +10,7 @@ import {
   DEFAULT_OBJECTS_COUNT,
   DEFAULT_PAGE_SIZE,
   DEFAULT_PAGINATION,
+  DEFAULT_TRY_TABLE_VIEW,
   deleteSavedOriginSettings,
   getPaginationAndSizingSettings,
   originHasSavedSettings,
@@ -71,6 +72,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         settings.pageSize,
         settings.objectsCount,
         settings.autosizeColumns,
+        settings.tryTableView,
       );
     }
   };
@@ -88,6 +90,10 @@ export function TableSettingsContextProvider(props: FlowProps) {
   };
   const setPageSize = (value: number) => {
     setSettings("pageSize", value);
+    _saveToLocalStorage();
+  };
+  const toggleTryTableView = (value: boolean) => {
+    setSettings("tryTableView", value);
     _saveToLocalStorage();
   };
 
@@ -132,6 +138,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
         setObjectsCount,
         setPageSize,
         setAutosizeColumns,
+        toggleTryTableView,
         hasSavedSettings,
         deleteSavedSettings,
       }}
@@ -150,6 +157,7 @@ function getInitialSettingsValue(): TableSettings {
     autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
     objectsCount: DEFAULT_OBJECTS_COUNT,
     pageSize: DEFAULT_PAGE_SIZE,
+    tryTableView: DEFAULT_TRY_TABLE_VIEW,
   };
 }
 
@@ -162,6 +170,7 @@ interface TableSettingsContextType {
   setObjectsCount: (value: number | null) => void;
   setPageSize: (value: number) => void;
   setAutosizeColumns: (value: AutosizeColumns) => void;
+  toggleTryTableView: (value: boolean) => void;
   hasSavedSettings: () => boolean;
   deleteSavedSettings: () => void;
 }
@@ -178,6 +187,7 @@ interface TableSettings {
   pageSize: number;
   objectsCount: number | null;
   autosizeColumns: AutosizeColumns;
+  tryTableView: boolean;
 }
 
 interface ColumnSort {

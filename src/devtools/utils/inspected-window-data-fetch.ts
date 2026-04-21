@@ -17,6 +17,7 @@ export function triggerDataFetching(
   storeName: string,
   savedColumns: TableColumn[] | undefined,
   objectsCount: number | undefined,
+  tryTableView: boolean,
 ) {
   const code = getDataRequestCode(
     requestID,
@@ -24,6 +25,7 @@ export function triggerDataFetching(
     storeName,
     savedColumns,
     objectsCount,
+    tryTableView,
   );
   return new Promise<void>((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(code, (_, exceptionInfo) => {
@@ -43,16 +45,18 @@ function getDataRequestCode(
   storeName: string,
   savedColumns: TableColumn[] | undefined,
   objectsCount: number | undefined,
+  tryTableView: boolean,
 ) {
   const serializedRequestID = JSON.stringify(requestID);
   const serializedDBName = JSON.stringify(dbName);
   const serializedStoreName = JSON.stringify(storeName);
   const serializedColumns = JSON.stringify(savedColumns);
   const serializedCount = JSON.stringify(objectsCount);
+  const serializedTableView = JSON.stringify(tryTableView);
 
   return `
 (function() {
-  ${processDataRequest.name}(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns}, ${serializedCount})
+  ${processDataRequest.name}(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns}, ${serializedCount}, ${serializedTableView})
 
   ${processDataRequest.toString()}
   ${getObjectStoreData.toString()}
@@ -97,6 +101,7 @@ async function processDataRequest(
   storeName: string,
   savedColumns: TableColumn[] | undefined,
   objectsCount: number | undefined,
+  tryTableView: boolean,
 ) {
   markRequestInProgress(requestID);
   // make sure the database exists to avoid creating a new one when opening
@@ -126,7 +131,9 @@ async function processDataRequest(
     const viewType =
       keyType === "inLine"
         ? "tableView"
-        : determineViewType(values.slice(0, 100));
+        : tryTableView
+          ? determineViewType(values.slice(0, 100))
+          : "keyValueView";
     let columns =
       keyType === "inLine"
         ? getColumns(keypath, values.slice(0, 100))

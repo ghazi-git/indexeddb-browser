@@ -48,7 +48,7 @@ export default function TableStateWrapper() {
                   activeStore={data().activeStore}
                 />
               </Show>
-              <TableSettingsButton />
+              <TableSettingsButton keyType={data().keyType} />
             </TableSettingsWrapper>
           )}
         </Show>

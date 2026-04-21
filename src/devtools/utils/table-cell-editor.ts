@@ -78,7 +78,7 @@ export class JSONEditor implements ICellEditorComp {
     // editor is inside a shadow root so can't be affected by outside styles
     // so styles are set in js
     this.editor.container.style.minBlockSize = "100px";
-    this.editor.container.style.maxBlockSize = "calc(100vb - 120px)";
+    this.editor.container.style.maxBlockSize = "calc(100vb - 140px)";
     this.editor.container.style.minInlineSize = "200px";
     this.editor.container.style.maxInlineSize = "600px";
     const containerChild = this.editor.container.firstChild as HTMLElement;

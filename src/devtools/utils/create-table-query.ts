@@ -11,6 +11,7 @@ import {
   sleep,
 } from "@/devtools/utils/inspected-window-helpers";
 import {
+  DEFAULT_TRY_TABLE_VIEW,
   getColumnsConfig,
   getPaginationAndSizingSettings,
   saveColumnsConfig,
@@ -89,6 +90,7 @@ export function createTableDataQuery() {
     markQueryAsLoading();
     let savedColumns: TableColumn[] | undefined;
     let objectsCount: number | undefined;
+    let tryTableView = DEFAULT_TRY_TABLE_VIEW;
     if (origin) {
       const cols = getColumnsConfig(origin, dbName, storeName);
       if (cols.length) {
@@ -98,6 +100,7 @@ export function createTableDataQuery() {
       if (stored && stored.objectsCount !== null) {
         objectsCount = stored.objectsCount;
       }
+      if (stored) tryTableView = stored.tryTableView;
     }
     try {
       // trigger the request and then check for the response
@@ -107,6 +110,7 @@ export function createTableDataQuery() {
         storeName,
         savedColumns,
         objectsCount,
+        tryTableView,
       );
       let timeSinceStart = 0;
       let iteration = 0;

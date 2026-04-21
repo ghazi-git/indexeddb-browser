@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 
 import ButtonWithBorder from "@/devtools/components/buttons/ButtonWithBorder";
 import ColumnsAutosize from "@/devtools/components/main-content/object-store-view/table-settings/ColumnsAutosize";
@@ -8,11 +8,13 @@ import DeleteSavedSettings from "@/devtools/components/main-content/object-store
 import ObjectsCountSetting from "@/devtools/components/main-content/object-store-view/table-settings/ObjectsCountSetting";
 import PageSizeSetting from "@/devtools/components/main-content/object-store-view/table-settings/PageSizeSetting";
 import PaginationSetting from "@/devtools/components/main-content/object-store-view/table-settings/PaginationSetting";
+import TableViewSetting from "@/devtools/components/main-content/object-store-view/table-settings/TableViewSetting";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
+import { StoreKeyType } from "@/devtools/utils/types";
 
 import styles from "./TableSettingsButton.module.css";
 
-export default function TableSettingsButton() {
+export default function TableSettingsButton(props: { keyType: StoreKeyType }) {
   const { hasSavedSettings } = useTableSettingsContext();
   const [isOpen, setIsOpen] = createSignal(false);
   const [isDeleteDisabled, setIsDeleteDisabled] = createSignal(false);
@@ -43,6 +45,9 @@ export default function TableSettingsButton() {
           <ObjectsCountSetting />
           <PaginationSetting />
           <PageSizeSetting />
+          <Show when={props.keyType === "outOfLine"}>
+            <TableViewSetting />
+          </Show>
           <DeleteSavedSettings
             disabled={isDeleteDisabled()}
             setDisabled={setIsDeleteDisabled}
