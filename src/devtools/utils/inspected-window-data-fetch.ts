@@ -381,9 +381,9 @@ function getOutOfLineStoreColumns(
 ): TableColumn[] {
   if (records.length === 0) return [];
 
-  const values = records.map(({ value }) => value);
   let valueColumns: TableColumn[];
   if (viewType === "tableView") {
+    const values = records.map(({ value }) => value);
     const colNames = determineColumnNames(values);
     valueColumns = colNames.map((prop) => ({
       name: prop,
@@ -391,6 +391,7 @@ function getOutOfLineStoreColumns(
       isVisible: false,
       datatype: "unsupported",
     }));
+    autodetectColumnsDatatypes(values, valueColumns);
   } else {
     valueColumns = [
       {
@@ -400,8 +401,8 @@ function getOutOfLineStoreColumns(
         datatype: "unsupported",
       },
     ];
+    autodetectColumnsDatatypes(records, valueColumns);
   }
-  autodetectColumnsDatatypes(values, valueColumns);
   const keyColumn = getOutOfLineKeyColumn(records);
   return [keyColumn, ...valueColumns];
 }
