@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Support managing data for object stores with out-of-line keys.
+- Add a setting to display data from stores with out-of-line keys similarly to data from stores with in-line keys
+  (one column per object property). When that is not possible, only two columns are created: one for the out-of-line
+  key and the other for the corresponding value.
+
 ## [1.4.0] - 2026-04-11
 
 ### Added

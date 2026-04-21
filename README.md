@@ -32,10 +32,6 @@ Chrome extension that adds a DevTools panel to manage IndexedDB data.
 
 ## Limitations
 
-- Supports object stores
-  with [in-line keys](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Basic_Terminology#in-line_key)
-  only. That's because the value for in-line keys is guaranteed to be a JavaScript object, and that object will most
-  likely contain the same properties for each key, making displaying the data in a table viable.
 - Only the following datatypes for table columns are supported: string, number, bigint, boolean, date and JSON. Other
   datatypes like sets, maps, typed arrays, ... are not supported, and the corresponding table columns will be marked as
   such and hidden by default. Also, once a column has a specific datatype, values that do not match that datatype will
@@ -63,10 +59,23 @@ So, here I am creating this extension with the hope it may help others as it is 
 - When an object store from either the sidebar or the top dropdown is selected, all the data in that object store is
   loaded. That means if you're working with very large stores, it's better to limit the number of objects displayed (can
   be done from the "Table Settings" popover).
-- When the data is loaded, the extension will determine the columns based on the first ten objects. It will also
-  auto-detect their datatypes based on the non-null values in the first hundred objects. In case the auto-detected
-  datatypes are incorrect, they can be changed from the "Table Settings" popover. Getting the datatypes right is
-  important as it affects search, sorting and data updates.
+- When loading the data:
+  - For stores with [in-line keys](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Basic_Terminology#in-line_key),
+    the extension will determine the columns based on the first ten objects. It will also auto-detect their datatypes
+    based on the non-null values in the first hundred objects. In case the auto-detected datatypes are incorrect, they
+    can be changed from the "Table Settings" popover. Getting the datatypes right is important as it affects search,
+    sorting and data updates.
+  - For store with out-of-line keys, they will have two pre-defined columns:
+    - The key column containing the out-of-line key. Its datatype is auto-detected based on the first hundred keys (all
+      keys must be of the same datatype).
+    - The value column containing the corresponding store value for the key. Its datatype is auto-detected similarly
+      to columns of stores with in-line keys.
+  - Under the following conditions, data for stores with out-of-line keys can be displayed similarly to stores with
+    in-line keys (one column per object property):
+    - The table setting for displaying each object property in a separate column must be checked.
+    - The first hundred values in the store must be all object literals
+    - When determining the column names, there shouldn't be any column named `key` (the name is reserved for the value
+      of the out-of-line key)
 - Once the datatypes are determined, the values for date and bigint columns are serialized to a JSON-compliant type to
   be passed to the extension. Then, the extension converts them back based on the column datatype. The same happens when
   updating column values.
