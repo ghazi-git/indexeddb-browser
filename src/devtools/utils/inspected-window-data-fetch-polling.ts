@@ -1,6 +1,7 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 import {
   ActiveObjectStore,
+  StoreKeyType,
   TableColumn,
   TableRow,
   ViewType,
@@ -68,7 +69,7 @@ export function getObjectStoreData() {
 }
 
 interface ObjectStoreMetadata {
-  keyType: "inLine" | "outOfLine";
+  keyType: StoreKeyType;
   viewType: ViewType;
   keypath: string[];
   autoincrement: boolean;

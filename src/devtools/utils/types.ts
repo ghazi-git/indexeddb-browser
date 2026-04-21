@@ -14,7 +14,7 @@ export type ActiveObjectStore = {
 export type AutosizeColumns = "fit-grid-width" | "fit-cell-contents";
 
 export interface InspectedWindowTableData {
-  keyType: "inLine" | "outOfLine";
+  keyType: StoreKeyType;
   viewType: ViewType;
   keypath: string[];
   autoincrement: boolean;
@@ -22,6 +22,7 @@ export interface InspectedWindowTableData {
   columns: TableColumn[];
   activeStore: ActiveObjectStore;
 }
+export type StoreKeyType = "inLine" | "outOfLine";
 export type ViewType = "tableView" | "keyValueView";
 export type TableData = Omit<InspectedWindowTableData, "rows"> & {
   // null indicates an error occurred when retrieving the table data (usually
@@ -115,6 +116,7 @@ export interface ColumnUpdateRequest {
   requestID: string;
   dbName: string;
   storeName: string;
+  keyType: StoreKeyType;
   key: DataValue[];
   columnToUpdate: string;
   newValue: DataValue;

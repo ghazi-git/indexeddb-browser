@@ -105,6 +105,7 @@ function TableWrapper(props: { tableData: TableData }) {
               keypath={props.tableData.keypath}
               activeStore={props.tableData.activeStore}
               keyType={props.tableData.keyType}
+              viewType={props.tableData.viewType}
             />
           </Show>
         </>

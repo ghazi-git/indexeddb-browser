@@ -8,7 +8,11 @@ import {
   markInProgress,
 } from "@/devtools/utils/inspected-window-data-mutation";
 import { DATA_MUTATION_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
-import { ColumnUpdateRequest, DataValue } from "@/devtools/utils/types";
+import {
+  ColumnUpdateRequest,
+  DataValue,
+  StoreKeyType,
+} from "@/devtools/utils/types";
 
 export function triggerColumnUpdate(request: ColumnUpdateRequest) {
   const code = getColumnUpdateCode(request);
@@ -50,6 +54,7 @@ async function processColumnUpdateRequest(request: ColumnUpdateRequest) {
     await updateColumnData(
       request.dbName,
       request.storeName,
+      request.keyType,
       idbKey,
       request.columnToUpdate,
       request.newValue,
@@ -67,6 +72,7 @@ async function processColumnUpdateRequest(request: ColumnUpdateRequest) {
 function updateColumnData(
   dbName: string,
   storeName: string,
+  keyType: StoreKeyType,
   idbKey: IDBValidKey,
   column: string,
   columnValue: DataValue,
@@ -104,7 +110,8 @@ function updateColumnData(
         }
 
         const updated = { ...obj, [column]: getStoreValue(columnValue) };
-        objStore.put(updated);
+        const key = keyType === "outOfLine" ? idbKey : undefined;
+        objStore.put(updated, key);
       };
     };
   });

@@ -55,8 +55,10 @@ import { PAGE_SIZES } from "@/devtools/utils/saved-settings";
 import {
   ActiveObjectStore,
   DataValue,
+  StoreKeyType,
   TableColumn,
   TableRow,
+  ViewType,
 } from "@/devtools/utils/types";
 
 import styles from "./Table.module.css";
@@ -239,7 +241,10 @@ export default function Table(props: TableProps) {
         updateRowData(params.api, params.data, col, newValue);
 
         try {
-          if (props.keyType === "outOfLine") {
+          if (
+            props.keyType === "outOfLine" &&
+            props.viewType === "keyValueView"
+          ) {
             await saveDataWithOutOfLineKeys({
               requestID: generateRequestID(),
               dbName: props.activeStore.dbName,
@@ -252,6 +257,7 @@ export default function Table(props: TableProps) {
               requestID: generateRequestID(),
               dbName: props.activeStore.dbName,
               storeName: props.activeStore.storeName,
+              keyType: props.keyType,
               key,
               columnToUpdate,
               newValue: { value: newValue, datatype: col.datatype },
@@ -401,5 +407,6 @@ interface TableProps {
   rows: TableRow[];
   keypath: string[];
   activeStore: ActiveObjectStore;
-  keyType: "inLine" | "outOfLine";
+  keyType: StoreKeyType;
+  viewType: ViewType;
 }
