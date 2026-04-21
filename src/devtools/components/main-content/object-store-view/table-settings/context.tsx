@@ -12,9 +12,9 @@ import {
   DEFAULT_PAGINATION,
   DEFAULT_TRY_TABLE_VIEW,
   deleteSavedOriginSettings,
-  getPaginationAndSizingSettings,
+  getTableSettings,
   originHasSavedSettings,
-  savePaginationAndSizingSettings,
+  saveTableSettings,
 } from "@/devtools/utils/saved-settings";
 import { AutosizeColumns } from "@/devtools/utils/types";
 
@@ -43,7 +43,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
       const initialValues = getInitialSettingsValue();
-      const savedValues = getPaginationAndSizingSettings(
+      const savedValues = getTableSettings(
         currentOrigin,
         activeStore.dbName,
         activeStore.storeName,
@@ -64,7 +64,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
-      savePaginationAndSizingSettings(
+      saveTableSettings(
         currentOrigin,
         activeStore.dbName,
         activeStore.storeName,

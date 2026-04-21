@@ -29,7 +29,7 @@ export function saveLastViewedStore(
   saveOriginSettings(origin, settings);
 }
 
-export function getPaginationAndSizingSettings(
+export function getTableSettings(
   origin: string,
   dbName: string,
   storeName: string,
@@ -62,7 +62,7 @@ export function getPaginationAndSizingSettings(
   };
 }
 
-export function savePaginationAndSizingSettings(
+export function saveTableSettings(
   origin: string,
   dbName: string,
   storeName: string,

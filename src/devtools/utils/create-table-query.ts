@@ -13,7 +13,7 @@ import {
 import {
   DEFAULT_TRY_TABLE_VIEW,
   getColumnsConfig,
-  getPaginationAndSizingSettings,
+  getTableSettings,
   saveColumnsConfig,
 } from "@/devtools/utils/saved-settings";
 import {
@@ -96,7 +96,7 @@ export function createTableDataQuery() {
       if (cols.length) {
         savedColumns = cols;
       }
-      const stored = getPaginationAndSizingSettings(origin, dbName, storeName);
+      const stored = getTableSettings(origin, dbName, storeName);
       if (stored && stored.objectsCount !== null) {
         objectsCount = stored.objectsCount;
       }
