@@ -15,8 +15,9 @@ import {
   getSampleValue,
   parseInput,
   SaveObjectError,
-  serializeObjects,
-  stringifyObjectsWithInlineKeys,
+  serializeObject,
+  sortObjectKeys,
+  stringifyData,
   validateDataSchema,
 } from "@/devtools/utils/add-edit-objects";
 import {
@@ -61,9 +62,8 @@ export default function AddEditObjectsWithInLineKeys(
         props.columns,
       );
       validateDataSchema(parsedValue, schema);
-      newObjects = serializeObjects(
-        parsedValue as unknown as TableRow[],
-        props.columns,
+      newObjects = (parsedValue as unknown as TableRow[]).map((obj) =>
+        serializeObject(obj, props.columns),
       );
     } catch (e) {
       const msg =
@@ -92,15 +92,12 @@ export default function AddEditObjectsWithInLineKeys(
 
   const [editorValue, setEditorValue] = createSignal("");
   const editorData = createMemo(() => {
-    if (tableMutationStore.selectedObjects.length > 0) {
-      return stringifyObjectsWithInlineKeys(
-        tableMutationStore.selectedObjects,
-        props.columns,
-      );
-    } else {
-      const data = getSampleValue(props.columns);
-      return stringifyObjectsWithInlineKeys(data, props.columns);
-    }
+    const objs =
+      tableMutationStore.selectedObjects.length > 0
+        ? tableMutationStore.selectedObjects
+        : [getSampleValue(props.columns)];
+    const sortedObjs = objs.map((obj) => sortObjectKeys(obj, props.columns));
+    return stringifyData(sortedObjs);
   });
   createEffect(() => {
     setEditorValue(editorData());

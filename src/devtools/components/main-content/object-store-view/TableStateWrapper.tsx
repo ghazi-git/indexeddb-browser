@@ -39,6 +39,7 @@ export default function TableStateWrapper() {
                     activeStore={data().activeStore}
                     autoincrement={data().autoincrement}
                     isEmptyStore={data().rows?.length === 0}
+                    viewType={data().viewType}
                   />
                 }
               >

@@ -96,36 +96,30 @@ export function getPropertySchema(column: TableColumn) {
   }
 }
 
-export function serializeObjects(
-  parsedObj: TableRow[],
+export function serializeObject(
+  obj: TableRow,
   cols: TableColumn[],
-): SerializedObject[] {
-  return parsedObj.map((row) => {
-    return Object.entries(row).map(([colName, colValue]) => {
-      const col = cols.find((col) => col.name === colName);
-      return {
-        name: colName,
-        value: colValue,
-        // user can specify columns that the extension doesn't know about or
-        // the user is adding the first objects when we have no info about
-        // the datatypes
-        datatype: col?.datatype ?? "unsupported",
-      };
-    });
+): SerializedObject {
+  return Object.entries(obj).map(([colName, colValue]) => {
+    const col = cols.find((col) => col.name === colName);
+    return {
+      name: colName,
+      value: colValue,
+      // user can specify columns that the extension doesn't know about or
+      // the user is adding the first objects when we have no info about
+      // the datatypes
+      datatype: col?.datatype ?? "unsupported",
+    };
   });
 }
 
-export function stringifyObjectsWithInlineKeys(
-  data: TableRow[],
+export function sortObjectKeys(
+  obj: TableRow,
   columns: TableColumn[],
-) {
+): TableRow {
   // sort the data keys according to columns' order
-  const objects = data.map((row) => {
-    const keyValuePairs = columns.map((col) => [col.name, row[col.name]]);
-    return Object.fromEntries(keyValuePairs);
-  });
-
-  return stringifyData(objects);
+  const keyValuePairs = columns.map((col) => [col.name, obj[col.name]]);
+  return Object.fromEntries(keyValuePairs);
 }
 
 export function stringifyData(value: TableColumnValue) {
@@ -157,8 +151,7 @@ export function getSampleValue(columns: TableColumn[]) {
     }
     return [column.name, value] as [string, TableColumnValue];
   });
-  const obj = Object.fromEntries(keyValuePairs);
-  return [obj];
+  return Object.fromEntries(keyValuePairs);
 }
 
 export class SaveObjectError extends Error {

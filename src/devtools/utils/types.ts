@@ -139,7 +139,7 @@ export interface DataSaveOutOfLineKeyRequest {
   dbName: string;
   storeName: string;
   key: DataValue;
-  value: DataValue;
+  value: DataValue | SerializedObject;
 }
 
 export interface StoreClearRequest {

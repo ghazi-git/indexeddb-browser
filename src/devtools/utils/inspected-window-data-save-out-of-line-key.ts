@@ -56,7 +56,15 @@ async function processDataSaveOutOfLineKeyRequest(
 
   try {
     const storeKey = getStoreValue(request.key);
-    const storeValue = getStoreValue(request.value);
+    let storeValue: TableColumnValue;
+    if (Array.isArray(request.value)) {
+      const keyValuePairs = request.value.map((field) => {
+        return [field.name, getStoreValue(field)] as const;
+      });
+      storeValue = Object.fromEntries(keyValuePairs);
+    } else {
+      storeValue = getStoreValue(request.value);
+    }
     await saveObject(request.dbName, request.storeName, storeKey, storeValue);
     markAsSuccessful(
       "__indexeddb_browser_data_save_out_of_line_key",

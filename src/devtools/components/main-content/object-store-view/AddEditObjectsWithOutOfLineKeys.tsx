@@ -12,8 +12,11 @@ import ModalHeader from "@/devtools/components/modal/ModalHeader";
 import { useTableReloadContext } from "@/devtools/components/table-reload-context";
 import {
   getPropertySchema,
+  getSampleValue,
   parseInput,
   SaveObjectError,
+  serializeObject,
+  sortObjectKeys,
   stringifyData,
   validateColumn,
   validateDataSchema,
@@ -25,7 +28,9 @@ import {
 import {
   ActiveObjectStore,
   DataValue,
+  SerializedObject,
   TableColumn,
+  ViewType,
 } from "@/devtools/utils/types";
 
 import styles from "./AddEditObjectsWithOutOfLineKeys.module.css";
@@ -62,7 +67,19 @@ export default function AddEditObjectsWithOutOfLineKeys(
   const [value, setValue] = createSignal("");
   const valueEditorData = createMemo(() => {
     const objs = tableMutationStore.selectedObjects;
-    return objs.length === 1 ? stringifyData(objs[0].value) : "";
+    const cols = props.columns.filter((c) => c.name !== "key");
+    if (objs.length === 0)
+      return cols.length > 0 && props.viewType === "tableView"
+        ? stringifyData(getSampleValue(cols))
+        : "";
+
+    if (objs.length > 1) return "";
+
+    const obj =
+      props.viewType === "tableView"
+        ? sortObjectKeys(objs[0], cols)
+        : objs[0].value;
+    return stringifyData(obj);
   });
   createEffect(() => setValue(valueEditorData()));
 
@@ -70,7 +87,7 @@ export default function AddEditObjectsWithOutOfLineKeys(
   const onSaveClick = async () => {
     setError(null);
 
-    let objKey: DataValue, objValue: DataValue;
+    let objKey: DataValue, objValue: DataValue | SerializedObject;
     try {
       if (addMode()) {
         if (props.autoincrement && !key().trim()) {
@@ -102,13 +119,25 @@ export default function AddEditObjectsWithOutOfLineKeys(
       const errorPrefix = addMode() ? "Value: " : undefined;
       const parsedValue = parseInput(value(), errorPrefix);
       if (validateDatatypes() && !props.isEmptyStore) {
-        const valueColumn = validateColumn("value", props.columns);
-        const schema = getPropertySchema(valueColumn);
-        validateDataSchema(parsedValue, schema, errorPrefix);
-        objValue = {
-          value: parsedValue,
-          datatype: valueColumn.datatype,
-        } as DataValue;
+        if (props.viewType === "tableView") {
+          const valueColumns = props.columns.filter((c) => c.name !== "key");
+          const schema = {
+            type: "object",
+            properties: Object.fromEntries(
+              valueColumns.map((col) => [col.name, getPropertySchema(col)]),
+            ),
+          };
+          validateDataSchema(parsedValue, schema);
+          objValue = serializeObject(parsedValue, valueColumns);
+        } else {
+          const valueColumn = validateColumn("value", props.columns);
+          const schema = getPropertySchema(valueColumn);
+          validateDataSchema(parsedValue, schema, errorPrefix);
+          objValue = {
+            value: parsedValue,
+            datatype: valueColumn.datatype,
+          } as DataValue;
+        }
       } else {
         objValue = { value: parsedValue, datatype: "json_data" } as DataValue;
       }
@@ -210,4 +239,5 @@ interface AddEditObjectsWithOutOfLineKeysProps {
   activeStore: ActiveObjectStore;
   autoincrement: boolean;
   isEmptyStore: boolean;
+  viewType: ViewType;
 }
