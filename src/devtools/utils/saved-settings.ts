@@ -8,31 +8,30 @@ import {
 
 export function getLastViewedStore(origin: string): ActiveObjectStore | null {
   const settings = getOriginSettings(origin);
-  if (!settings.lastViewedStore) return null;
 
   try {
-    const { dbName, storeName } = settings.lastViewedStore;
-    return { dbName, storeName };
-  } catch (e) {
-    console.error("last-viewed-store: failure to load saved value", e);
-    return null;
-  }
+    const { dbName, storeName, indexName } = settings.lastViewedStore;
+    if (
+      typeof dbName === "string" &&
+      typeof storeName === "string" &&
+      // `==null` instead of `===null` to account for existing saved data before
+      // adding the ability to show index data in the extension
+      (typeof indexName === "string" || indexName == null)
+    )
+      return { dbName, storeName, indexName: indexName ?? null };
+  } catch {}
+  return null;
 }
 
-export function saveLastViewedStore(
-  origin: string,
-  dbName: string,
-  storeName: string,
-) {
+export function saveLastViewedStore(origin: string, store: ActiveObjectStore) {
   const settings = getOriginSettings(origin);
-  settings.lastViewedStore = { dbName, storeName };
+  settings.lastViewedStore = store;
   saveOriginSettings(origin, settings);
 }
 
 export function getTableSettings(
   origin: string,
-  dbName: string,
-  storeName: string,
+  store: ActiveObjectStore,
 ): {
   enablePagination: boolean;
   pageSize: number;
@@ -42,30 +41,33 @@ export function getTableSettings(
 } | null {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
-  const store = getStore(stores, dbName, storeName);
-  if (!store) return null;
+  const savedStore = getStore(stores, store);
+  if (!savedStore) return null;
 
   const autosizeColumns: AutosizeColumns =
-    store.autosizeColumns === "fit-cell-contents"
+    savedStore.autosizeColumns === "fit-cell-contents"
       ? "fit-cell-contents"
       : "fit-grid-width";
   const objectsCount =
-    typeof store.objectsCount === "number" ? store.objectsCount : null;
+    typeof savedStore.objectsCount === "number"
+      ? savedStore.objectsCount
+      : null;
   const pageSize =
-    typeof store.pageSize === "number" ? store.pageSize : DEFAULT_PAGE_SIZE;
+    typeof savedStore.pageSize === "number"
+      ? savedStore.pageSize
+      : DEFAULT_PAGE_SIZE;
   return {
-    enablePagination: !!store.enablePagination,
+    enablePagination: !!savedStore.enablePagination,
     pageSize,
     objectsCount,
     autosizeColumns,
-    tryTableView: !!store.tryTableView,
+    tryTableView: !!savedStore.tryTableView,
   };
 }
 
 export function saveTableSettings(
   origin: string,
-  dbName: string,
-  storeName: string,
+  store: ActiveObjectStore,
   enablePagination: boolean,
   pageSize: number,
   objectsCount: number | null,
@@ -74,17 +76,18 @@ export function saveTableSettings(
 ) {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
-  const store = getStore(stores, dbName, storeName);
-  if (store) {
-    store.enablePagination = enablePagination;
-    store.pageSize = pageSize;
-    store.objectsCount = objectsCount;
-    store.autosizeColumns = autosizeColumns;
-    store.tryTableView = tryTableView;
+  const savedStore = getStore(stores, store);
+  if (savedStore) {
+    savedStore.enablePagination = enablePagination;
+    savedStore.pageSize = pageSize;
+    savedStore.objectsCount = objectsCount;
+    savedStore.autosizeColumns = autosizeColumns;
+    savedStore.tryTableView = tryTableView;
   } else {
     stores.push({
-      dbName,
-      storeName,
+      dbName: store.dbName,
+      storeName: store.storeName,
+      indexName: store.indexName,
       enablePagination,
       pageSize,
       objectsCount,
@@ -99,17 +102,16 @@ export function saveTableSettings(
 
 export function getColumnsConfig(
   origin: string,
-  dbName: string,
-  storeName: string,
+  store: ActiveObjectStore,
 ): TableColumn[] {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
-  const store = getStore(stores, dbName, storeName);
-  if (!store) return [];
+  const savedStore = getStore(stores, store);
+  if (!savedStore) return [];
 
   const columns: TableColumn[] = [];
   try {
-    for (const column of store.columns) {
+    for (const column of savedStore.columns) {
       const { name, isKey, isVisible, datatype } = column;
       const colDatatype: TableColumnDatatype = TABLE_COLUMN_DATATYPES.includes(
         datatype,
@@ -131,19 +133,19 @@ export function getColumnsConfig(
 
 export function saveColumnsConfig(
   origin: string,
-  dbName: string,
-  storeName: string,
+  store: ActiveObjectStore,
   columns: TableColumn[],
 ) {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
-  const store = getStore(stores, dbName, storeName);
-  if (store) {
-    store.columns = columns;
+  const savedStore = getStore(stores, store);
+  if (savedStore) {
+    savedStore.columns = columns;
   } else {
     stores.push({
-      dbName,
-      storeName,
+      dbName: store.dbName,
+      storeName: store.storeName,
+      indexName: store.indexName,
       enablePagination: DEFAULT_PAGINATION,
       pageSize: DEFAULT_PAGE_SIZE,
       autosizeColumns: DEFAULT_AUTOSIZE_COLUMNS,
@@ -158,36 +160,37 @@ export function saveColumnsConfig(
 
 export function originHasSavedSettings(
   origin: string,
-  dbName: string,
-  storeName: string,
+  store: ActiveObjectStore,
 ) {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
-  return !!getStore(stores, dbName, storeName);
+  return !!getStore(stores, store);
 }
 
 export function deleteSavedOriginSettings(
   origin: string,
-  dbName: string,
-  storeName: string,
+  store: ActiveObjectStore,
 ) {
   const originSettings = getOriginSettings(origin);
   const stores = getStores(originSettings);
 
   originSettings.stores = stores.filter(
-    (store) => store.dbName !== dbName && store.storeName !== storeName,
+    (s) =>
+      s.dbName !== store.dbName ||
+      s.storeName !== store.storeName ||
+      s.indexName !== store.indexName,
   );
   saveOriginSettings(origin, originSettings);
 }
 
-function getStore(
-  savedStores: SavedStoreSettings[],
-  dbName: string,
-  storeName: string,
-) {
-  for (const store of savedStores) {
-    if (store.dbName === dbName && store.storeName === storeName) {
-      return store;
+function getStore(savedStores: SavedStoreSettings[], store: ActiveObjectStore) {
+  for (const saved of savedStores) {
+    if (
+      saved.dbName === store.dbName &&
+      saved.storeName === store.storeName &&
+      saved.indexName === store.indexName
+    ) {
+      return saved;
     }
   }
   return null;
@@ -202,6 +205,7 @@ function getStores(
       const {
         dbName,
         storeName,
+        indexName,
         enablePagination,
         pageSize,
         objectsCount,
@@ -212,6 +216,7 @@ function getStores(
       stores.push({
         dbName,
         storeName,
+        indexName,
         enablePagination,
         pageSize,
         objectsCount,
@@ -279,6 +284,7 @@ interface SavedOriginSettings {
 interface SavedStoreSettings {
   dbName: ANY;
   storeName: ANY;
+  indexName: ANY;
   enablePagination: ANY;
   pageSize: ANY;
   objectsCount: ANY;

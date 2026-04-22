@@ -5,6 +5,14 @@ import styles from "./TableSearch.module.css";
 
 export default function TableSearch() {
   const { activeObjectStore } = useActiveObjectStoreContext();
+  const placeholder = () => {
+    const activeStore = activeObjectStore();
+    if (!activeStore) return "Search";
+
+    return activeStore.indexName === null
+      ? `Search ${activeStore.storeName}`
+      : `Search ${activeStore.indexName}`;
+  };
   const { settings, setSearchTerm } = useTableSettingsContext();
   const debounceSearch = () => {
     let timerID: number | undefined;
@@ -25,7 +33,7 @@ export default function TableSearch() {
       aria-label="Table Search"
       class={styles.input}
       type="text"
-      placeholder={`Search ${activeObjectStore()?.storeName ?? ""}`}
+      placeholder={placeholder()}
       value={settings.searchTerm}
       onInput={(event) => {
         search(event.target.value);

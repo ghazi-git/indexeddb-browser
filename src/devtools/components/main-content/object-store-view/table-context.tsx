@@ -40,6 +40,7 @@ export function TableContextProvider(props: FlowProps) {
         fetchTableData({
           dbName: activeStore.dbName,
           storeName: activeStore.storeName,
+          indexName: activeStore.indexName,
           origin: origin(),
           requestID: generateRequestID(),
         });
@@ -55,6 +56,7 @@ export function TableContextProvider(props: FlowProps) {
         fetchTableData({
           dbName: activeStore.dbName,
           storeName: activeStore.storeName,
+          indexName: activeStore.indexName,
           origin: origin(),
           requestID: generateRequestID(),
         });
@@ -73,12 +75,7 @@ export function TableContextProvider(props: FlowProps) {
       if (colIndex !== undefined && newDatatype) {
         columns[colIndex].datatype = newDatatype;
       }
-      saveColumnsConfig(
-        currentOrigin,
-        activeStore.dbName,
-        activeStore.storeName,
-        columns,
-      );
+      saveColumnsConfig(currentOrigin, activeStore, columns);
     }
   };
 
@@ -119,6 +116,7 @@ export function TableContextProvider(props: FlowProps) {
             fetchTableData({
               dbName: activeStore.dbName,
               storeName: activeStore.storeName,
+              indexName: activeStore.indexName,
               origin: origin(),
               requestID: generateRequestID(),
             });

@@ -43,11 +43,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
       const initialValues = getInitialSettingsValue();
-      const savedValues = getTableSettings(
-        currentOrigin,
-        activeStore.dbName,
-        activeStore.storeName,
-      );
+      const savedValues = getTableSettings(currentOrigin, activeStore);
       if (savedValues) {
         setSettings({ ...initialValues, ...savedValues });
       } else {
@@ -66,8 +62,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     if (currentOrigin && activeStore) {
       saveTableSettings(
         currentOrigin,
-        activeStore.dbName,
-        activeStore.storeName,
+        activeStore,
         settings.pagination,
         settings.pageSize,
         settings.objectsCount,
@@ -104,11 +99,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     return (
       !!currentOrigin &&
       !!activeStore &&
-      originHasSavedSettings(
-        currentOrigin,
-        activeStore.dbName,
-        activeStore.storeName,
-      )
+      originHasSavedSettings(currentOrigin, activeStore)
     );
   };
   const { reloadTableData } = useTableReloadContext();
@@ -116,11 +107,7 @@ export function TableSettingsContextProvider(props: FlowProps) {
     const currentOrigin = origin();
     const activeStore = activeObjectStore();
     if (currentOrigin && activeStore) {
-      deleteSavedOriginSettings(
-        currentOrigin,
-        activeStore.dbName,
-        activeStore.storeName,
-      );
+      deleteSavedOriginSettings(currentOrigin, activeStore);
       // reset table settings and refetch table data to reset columns state
       setSettings(getInitialSettingsValue());
       reloadTableData();

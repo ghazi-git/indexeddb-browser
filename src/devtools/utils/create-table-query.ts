@@ -86,17 +86,18 @@ export function createTableDataQuery() {
     requestID,
     dbName,
     storeName,
+    indexName,
   }: QueryParams) {
     markQueryAsLoading();
     let savedColumns: TableColumn[] | undefined;
     let objectsCount: number | undefined;
     let tryTableView = DEFAULT_TRY_TABLE_VIEW;
     if (origin) {
-      const cols = getColumnsConfig(origin, dbName, storeName);
+      const cols = getColumnsConfig(origin, { dbName, storeName, indexName });
       if (cols.length) {
         savedColumns = cols;
       }
-      const stored = getTableSettings(origin, dbName, storeName);
+      const stored = getTableSettings(origin, { dbName, storeName, indexName });
       if (stored && stored.objectsCount !== null) {
         objectsCount = stored.objectsCount;
       }
@@ -145,7 +146,7 @@ export function createTableDataQuery() {
         // if savedColumns were passed with the request, then update what's
         // in local storage in case there are updates to the object store
         const cols = responseData.columns ?? [];
-        saveColumnsConfig(origin, dbName, storeName, cols);
+        saveColumnsConfig(origin, { dbName, storeName, indexName }, cols);
       }
       markQueryAsSuccessful(responseData);
     } catch (e) {

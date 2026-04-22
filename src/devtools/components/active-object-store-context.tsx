@@ -53,11 +53,7 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
     _setActiveStore({ ...activeStore, trigger: "breadcrumbsOrSidebar" });
     const currentOrigin = untrack(() => origin());
     if (currentOrigin) {
-      saveLastViewedStore(
-        currentOrigin,
-        activeStore.dbName,
-        activeStore.storeName,
-      );
+      saveLastViewedStore(currentOrigin, activeStore);
     }
   };
 
@@ -70,10 +66,14 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
       // load the last viewed store, if any, and it still exists
       const lastViewedStore = getLastViewedStore(currentOrigin);
       if (lastViewedStore) {
-        const { dbName, storeName } = lastViewedStore;
+        const { dbName, storeName, indexName } = lastViewedStore;
         const dbs = untrack(() => databases());
         const indexeddb = dbs?.find((db) => db.name === dbName);
-        if (indexeddb && indexeddb.objectStores.includes(storeName)) {
+        const store = indexeddb?.objectStores.find((s) => s.name === storeName);
+        if (
+          (store && indexName === null) ||
+          (indexName && store?.indexNames.includes(indexName))
+        ) {
           _setActiveStore({ ...lastViewedStore, trigger: "originChange" });
         } else {
           _setActiveStore(null);
@@ -90,10 +90,13 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
     const dbs = databases();
     const activeStore = untrack(() => activeObjectStore());
     if (dbs && activeStore) {
-      const { dbName, storeName } = activeStore;
+      const { dbName, storeName, indexName } = activeStore;
       const db = dbs.find((db) => db.name === dbName);
-      const objStore = db?.objectStores.find((st) => st === storeName);
-      if (!objStore) {
+      const objStore = db?.objectStores.find((st) => st.name === storeName);
+      if (
+        !objStore ||
+        (objStore && indexName && !objStore?.indexNames.includes(indexName))
+      ) {
         _setActiveStore(null);
       }
     } else if (dbs) {
@@ -102,9 +105,15 @@ export function ActiveObjectStoreContextProvider(props: FlowProps) {
         const lastViewedStore = getLastViewedStore(currentOrigin);
         // check the last viewed db still exists in the databases list
         if (lastViewedStore) {
-          const { dbName, storeName } = lastViewedStore;
+          const { dbName, storeName, indexName } = lastViewedStore;
           const indexeddb = dbs.find((db) => db.name === dbName);
-          if (indexeddb && indexeddb.objectStores.includes(storeName)) {
+          const store = indexeddb?.objectStores.find(
+            (s) => s.name === storeName,
+          );
+          if (
+            (store && indexName === null) ||
+            (indexName && store?.indexNames.includes(indexName))
+          ) {
             _setActiveStore({
               ...lastViewedStore,
               trigger: "databasesRefresh",
@@ -176,7 +185,9 @@ function createActiveObjectStore(): Signal<ActiveStoreUpdate | null> {
   const [accessor, setter] = createSignal<ActiveStoreUpdate | null>(null, {
     equals: (prev, next) => {
       return (
-        prev?.dbName === next?.dbName && prev?.storeName === next?.storeName
+        prev?.dbName === next?.dbName &&
+        prev?.storeName === next?.storeName &&
+        prev?.indexName === next?.indexName
       );
     },
   });
@@ -185,12 +196,12 @@ function createActiveObjectStore(): Signal<ActiveStoreUpdate | null> {
 
 function getUpdatedHistory(
   prev: ActiveStoreHistory,
-  { dbName, storeName, trigger }: ActiveStoreUpdate,
+  { dbName, storeName, indexName, trigger }: ActiveStoreUpdate,
 ): ActiveStoreHistory {
   if (trigger === "databasesRefresh" || trigger === "originChange") {
     // reset history after origin change or db refresh and there is
     // a saved object store
-    return { index: 0, stack: [{ dbName, storeName }] };
+    return { index: 0, stack: [{ dbName, storeName, indexName }] };
   } else if (trigger === "back") {
     // decrease the index value
     return prev.index ? { index: prev.index - 1, stack: prev.stack } : prev;
@@ -204,11 +215,14 @@ function getUpdatedHistory(
   } else {
     // trigger=breadcrumbsOrSidebar
     if (prev.index === null) {
-      return { index: 0, stack: [{ dbName, storeName }] };
+      return { index: 0, stack: [{ dbName, storeName, indexName }] };
     } else {
       return {
         index: prev.index + 1,
-        stack: [...prev.stack.slice(0, prev.index + 1), { dbName, storeName }],
+        stack: [
+          ...prev.stack.slice(0, prev.index + 1),
+          { dbName, storeName, indexName },
+        ],
       };
     }
   }

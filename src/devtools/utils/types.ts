@@ -10,6 +10,7 @@ export type FilterOptionDef =
 export type ActiveObjectStore = {
   dbName: string;
   storeName: string;
+  indexName: string | null;
 };
 export type AutosizeColumns = "fit-grid-width" | "fit-cell-contents";
 
