@@ -70,10 +70,16 @@ function getObjectStores(dbName: string) {
     const dbRequest = indexedDB.open(dbName);
     dbRequest.onsuccess = () => {
       const db = dbRequest.result;
-      resolve({
-        name: dbName,
-        objectStores: Array.from(db.objectStoreNames),
+      const storeNames = Array.from(db.objectStoreNames);
+      const tx = db.transaction(storeNames);
+      const stores = storeNames.map((storeName) => {
+        const store = tx.objectStore(storeName);
+        return {
+          name: storeName,
+          indexNames: Array.from(store.indexNames),
+        };
       });
+      resolve({ name: dbName, objectStores: stores });
       db.close();
     };
     dbRequest.onerror = () => {

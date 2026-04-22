@@ -54,7 +54,11 @@ export type TableColumnDatatype = (typeof TABLE_COLUMN_DATATYPES)[number];
 
 export interface IndexedDB {
   name: string;
-  objectStores: string[];
+  objectStores: ObjectStore[];
+}
+interface ObjectStore {
+  name: string;
+  indexNames: string[];
 }
 
 export type IndexedDBResponse =

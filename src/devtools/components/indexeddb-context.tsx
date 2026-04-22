@@ -34,12 +34,17 @@ export function IndexedDBContextProvider(props: FlowProps) {
       try {
         await triggerIndexedDBsFetching(requestID);
         const indexedDBs = await fetchIndexedDBs(requestID);
-        // sort the DBs and their stores alphabetically
+        // sort the DBs, their stores and indexes alphabetically
         const collator = new Intl.Collator(undefined, { sensitivity: "base" });
         const dbs = indexedDBs
           .map((db) => ({
             name: db.name,
-            objectStores: db.objectStores.toSorted(collator.compare),
+            objectStores: db.objectStores
+              .map(({ name, indexNames }) => ({
+                name,
+                indexNames: indexNames.toSorted(collator.compare),
+              }))
+              .toSorted((s1, s2) => collator.compare(s1.name, s2.name)),
           }))
           .toSorted((db1, db2) => collator.compare(db1.name, db2.name));
         resolve(dbs);
