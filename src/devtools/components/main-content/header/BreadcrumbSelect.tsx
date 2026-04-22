@@ -17,8 +17,12 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
         <selectedcontent />
       </button>
       <For each={local.options}>
-        {({ label, value }) => (
-          <option value={value ?? ""} selected={value === local.value}>
+        {({ label, value, subItem }) => (
+          <option
+            class={subItem ? styles["sub-item"] : ""}
+            value={value}
+            selected={value === local.value}
+          >
             {label}
           </option>
         )}
@@ -27,14 +31,17 @@ export default function BreadcrumbSelect(props: BreadcrumbSelectProps) {
   );
 }
 
-// some css styles are based on the empty value
-export const EMPTY_VALUE = "---";
-
 interface BreadcrumbSelectProps extends Omit<
   JSX.SelectHTMLAttributes<HTMLSelectElement>,
   "children"
 > {
   ref?: (elt: HTMLSelectElement) => void;
-  options: { label: string; value: string }[];
-  value?: string;
+  options: BreadcrumbSelectOption[];
+  value: string;
+}
+
+export interface BreadcrumbSelectOption {
+  label: string;
+  value: string;
+  subItem?: true;
 }

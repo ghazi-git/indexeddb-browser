@@ -11,7 +11,7 @@ import {
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import BreadcrumbSelect, {
-  EMPTY_VALUE,
+  BreadcrumbSelectOption,
 } from "@/devtools/components/main-content/header/BreadcrumbSelect";
 import ReloadStore from "@/devtools/components/main-content/header/ReloadStore";
 import AngleRightIcon from "@/devtools/components/svg-icons/AngleRightIcon";
@@ -20,9 +20,10 @@ import { IndexedDB } from "@/devtools/utils/types";
 import styles from "./Breadcrumbs.module.css";
 
 export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
+  const [selectedDB, setSelectedDB] = createSignal<IndexedDB | null>(null);
   const dbOptions = () => {
     return [
-      { label: "Select IndexedDB", value: EMPTY_VALUE },
+      { label: "Select IndexedDB", value: "" },
       ...props.databases.map((db) => ({
         label: db.name,
         value: db.name,
@@ -30,21 +31,32 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
     ];
   };
 
-  const [selectedDB, setSelectedDB] = createSignal<IndexedDB | undefined>();
-  const [selectedStore, setSelectedStore] = createSignal<string>(EMPTY_VALUE);
+  const [selectedStore, setSelectedStore] = createSignal<StoreOrIndex | null>(
+    null,
+  );
   const storeOptions = () => {
-    const options = [{ label: "Select Store", value: EMPTY_VALUE }];
+    const options: BreadcrumbSelectOption[] = [
+      { label: "Select Store or Index", value: "" },
+    ];
     const db = selectedDB();
     if (db) {
-      return options.concat(
-        db.objectStores.map((name) => ({
-          label: name,
-          value: name,
-        })),
-      );
-    } else {
-      return options;
+      db.objectStores.forEach((store) => {
+        const storeName = store.name;
+        options.push({
+          label: store.name,
+          value: serializeStoreOrIndex({ storeName, indexName: null }),
+        });
+        const indexOptions: BreadcrumbSelectOption[] = store.indexNames.map(
+          (indexName) => ({
+            label: indexName,
+            value: serializeStoreOrIndex({ storeName, indexName }),
+            subItem: true,
+          }),
+        );
+        options.push(...indexOptions);
+      });
     }
+    return options;
   };
   onMount(() => {
     setSelectedDB(props.databases[0]);
@@ -54,24 +66,28 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
   const { activeObjectStore, setActiveObjectStore } =
     useActiveObjectStoreContext();
   createEffect(() => {
-    const storeName = selectedStore();
+    const selected = selectedStore();
     const db = untrack(() => selectedDB());
-    if (db && storeName !== EMPTY_VALUE) {
-      setActiveObjectStore({ dbName: db.name, storeName });
+    if (db && selected) {
+      setActiveObjectStore({
+        dbName: db.name,
+        storeName: selected.storeName,
+        indexName: selected.indexName,
+      });
     }
   });
   // set the selected item on active store change
   createEffect(() => {
     const activeStore = activeObjectStore();
     if (activeStore) {
-      const { dbName, storeName } = activeStore;
+      const { dbName, storeName, indexName } = activeStore;
       const db = untrack(() => {
         return props.databases.find((db) => db.name === dbName);
       });
       if (db) {
         batch(() => {
           setSelectedDB(db);
-          setSelectedStore(storeName);
+          setSelectedStore({ storeName, indexName });
         });
       }
     }
@@ -83,14 +99,14 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
         id="db-selector"
         aria-label="IndexedDB Selector"
         options={dbOptions()}
-        value={selectedDB()?.name ?? EMPTY_VALUE}
+        value={selectedDB()?.name ?? ""}
         onChange={(event) => {
           const selected = props.databases.find(
             (db) => db.name === event.target.value,
           );
           batch(() => {
-            setSelectedDB(selected);
-            setSelectedStore(EMPTY_VALUE);
+            setSelectedDB(selected ?? null);
+            setSelectedStore(null);
           });
         }}
       />
@@ -107,18 +123,44 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
           </div>
           <BreadcrumbSelect
             id="store-selector"
-            aria-label="Object Store Selector"
+            aria-label="Object Store or Index Selector"
             options={storeOptions()}
-            value={selectedStore()}
+            value={serializeStoreOrIndex(selectedStore())}
             onChange={(event) => {
-              setSelectedStore(event.target.value);
+              const selected = parseStoreOrIndex(event.target.value);
+              setSelectedStore(selected);
             }}
           />
-          <Show when={selectedStore() !== EMPTY_VALUE}>
+          <Show when={!selectedStore()}>
             <ReloadStore />
           </Show>
         </Match>
       </Switch>
     </div>
   );
+}
+
+function serializeStoreOrIndex(value: StoreOrIndex | null) {
+  if (value === null) return "";
+
+  return JSON.stringify(value);
+}
+
+function parseStoreOrIndex(value: string): StoreOrIndex | null {
+  try {
+    const parsed = JSON.parse(value);
+    const { storeName, indexName } = parsed;
+    if (
+      typeof storeName === "string" &&
+      (typeof indexName === "string" || indexName === null)
+    ) {
+      return { storeName, indexName };
+    }
+  } catch {}
+  return null;
+}
+
+interface StoreOrIndex {
+  storeName: string;
+  indexName: string | null;
 }
