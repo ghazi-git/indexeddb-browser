@@ -18,9 +18,9 @@ export default function DeleteDatabaseModal(props: DeleteDatabaseModalProps) {
   const { dbToDelete, deleteDBMutation, deleteDB } = useDeleteDatabaseContext();
 
   const msg = () => {
-    const dbIndex = dbToDelete();
-    if (dbIndex !== null) {
-      const dbName = tree.databases[dbIndex].name;
+    const dbPos = dbToDelete();
+    if (dbPos !== null) {
+      const dbName = tree.databases[dbPos].name;
       return `Are you sure you want to delete the database '${dbName}'?`;
     } else {
       return "Unable to determine the database to be deleted.";
@@ -55,9 +55,9 @@ export default function DeleteDatabaseModal(props: DeleteDatabaseModalProps) {
           loading={deleteDBMutation.isLoading}
           onClick={() => {
             setErrorMsg(null);
-            const dbIndex = dbToDelete();
-            if (dbIndex !== null) {
-              const dbName = tree.databases[dbIndex].name;
+            const dbPos = dbToDelete();
+            if (dbPos !== null) {
+              const dbName = tree.databases[dbPos].name;
               deleteDB({ requestID: generateRequestID(), dbName }).then(() => {
                 modalRef.close();
                 refetchIndexedDBs();

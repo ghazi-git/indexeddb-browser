@@ -17,11 +17,11 @@ export function ClearStoreContextProvider(props: FlowProps) {
   const { focusItem } = useDatabaseTreeContext();
 
   const [store, setStore] = createStore<ClearStore>({
-    dbIndex: null,
-    storeIndex: null,
+    dbPos: null,
+    storePos: null,
   });
-  const setStoreToBeCleared = (dbIndex: number, storeIndex: number) => {
-    setStore({ dbIndex, storeIndex });
+  const setStoreToBeCleared = (dbPos: number, storePos: number) => {
+    setStore({ dbPos, storePos });
   };
 
   // place the clear-store mutation in this provider to allow a single clear
@@ -48,9 +48,9 @@ export function ClearStoreContextProvider(props: FlowProps) {
       {props.children}
       <ClearStoreSidebarModal
         onClose={() => {
-          if (store.storeIndex !== null) {
-            focusItem(store.dbIndex, store.storeIndex);
-            setStore({ dbIndex: null, storeIndex: null });
+          if (store.storePos !== null) {
+            focusItem(store.dbPos, store.storePos);
+            setStore({ dbPos: null, storePos: null });
           }
         }}
       />
@@ -69,11 +69,11 @@ export function useClearStoreContext() {
 
 interface ClearStoreContextType {
   store: ClearStore;
-  setStoreToBeCleared: (dbIndex: number, storeIndex: number) => void;
+  setStoreToBeCleared: (dbPos: number, storePos: number) => void;
   clearStoreMutation: Mutation;
   clearStore: (params: StoreClearRequest) => Promise<void>;
 }
 
 type ClearStore =
-  | { dbIndex: number; storeIndex: number }
-  | { dbIndex: null; storeIndex: null };
+  | { dbPos: number; storePos: number }
+  | { dbPos: null; storePos: null };

@@ -1,13 +1,5 @@
 import { ContextMenu } from "@kobalte/core/context-menu";
-import {
-  createMemo,
-  createSignal,
-  For,
-  JSX,
-  onMount,
-  Show,
-  splitProps,
-} from "solid-js";
+import { createMemo, createSignal, For, onMount, Show } from "solid-js";
 
 import MenuContent from "@/devtools/components/context-menu/MenuContent";
 import ModalTriggerMenuItem from "@/devtools/components/context-menu/ModalTriggerMenuItem";
@@ -23,30 +15,23 @@ import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
 import styles from "./DatabaseItem.module.css";
 
 export default function DatabaseItem(props: DatabaseItemProps) {
-  const [local, rest] = splitProps(props, ["class", "db", "dbIndex"]);
-  const { tree, setSelectedItem, toggleExpandedDatabase, setRefs, focusItem } =
+  const { tree, setSelectedItem, toggleExpandedDatabase, focusItem, setRef } =
     useDatabaseTreeContext();
   const tabindex = createMemo(() => {
-    const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
-    return focusableDBIndex === local.dbIndex &&
-      focusableStoreIndex === undefined
-      ? 0
-      : -1;
+    const [dbPos, storePos] = tree.focusableItem;
+    return dbPos === props.dbPos && storePos === undefined ? 0 : -1;
   });
   const isSelected = createMemo(() => {
     return (
       !!tree.selectedItem &&
-      tree.selectedItem[0] === local.dbIndex &&
+      tree.selectedItem[0] === props.dbPos &&
       tree.selectedItem[1] === undefined
     );
   });
-  const hasStores = () => !!local.db.objectStores.length;
+  const hasStores = () => props.db.objectStores.length > 0;
 
-  let dbRef!: HTMLLIElement;
-  const storeRefs: HTMLLIElement[] = [];
-  onMount(() => {
-    setRefs(local.dbIndex, dbRef, storeRefs);
-  });
+  let dbRef: HTMLLIElement;
+  onMount(() => setRef(dbRef, props.dbPos));
 
   const { deleteDBMutation, setDBToDelete } = useDeleteDatabaseContext();
   const [open, setOpen] = createSignal(false);
@@ -54,24 +39,24 @@ export default function DatabaseItem(props: DatabaseItemProps) {
 
   return (
     <li
-      ref={dbRef}
-      class={`${styles["database-item"]} ${local.class ?? ""}`}
+      ref={(elt) => (dbRef = elt)}
+      class={styles["database-item"]}
       aria-selected={isSelected()}
-      aria-expanded={hasStores() ? local.db.isExpanded : undefined}
+      aria-expanded={hasStores() ? props.db.isExpanded : undefined}
       tabindex={tabindex()}
       role="treeitem"
       onKeyDown={(event) => {
         if (hasStores()) {
           if (event.key === "ArrowRight") {
-            if (local.db.isExpanded) {
-              focusItem(local.dbIndex, 0);
+            if (props.db.isExpanded) {
+              focusItem(props.dbPos, 0);
             } else {
-              toggleExpandedDatabase(local.dbIndex);
+              toggleExpandedDatabase(props.dbPos);
             }
-          } else if (event.key === "ArrowLeft" && local.db.isExpanded) {
-            toggleExpandedDatabase(local.dbIndex);
+          } else if (event.key === "ArrowLeft" && props.db.isExpanded) {
+            toggleExpandedDatabase(props.dbPos);
           } else if (event.key === "Enter") {
-            setSelectedItem(local.dbIndex);
+            setSelectedItem(props.dbPos);
           }
         }
       }}
@@ -90,7 +75,6 @@ export default function DatabaseItem(props: DatabaseItemProps) {
         });
         contextMenuTrigger.dispatchEvent(customEvent);
       }}
-      {...rest}
     >
       <ContextMenu
         // @ts-expect-error open is not part of ContextMenu props, but it is
@@ -108,9 +92,9 @@ export default function DatabaseItem(props: DatabaseItemProps) {
             }}
             class={styles.database}
             onClick={() => {
-              setSelectedItem(local.dbIndex);
+              setSelectedItem(props.dbPos);
               if (hasStores()) {
-                toggleExpandedDatabase(local.dbIndex);
+                toggleExpandedDatabase(props.dbPos);
               }
             }}
             onContextMenu={() => setOpen(true)}
@@ -121,12 +105,12 @@ export default function DatabaseItem(props: DatabaseItemProps) {
             >
               <div class={styles.chevron}>
                 <TriangleIcon
-                  orientation={local.db.isExpanded ? "down" : "right"}
+                  orientation={props.db.isExpanded ? "down" : "right"}
                 />
               </div>
             </Show>
             <SingleLineText
-              text={`${local.db.name}${hasStores() ? "" : " (empty)"}`}
+              text={`${props.db.name}${hasStores() ? "" : " (empty)"}`}
             />
           </div>
         </ContextMenu.Trigger>
@@ -136,7 +120,7 @@ export default function DatabaseItem(props: DatabaseItemProps) {
               modalId="delete-database-modal"
               disabled={deleteDBMutation.isLoading}
               onSelect={() => {
-                setDBToDelete(local.dbIndex);
+                setDBToDelete(props.dbPos);
               }}
             >
               Delete
@@ -146,16 +130,13 @@ export default function DatabaseItem(props: DatabaseItemProps) {
       </ContextMenu>
       <Show when={hasStores()}>
         <ul role="group">
-          <For each={local.db.objectStores}>
+          <For each={props.db.objectStores}>
             {(objStore, objStoreIndex) => (
               <ObjectStoreItem
-                ref={(elt) => {
-                  storeRefs[objStoreIndex()] = elt;
-                }}
-                dbName={local.db.name}
-                dbIndex={local.dbIndex}
+                dbName={props.db.name}
+                dbPos={props.dbPos}
                 objectStore={objStore}
-                objectStoreIndex={objStoreIndex()}
+                objectStorePos={objStoreIndex()}
               />
             )}
           </For>
@@ -165,10 +146,7 @@ export default function DatabaseItem(props: DatabaseItemProps) {
   );
 }
 
-interface DatabaseItemProps extends Omit<
-  JSX.HTMLAttributes<HTMLLIElement>,
-  "children"
-> {
+interface DatabaseItemProps {
   db: SidebarDatabase;
-  dbIndex: number;
+  dbPos: number;
 }

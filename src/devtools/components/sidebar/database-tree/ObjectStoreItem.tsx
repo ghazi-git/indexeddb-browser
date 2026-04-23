@@ -1,5 +1,5 @@
 import { ContextMenu } from "@kobalte/core/context-menu";
-import { createMemo, createSignal, JSX, splitProps } from "solid-js";
+import { createMemo, createSignal, For, onMount } from "solid-js";
 
 import { useActiveObjectStoreContext } from "@/devtools/components/active-object-store-context";
 import MenuContent from "@/devtools/components/context-menu/MenuContent";
@@ -9,105 +9,113 @@ import {
   SidebarStore,
   useDatabaseTreeContext,
 } from "@/devtools/components/sidebar/database-tree/database-tree-context";
+import IndexItem from "@/devtools/components/sidebar/database-tree/IndexItem";
 import SingleLineText from "@/devtools/components/SingleLineText";
 import StoreIcon from "@/devtools/components/svg-icons/StoreIcon";
 
 import styles from "./ObjectStoreItem.module.css";
 
 export default function ObjectStoreItem(props: ObjectStoreItemProps) {
-  const [local, rest] = splitProps(props, [
-    "class",
-    "dbName",
-    "dbIndex",
-    "objectStore",
-    "objectStoreIndex",
-  ]);
   const { activeObjectStore } = useActiveObjectStoreContext();
   const isActiveStore = () => {
     const activeStore = activeObjectStore();
     return (
-      activeStore?.dbName === local.dbName &&
-      activeStore?.storeName === local.objectStore.name
+      activeStore?.dbName === props.dbName &&
+      activeStore?.storeName === props.objectStore.name &&
+      activeStore?.indexName === null
     );
   };
-  const { tree, setSelectedItem, focusItem } = useDatabaseTreeContext();
+  const { tree, setSelectedItem, focusItem, setRef } = useDatabaseTreeContext();
   const tabindex = createMemo(() => {
-    const [focusableDBIndex, focusableStoreIndex] = tree.focusableItem;
-    return focusableDBIndex === local.dbIndex &&
-      focusableStoreIndex === local.objectStoreIndex
+    const [dbPos, storePos, indexPos] = tree.focusableItem;
+    return dbPos === props.dbPos &&
+      storePos === props.objectStorePos &&
+      indexPos === undefined
       ? 0
       : -1;
   });
   const isSelected = createMemo(() => {
     return (
       !!tree.selectedItem &&
-      tree.selectedItem[0] === local.dbIndex &&
-      tree.selectedItem[1] === local.objectStoreIndex
+      tree.selectedItem[0] === props.dbPos &&
+      tree.selectedItem[1] === props.objectStorePos &&
+      tree.selectedItem[2] === undefined
     );
   });
   const { setStoreToBeCleared, clearStoreMutation } = useClearStoreContext();
   const [open, setOpen] = createSignal(false);
+  let storeRef: HTMLLIElement;
+  onMount(() => setRef(storeRef, props.dbPos, props.objectStorePos));
 
   return (
-    // @ts-expect-error open is not part of ContextMenu props, but it is
-    // possible to pass it since ContextMenu and DropdownMenu use the same
-    // underlying Menu component under the hood
-    <ContextMenu open={open()} onOpenChange={setOpen}>
-      <ContextMenu.Trigger>
-        <li
-          class={`${styles["object-store"]} ${local.class ?? ""}`}
-          data-active-store={isActiveStore()}
-          aria-selected={isSelected()}
-          onClick={() => {
-            setSelectedItem(local.dbIndex, local.objectStoreIndex);
-          }}
-          role="treeitem"
-          tabindex={tabindex()}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowLeft") {
-              event.stopPropagation();
-              focusItem(local.dbIndex);
-            } else if (event.key === "ArrowRight") {
-              // don't let the event bubble up to DatabaseItem to avoid triggering
-              // its event listener
-              event.stopPropagation();
-            } else if (event.key === "Enter") {
-              event.stopPropagation();
-              setSelectedItem(local.dbIndex, local.objectStoreIndex);
-            }
-          }}
-          onContextMenu={() => setOpen(true)}
-          {...rest}
-        >
-          <div class={styles["object-store-icon"]}>
-            <StoreIcon />
-          </div>
-          <SingleLineText text={local.objectStore.name} />
-        </li>
-      </ContextMenu.Trigger>
-      <ContextMenu.Portal>
-        <MenuContent closeMenu={() => setOpen(false)}>
-          <ModalTriggerMenuItem
-            modalId="clear-store-sidebar-modal"
-            disabled={clearStoreMutation.isLoading}
-            onSelect={() => {
-              setStoreToBeCleared(local.dbIndex, local.objectStoreIndex);
+    <>
+      {/* @ts-expect-error open is not part of ContextMenu props, but it is possible to pass it since ContextMenu and DropdownMenu use the same underlying Menu component under the hood */}
+      <ContextMenu open={open()} onOpenChange={setOpen}>
+        <ContextMenu.Trigger>
+          <li
+            ref={(elt) => (storeRef = elt)}
+            class={styles["object-store"]}
+            data-active-store={isActiveStore()}
+            aria-selected={isSelected()}
+            onClick={() => {
+              setSelectedItem(props.dbPos, props.objectStorePos);
             }}
+            role="treeitem"
+            tabindex={tabindex()}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowLeft") {
+                event.stopPropagation();
+                focusItem(props.dbPos);
+              } else if (event.key === "ArrowRight") {
+                // don't let the event bubble up to DatabaseItem to avoid triggering
+                // its event listener
+                event.stopPropagation();
+              } else if (event.key === "Enter") {
+                event.stopPropagation();
+                setSelectedItem(props.dbPos, props.objectStorePos);
+              }
+            }}
+            onContextMenu={() => setOpen(true)}
           >
-            Clear
-          </ModalTriggerMenuItem>
-        </MenuContent>
-      </ContextMenu.Portal>
-    </ContextMenu>
+            <div class={styles["object-store-icon"]}>
+              <StoreIcon />
+            </div>
+            <SingleLineText text={props.objectStore.name} />
+          </li>
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <MenuContent closeMenu={() => setOpen(false)}>
+            <ModalTriggerMenuItem
+              modalId="clear-store-sidebar-modal"
+              disabled={clearStoreMutation.isLoading}
+              onSelect={() => {
+                setStoreToBeCleared(props.dbPos, props.objectStorePos);
+              }}
+            >
+              Clear
+            </ModalTriggerMenuItem>
+          </MenuContent>
+        </ContextMenu.Portal>
+      </ContextMenu>
+      <For each={props.objectStore.indexes}>
+        {(index, idx) => (
+          <IndexItem
+            dbName={props.dbName}
+            dbPos={props.dbPos}
+            storeName={props.objectStore.name}
+            storePos={props.objectStorePos}
+            indexName={index.name}
+            indexPos={idx()}
+          />
+        )}
+      </For>
+    </>
   );
 }
 
-interface ObjectStoreItemProps extends Omit<
-  JSX.LiHTMLAttributes<HTMLLIElement>,
-  "children"
-> {
+interface ObjectStoreItemProps {
   dbName: string;
-  dbIndex: number;
+  dbPos: number;
   objectStore: SidebarStore;
-  objectStoreIndex: number;
+  objectStorePos: number;
 }

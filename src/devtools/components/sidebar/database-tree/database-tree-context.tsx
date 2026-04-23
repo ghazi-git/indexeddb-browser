@@ -13,17 +13,26 @@ export function useDatabaseTreeContext() {
 
 interface DatabaseTreeContextType {
   tree: DatabaseTreeStore;
-  setSelectedItem: (dbIndex: number, storeIndex?: number) => void;
-  toggleExpandedDatabase: (dbIndex: number) => void;
-  setRefs: (
-    dbIndex: number,
-    dbRef: HTMLLIElement,
-    storeRefs: HTMLLIElement[],
+  setSelectedItem: (
+    dbPos: number,
+    storePos?: number,
+    indexPos?: number,
   ) => void;
-  focusItem: (dbIndex: number, storeIndex?: number) => void;
+  setRef: (
+    ref: HTMLLIElement,
+    dbPos: number,
+    storePos?: number,
+    indexPos?: number,
+  ) => void;
+  toggleExpandedDatabase: (dbPos: number) => void;
+  focusItem: (dbPos: number, storePos?: number, indexPos?: number) => void;
 }
 
-export type TreeItem = [dbIndex: number, storeIndex: number | undefined];
+export type TreeItem = [
+  dbPos: number,
+  storePos: number | undefined,
+  indexPos: number | undefined,
+];
 
 export interface DatabaseTreeStore {
   databases: SidebarDatabase[];
@@ -41,6 +50,12 @@ export interface SidebarDatabase {
 }
 
 export interface SidebarStore {
+  ref: HTMLLIElement | null;
+  name: string;
+  indexes: SidebarIndex[];
+}
+
+interface SidebarIndex {
   ref: HTMLLIElement | null;
   name: string;
 }

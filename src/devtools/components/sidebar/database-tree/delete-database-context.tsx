@@ -49,9 +49,9 @@ export function DeleteDatabaseContextProvider(props: FlowProps) {
       {props.children}
       <DeleteDatabaseModal
         onClose={() => {
-          const dbIndex = dbToDelete();
-          if (dbIndex !== null) {
-            focusItem(dbIndex);
+          const dbPos = dbToDelete();
+          if (dbPos !== null) {
+            focusItem(dbPos);
             setDBToDelete(null);
           }
         }}

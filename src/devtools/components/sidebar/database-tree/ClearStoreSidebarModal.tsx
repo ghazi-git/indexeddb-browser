@@ -20,9 +20,9 @@ export default function ClearStoreSidebarModal(
   const { store, clearStoreMutation, clearStore } = useClearStoreContext();
 
   const msg = () => {
-    if (store.storeIndex !== null) {
-      const db = tree.databases[store.dbIndex];
-      const storeName = db.objectStores[store.storeIndex].name;
+    if (store.storePos !== null) {
+      const db = tree.databases[store.dbPos];
+      const storeName = db.objectStores[store.storePos].name;
       return `Are you sure you want to delete all objects stored in '${storeName}'?`;
     } else {
       return "Unable to determine the store to be cleared.";
@@ -57,10 +57,10 @@ export default function ClearStoreSidebarModal(
           loading={clearStoreMutation.isLoading}
           onClick={() => {
             setErrorMsg(null);
-            if (store.storeIndex !== null) {
-              const db = tree.databases[store.dbIndex];
+            if (store.storePos !== null) {
+              const db = tree.databases[store.dbPos];
               const dbName = db.name;
-              const storeName = db.objectStores[store.storeIndex].name;
+              const storeName = db.objectStores[store.storePos].name;
               clearStore({
                 requestID: generateRequestID(),
                 dbName,
