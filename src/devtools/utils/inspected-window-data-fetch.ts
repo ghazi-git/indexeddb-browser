@@ -1,5 +1,6 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 import {
+  ActiveObjectStore,
   DBRecord,
   InspectedWindowTableData,
   ObjectStoreData,
@@ -60,6 +61,8 @@ function getDataRequestCode(
   ${processDataRequest.name}(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns}, ${serializedCount}, ${serializedTableView})
 
   ${processDataRequest.toString()}
+  ${validateDBName.toString()}
+  ${getTableDataFromObjectStore.toString()}
   ${getObjectStoreData.toString()}
   ${trackRequestStatus.toString()}
   ${clearTimerAndCloseDB.toString()}
@@ -107,60 +110,27 @@ async function processDataRequest(
   tryTableView: boolean,
 ) {
   markRequestInProgress(requestID);
-  // make sure the database exists to avoid creating a new one when opening
-  // a connection
   try {
-    const databases = await indexedDB.databases();
-    const db = databases.find((db) => db.name === dbName);
-    if (!db) {
-      const msg = `The database "${dbName}" was not found.`;
-      markRequestAsFailed(requestID, msg);
-      return;
-    }
+    await validateDBName(dbName);
   } catch (e) {
     console.error("fetch-data: failure", e);
-    const msg =
+    const defaultMsg =
       "An unexpected error occurred. Please try fetching the object store " +
       "data again by clicking the reload icon in the header.";
+    const msg = e instanceof Error ? e.message : defaultMsg;
     markRequestAsFailed(requestID, msg);
     return;
   }
 
   try {
-    const { keyType, keypath, autoincrement, values } =
-      await getObjectStoreData(requestID, dbName, storeName, objectsCount);
-
-    // determine viewType and columns based on the first 100 objects
-    const viewType =
-      keyType === "inLine"
-        ? "tableView"
-        : tryTableView
-          ? determineViewType(values.slice(0, 100))
-          : "keyValueView";
-    let columns =
-      keyType === "inLine"
-        ? getColumns(keypath, values.slice(0, 100))
-        : getOutOfLineStoreColumns(values.slice(0, 100), viewType);
-    if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
-      columns = savedColumns;
-    }
-    let data = values;
-    if (keyType === "outOfLine" && viewType === "tableView") {
-      // ignore non-object store values since we decided on a tableView
-      data = values
-        .filter(({ value }) => isObject(value))
-        .map(({ key, value }) => ({ key, ...value }));
-    }
-    const rows = convertStoreData(columns, data);
-    markRequestAsSuccessful(requestID, {
-      keyType,
-      viewType,
-      keypath,
-      autoincrement,
-      columns,
-      rows,
-      activeStore: { dbName, storeName },
-    });
+    const tableData = await getTableDataFromObjectStore(
+      requestID,
+      { dbName, storeName, indexName: null },
+      savedColumns,
+      objectsCount,
+      tryTableView,
+    );
+    markRequestAsSuccessful(requestID, tableData);
   } catch (e) {
     console.error("fetch-data: failure", e);
     const msg =
@@ -170,6 +140,56 @@ async function processDataRequest(
           "store data again by clicking the reload icon in the header.";
     markRequestAsFailed(requestID, msg);
   }
+}
+
+async function validateDBName(dbName: string) {
+  // make sure the database exists to avoid creating a new one when opening
+  // a connection
+  const databases = await indexedDB.databases();
+  const db = databases.find((db) => db.name === dbName);
+  if (!db) {
+    throw new Error(`The database "${dbName}" was not found.`);
+  }
+}
+
+async function getTableDataFromObjectStore(
+  requestID: string,
+  activeStore: ActiveObjectStore,
+  savedColumns: TableColumn[] | undefined,
+  objectsCount: number | undefined,
+  tryTableView: boolean,
+): Promise<InspectedWindowTableData> {
+  const { keyType, keypath, autoincrement, values } = await getObjectStoreData(
+    requestID,
+    activeStore.dbName,
+    activeStore.storeName,
+    objectsCount,
+  );
+
+  // determine viewType and columns based on the first 100 objects
+  const viewType =
+    keyType === "inLine"
+      ? "tableView"
+      : tryTableView
+        ? determineViewType(values.slice(0, 100))
+        : "keyValueView";
+  let columns =
+    keyType === "inLine"
+      ? getColumns(keypath, values.slice(0, 100))
+      : getOutOfLineStoreColumns(values.slice(0, 100), viewType);
+  if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
+    columns = savedColumns;
+  }
+  let data = values;
+  if (keyType === "outOfLine" && viewType === "tableView") {
+    // ignore non-object store values since we decided on a tableView
+    data = values
+      .filter(({ value }) => isObject(value))
+      .map(({ key, value }) => ({ key, ...value }));
+  }
+  const rows = convertStoreData(columns, data);
+  // prettier-ignore
+  return { keyType, viewType, keypath, autoincrement, columns, rows, activeStore };
 }
 
 function getObjectStoreData(
