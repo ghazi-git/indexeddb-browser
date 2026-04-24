@@ -107,8 +107,7 @@ export function createTableDataQuery() {
       // trigger the request and then check for the response
       await triggerDataFetching(
         requestID,
-        dbName,
-        storeName,
+        { dbName, storeName, indexName },
         savedColumns,
         objectsCount,
         tryTableView,

@@ -2,6 +2,8 @@ import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 import {
   ActiveObjectStore,
   DBRecord,
+  IndexData,
+  IndexRow,
   InspectedWindowTableData,
   ObjectStoreData,
   ObjectStoreResponse,
@@ -15,16 +17,14 @@ import {
 
 export function triggerDataFetching(
   requestID: string,
-  dbName: string,
-  storeName: string,
+  activeStore: ActiveObjectStore,
   savedColumns: TableColumn[] | undefined,
   objectsCount: number | undefined,
   tryTableView: boolean,
 ) {
   const code = getDataRequestCode(
     requestID,
-    dbName,
-    storeName,
+    activeStore,
     savedColumns,
     objectsCount,
     tryTableView,
@@ -43,22 +43,20 @@ export function triggerDataFetching(
 
 function getDataRequestCode(
   requestID: string,
-  dbName: string,
-  storeName: string,
+  activeStore: ActiveObjectStore,
   savedColumns: TableColumn[] | undefined,
   objectsCount: number | undefined,
   tryTableView: boolean,
 ) {
   const serializedRequestID = JSON.stringify(requestID);
-  const serializedDBName = JSON.stringify(dbName);
-  const serializedStoreName = JSON.stringify(storeName);
+  const serializedActiveStore = JSON.stringify(activeStore);
   const serializedColumns = JSON.stringify(savedColumns);
   const serializedCount = JSON.stringify(objectsCount);
   const serializedTableView = JSON.stringify(tryTableView);
 
   return `
 (function() {
-  ${processDataRequest.name}(${serializedRequestID}, ${serializedDBName}, ${serializedStoreName}, ${serializedColumns}, ${serializedCount}, ${serializedTableView})
+  ${processDataRequest.name}(${serializedRequestID}, ${serializedActiveStore}, ${serializedColumns}, ${serializedCount}, ${serializedTableView})
 
   ${processDataRequest.toString()}
   ${validateDBName.toString()}
@@ -78,6 +76,10 @@ function getDataRequestCode(
   ${getOutOfLineStoreColumns.toString()}
   ${determineViewType.toString()}
   ${getOutOfLineKeyColumn.toString()}
+  ${getTableDataFromIndex.toString()}
+  ${getIndexData.toString()}
+  ${getKeypathAndValues.toString()}
+  ${getIndexColumns.toString()}
   ${getStrings.toString()}
   ${isString.toString()}
   ${getTimestamps.toString()}
@@ -103,15 +105,14 @@ function getDataRequestCode(
 
 async function processDataRequest(
   requestID: string,
-  dbName: string,
-  storeName: string,
+  activeStore: ActiveObjectStore,
   savedColumns: TableColumn[] | undefined,
   objectsCount: number | undefined,
   tryTableView: boolean,
 ) {
   markRequestInProgress(requestID);
   try {
-    await validateDBName(dbName);
+    await validateDBName(activeStore.dbName);
   } catch (e) {
     console.error("fetch-data: failure", e);
     const defaultMsg =
@@ -123,13 +124,25 @@ async function processDataRequest(
   }
 
   try {
-    const tableData = await getTableDataFromObjectStore(
-      requestID,
-      { dbName, storeName, indexName: null },
-      savedColumns,
-      objectsCount,
-      tryTableView,
-    );
+    let tableData: InspectedWindowTableData;
+    if (activeStore.indexName) {
+      tableData = await getTableDataFromIndex(
+        requestID,
+        activeStore.dbName,
+        activeStore.storeName,
+        activeStore.indexName,
+        savedColumns,
+        objectsCount,
+      );
+    } else {
+      tableData = await getTableDataFromObjectStore(
+        requestID,
+        activeStore,
+        savedColumns,
+        objectsCount,
+        tryTableView,
+      );
+    }
     markRequestAsSuccessful(requestID, tableData);
   } catch (e) {
     console.error("fetch-data: failure", e);
@@ -466,6 +479,147 @@ function determineViewType(records: OutOfLineRecord[]): ViewType {
   return colNames.length > 0 && !colNames.includes("key")
     ? "tableView"
     : "keyValueView";
+}
+
+async function getTableDataFromIndex(
+  requestID: string,
+  dbName: string,
+  storeName: string,
+  indexName: string,
+  savedColumns: TableColumn[] | undefined,
+  objectsCount: number | undefined,
+): Promise<InspectedWindowTableData> {
+  const { keyType, keypath, autoincrement, values } = await getIndexData(
+    requestID,
+    dbName,
+    storeName,
+    indexName,
+    objectsCount,
+  );
+
+  let columns = getIndexColumns(keypath, values.slice(0, 100));
+  if (savedColumns && canUseSavedColumns(columns, savedColumns)) {
+    columns = savedColumns;
+  }
+  const rows = convertStoreData(columns, values);
+  return {
+    keyType,
+    viewType: "keyValueView",
+    keypath,
+    autoincrement,
+    columns,
+    rows,
+    activeStore: { dbName, storeName, indexName },
+  };
+}
+
+function getIndexData(
+  requestID: string,
+  dbName: string,
+  storeName: string,
+  indexName: string,
+  objectsCount: number | undefined,
+) {
+  let tx: IDBTransaction;
+  const timerID = trackRequestStatus(requestID, () => tx?.abort());
+
+  return new Promise<IndexData>((resolve, reject) => {
+    const dbRequest = indexedDB.open(dbName);
+    dbRequest.onsuccess = () => {
+      const db = dbRequest.result;
+      if (!db.objectStoreNames.contains(storeName)) {
+        reject(new Error(`The object store "${storeName}" was not found.`));
+        clearTimerAndCloseDB(timerID, db);
+        return;
+      }
+
+      tx = db.transaction(storeName);
+      tx.onerror = () => {
+        console.error("fetch-data", tx.error);
+        const msg =
+          "An unexpected error occurred. Please try fetching the index " +
+          "data again by clicking the reload icon in the header.";
+        reject(new Error(msg));
+      };
+      tx.onabort = () => {
+        reject(new Error("Request timed out or canceled."));
+        clearTimerAndCloseDB(timerID, db);
+      };
+      tx.oncomplete = () => clearTimerAndCloseDB(timerID, db);
+
+      const objectStore = tx.objectStore(storeName);
+      if (!objectStore.indexNames.contains(indexName)) {
+        reject(new Error(`The index "${indexName}" was not found.`));
+        clearTimerAndCloseDB(timerID, db);
+        return;
+      }
+
+      const index = objectStore.index(indexName);
+      const indexKeypath =
+        typeof index.keyPath === "string" ? [index.keyPath] : index.keyPath;
+
+      // @ts-expect-error getAllRecords types not yet recognized by typescript
+      const req = index.getAllRecords({ count: objectsCount });
+      req.onsuccess = () => {
+        const records = req.result as DBRecord[];
+        const { keypath, values } = getKeypathAndValues(indexKeypath, records);
+        const keyType = objectStore.keyPath ? "inLine" : "outOfLine";
+        const autoincrement = objectStore.autoIncrement;
+        resolve({ keyType, keypath, autoincrement, values });
+      };
+    };
+  });
+}
+
+function getKeypathAndValues(indexKeypath: string[], records: DBRecord[]) {
+  if (indexKeypath.includes("value") || indexKeypath.includes("primaryKey")) {
+    // just 1 column for the index key and make the keypath part of the column name
+    const k = indexKeypath.length === 1 ? indexKeypath[0] : indexKeypath;
+    const keyName = `key (${JSON.stringify(k)})`;
+    const values = records.map(({ key, value, primaryKey }) => ({
+      [keyName]: key,
+      primaryKey,
+      value,
+    }));
+    return { keypath: [keyName, "primaryKey"], values };
+  }
+
+  // separate the index key into different columns
+  let values: IndexRow[];
+  if (indexKeypath.length === 1) {
+    values = records.map(({ key, value, primaryKey }) => ({
+      [indexKeypath[0]]: key,
+      primaryKey,
+      value,
+    }));
+  } else {
+    values = records.map(({ key, value, primaryKey }) => {
+      // the index key is an array
+      const indexKey = key as IDBValidKey[];
+      const obj = Object.fromEntries(
+        indexKeypath.map((col, idx) => [col, indexKey[idx]]),
+      );
+      return { ...obj, primaryKey, value };
+    });
+  }
+  return { keypath: [...indexKeypath, "primaryKey"], values };
+}
+
+function getIndexColumns(keypath: string[], rows: IndexRow[]) {
+  const columns: TableColumn[] = keypath.map((key) => ({
+    name: key,
+    isKey: true,
+    isVisible: false,
+    datatype: "unsupported",
+  }));
+  columns.push({
+    name: "value",
+    isKey: false,
+    isVisible: false,
+    datatype: "unsupported",
+  });
+  autodetectColumnsDatatypes(rows, columns);
+  return columns;
 }
 
 function getStrings(colData: TableColumnValue[]) {

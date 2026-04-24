@@ -116,6 +116,18 @@ export type ObjectStoreData =
       values: OutOfLineRecord[];
     };
 
+export interface IndexData {
+  keyType: StoreKeyType;
+  keypath: string[];
+  autoincrement: boolean;
+  values: IndexRow[];
+}
+
+export interface IndexRow extends TableRow {
+  primaryKey: IDBValidKey;
+  value: TableColumnValue;
+}
+
 export interface OutOfLineRecord {
   key: IDBValidKey;
   value: TableColumnValue;
