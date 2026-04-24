@@ -85,7 +85,8 @@ export default function Table(props: TableProps) {
     const isLoading = updateColumnOperation.isLoading;
 
     return props.columns.map((column) => {
-      const canEdit = !isLoading && !column.isKey;
+      const canEdit =
+        !isLoading && !column.isKey && !props.activeStore.indexName;
       const colSort = columnsSort.find(
         ({ column: colName }) => colName === column.name,
       );

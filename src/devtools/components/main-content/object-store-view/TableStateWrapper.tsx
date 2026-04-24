@@ -24,16 +24,30 @@ export default function TableStateWrapper() {
           {(data) => (
             <TableSettingsWrapper>
               <TableSearch />
-              <Show when={data().rows?.length}>
+              <Show when={!data().activeStore.indexName && data().rows?.length}>
                 <DeleteObjectsButton
                   activeStore={data().activeStore}
                   keypath={data().keypath}
                   columns={data().columns}
                 />
               </Show>
-              <Show
-                when={data().keyType === "inLine"}
-                fallback={
+              <Switch>
+                <Match
+                  when={
+                    !data().activeStore.indexName && data().keyType === "inLine"
+                  }
+                >
+                  <AddEditObjectsWithInLineKeys
+                    columns={data().columns}
+                    activeStore={data().activeStore}
+                  />
+                </Match>
+                <Match
+                  when={
+                    !data().activeStore.indexName &&
+                    data().keyType === "outOfLine"
+                  }
+                >
                   <AddEditObjectsWithOutOfLineKeys
                     columns={data().columns}
                     activeStore={data().activeStore}
@@ -41,13 +55,8 @@ export default function TableStateWrapper() {
                     isEmptyStore={data().rows?.length === 0}
                     viewType={data().viewType}
                   />
-                }
-              >
-                <AddEditObjectsWithInLineKeys
-                  columns={data().columns}
-                  activeStore={data().activeStore}
-                />
-              </Show>
+                </Match>
+              </Switch>
               <TableSettingsButton keyType={data().keyType} />
             </TableSettingsWrapper>
           )}
