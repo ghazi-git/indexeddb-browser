@@ -1,5 +1,6 @@
 import { DATA_ERROR_MSG } from "@/devtools/utils/inspected-window-helpers";
 import {
+  DBRecord,
   InspectedWindowTableData,
   ObjectStoreData,
   ObjectStoreResponse,
@@ -60,6 +61,8 @@ function getDataRequestCode(
 
   ${processDataRequest.toString()}
   ${getObjectStoreData.toString()}
+  ${trackRequestStatus.toString()}
+  ${clearTimerAndCloseDB.toString()}
   ${markRequestInProgress.toString()}
   ${markRequestAsSuccessful.toString()}
   ${markRequestAsFailed.toString()}
@@ -176,17 +179,7 @@ function getObjectStoreData(
   objectsCount: number | undefined,
 ) {
   let tx: IDBTransaction;
-  const startTime = Date.now();
-  const timerID = setInterval(() => {
-    // for requests to get a lot of data, we have this interval timer that
-    // aborts the transaction if it takes too long or the request was canceled
-    if (
-      !isRequestActive(requestID) ||
-      Date.now() - startTime > 30_000 + 3_000
-    ) {
-      tx?.abort();
-    }
-  }, 1000);
+  const timerID = trackRequestStatus(requestID, () => tx?.abort());
 
   return new Promise<ObjectStoreData>((resolve, reject) => {
     const dbRequest = indexedDB.open(dbName);
@@ -195,8 +188,7 @@ function getObjectStoreData(
       if (!db.objectStoreNames.contains(storeName)) {
         const msg = `The object store "${storeName}" was not found.`;
         reject(new Error(msg));
-        clearInterval(timerID);
-        db.close();
+        clearTimerAndCloseDB(timerID, db);
         return;
       }
 
@@ -210,13 +202,9 @@ function getObjectStoreData(
       };
       tx.onabort = () => {
         reject(new Error("Request timed out or canceled."));
-        clearInterval(timerID);
-        db.close();
+        clearTimerAndCloseDB(timerID, db);
       };
-      tx.oncomplete = () => {
-        clearInterval(timerID);
-        db.close();
-      };
+      tx.oncomplete = () => clearTimerAndCloseDB(timerID, db);
 
       const objectStore = tx.objectStore(storeName);
       if (objectStore.keyPath) {
@@ -241,16 +229,34 @@ function getObjectStoreData(
             keyType: "outOfLine",
             keypath: ["key"],
             autoincrement: objectStore.autoIncrement,
-            // remove the primaryKey prop in IDBRecord
-            // https://w3c.github.io/IndexedDB/#record-interface
-            values: (getAllReq.result as OutOfLineRecord[]).map(
-              ({ key, value }) => ({ key, value }),
-            ),
+            values: (getAllReq.result as DBRecord[]).map(({ key, value }) => ({
+              key,
+              value,
+            })),
           });
         };
       }
     };
   });
+}
+
+function trackRequestStatus(requestID: string, callback: () => void) {
+  const startTime = Date.now();
+  return setInterval(() => {
+    // for requests to get a lot of data, we have this interval timer that
+    // aborts the transaction if it takes too long or the request was canceled
+    if (
+      !isRequestActive(requestID) ||
+      Date.now() - startTime > 30_000 + 3_000
+    ) {
+      callback();
+    }
+  }, 1000);
+}
+
+function clearTimerAndCloseDB(timer: number, db: IDBDatabase) {
+  clearInterval(timer);
+  db.close();
 }
 
 function markRequestInProgress(requestID: string) {

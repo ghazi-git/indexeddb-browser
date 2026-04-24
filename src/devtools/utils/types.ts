@@ -115,7 +115,15 @@ export type ObjectStoreData =
       autoincrement: boolean;
       values: OutOfLineRecord[];
     };
-export type OutOfLineRecord = { key: IDBValidKey; value: TableColumnValue };
+
+export interface OutOfLineRecord {
+  key: IDBValidKey;
+  value: TableColumnValue;
+}
+
+export interface DBRecord extends OutOfLineRecord {
+  primaryKey: IDBValidKey;
+}
 
 export interface ColumnUpdateRequest {
   requestID: string;
