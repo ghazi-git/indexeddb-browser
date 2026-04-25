@@ -10,11 +10,12 @@ import PageSizeSetting from "@/devtools/components/main-content/object-store-vie
 import PaginationSetting from "@/devtools/components/main-content/object-store-view/table-settings/PaginationSetting";
 import TableViewSetting from "@/devtools/components/main-content/object-store-view/table-settings/TableViewSetting";
 import TriangleIcon from "@/devtools/components/svg-icons/TriangleIcon";
-import { StoreKeyType } from "@/devtools/utils/types";
 
 import styles from "./TableSettingsButton.module.css";
 
-export default function TableSettingsButton(props: { keyType: StoreKeyType }) {
+export default function TableSettingsButton(props: {
+  showTableViewSetting: boolean;
+}) {
   const { hasSavedSettings } = useTableSettingsContext();
   const [isOpen, setIsOpen] = createSignal(false);
   const [isDeleteDisabled, setIsDeleteDisabled] = createSignal(false);
@@ -45,7 +46,7 @@ export default function TableSettingsButton(props: { keyType: StoreKeyType }) {
           <ObjectsCountSetting />
           <PaginationSetting />
           <PageSizeSetting />
-          <Show when={props.keyType === "outOfLine"}>
+          <Show when={props.showTableViewSetting}>
             <TableViewSetting />
           </Show>
           <DeleteSavedSettings

@@ -57,7 +57,12 @@ export default function TableStateWrapper() {
                   />
                 </Match>
               </Switch>
-              <TableSettingsButton keyType={data().keyType} />
+              <TableSettingsButton
+                showTableViewSetting={
+                  !data().activeStore.indexName &&
+                  data().keyType === "outOfLine"
+                }
+              />
             </TableSettingsWrapper>
           )}
         </Show>
