@@ -11,10 +11,13 @@ import styles from "./ReloadStore.module.css";
 export default function ReloadStore() {
   const { query } = useTableContext();
   const { reloadTableData } = useTableReloadContext();
+  const label = () => (query.isLoading ? "Reloading data..." : "Reload data");
+
   return (
     <UnstyledButton
       class={styles.reload}
-      title={query.isLoading ? "Reloading data..." : "Reload store data"}
+      title={label()}
+      aria-label={label()}
       disabled={query.isLoading}
       onClick={() => {
         reloadTableData();

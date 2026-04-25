@@ -131,7 +131,7 @@ export default function Breadcrumbs(props: { databases: IndexedDB[] }) {
               setSelectedStore(selected);
             }}
           />
-          <Show when={!selectedStore()}>
+          <Show when={selectedStore()}>
             <ReloadStore />
           </Show>
         </Match>
