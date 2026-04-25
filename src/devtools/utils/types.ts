@@ -124,7 +124,6 @@ export interface IndexData {
 }
 
 export interface IndexRow extends TableRow {
-  primaryKey: IDBValidKey;
   value: TableColumnValue;
 }
 

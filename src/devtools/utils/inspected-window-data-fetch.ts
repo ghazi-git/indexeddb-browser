@@ -562,7 +562,11 @@ function getIndexData(
       const req = index.getAllRecords({ count: objectsCount });
       req.onsuccess = () => {
         const records = req.result as DBRecord[];
-        const { keypath, values } = getKeypathAndValues(indexKeypath, records);
+        const { keypath, values } = getKeypathAndValues(
+          indexKeypath,
+          objectStore.keyPath,
+          records,
+        );
         const keyType = objectStore.keyPath ? "inLine" : "outOfLine";
         const autoincrement = objectStore.autoIncrement;
         resolve({ keyType, keypath, autoincrement, values });
@@ -571,17 +575,24 @@ function getIndexData(
   });
 }
 
-function getKeypathAndValues(indexKeypath: string[], records: DBRecord[]) {
-  if (indexKeypath.includes("value") || indexKeypath.includes("primaryKey")) {
+function getKeypathAndValues(
+  indexKeypath: string[],
+  storeKeypath: string | string[] | null,
+  records: DBRecord[],
+) {
+  const pkColName = storeKeypath
+    ? `primaryKey (${JSON.stringify(storeKeypath)})`
+    : "primaryKey";
+  if (indexKeypath.includes("value") || indexKeypath.includes(pkColName)) {
     // just 1 column for the index key and make the keypath part of the column name
     const k = indexKeypath.length === 1 ? indexKeypath[0] : indexKeypath;
-    const keyName = `key (${JSON.stringify(k)})`;
+    const keyColName = `key (${JSON.stringify(k)})`;
     const values = records.map(({ key, value, primaryKey }) => ({
-      [keyName]: key,
-      primaryKey,
+      [keyColName]: key,
+      [pkColName]: primaryKey,
       value,
     }));
-    return { keypath: [keyName, "primaryKey"], values };
+    return { keypath: [keyColName, pkColName], values };
   }
 
   // separate the index key into different columns
@@ -589,7 +600,7 @@ function getKeypathAndValues(indexKeypath: string[], records: DBRecord[]) {
   if (indexKeypath.length === 1) {
     values = records.map(({ key, value, primaryKey }) => ({
       [indexKeypath[0]]: key,
-      primaryKey,
+      [pkColName]: primaryKey,
       value,
     }));
   } else {
@@ -599,10 +610,10 @@ function getKeypathAndValues(indexKeypath: string[], records: DBRecord[]) {
       const obj = Object.fromEntries(
         indexKeypath.map((col, idx) => [col, indexKey[idx]]),
       );
-      return { ...obj, primaryKey, value };
+      return { ...obj, [pkColName]: primaryKey, value };
     });
   }
-  return { keypath: [...indexKeypath, "primaryKey"], values };
+  return { keypath: [...indexKeypath, pkColName], values };
 }
 
 function getIndexColumns(keypath: string[], rows: IndexRow[]) {
