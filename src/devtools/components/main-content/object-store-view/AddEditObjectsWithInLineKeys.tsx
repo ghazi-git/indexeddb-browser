@@ -124,8 +124,8 @@ export default function AddEditObjectsWithInLineKeys(
         <div class={styles.hint}>
           <div>The JSON value entered must be an array of objects.</div>
           <div>
-            Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab for
-            indentation.
+            Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab between
+            indentation and moving out of the editor.
           </div>
         </div>
         <DatatypeValidationCheckbox

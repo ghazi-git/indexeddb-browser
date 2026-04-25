@@ -104,7 +104,14 @@ export default function Table(props: TableProps) {
       } else if (column.datatype === "boolean") {
         return getBooleanColdef(column, canEdit, initialSort);
       } else if (column.datatype === "json_data") {
-        return getJSONDataColdef(column, canEdit, initialSort);
+        // since nothing is editable when viewing an index, make it possible
+        // to view the full stored json object in a read-only editor
+        const readonly =
+          !!props.activeStore.indexName && column.name === "value";
+        // when readonly is true, editable is also true but any user changes
+        // will be ignored
+        const editable = canEdit || readonly;
+        return getJSONDataColdef(column, editable, initialSort, readonly);
       } else {
         return getUnsupportedColdef(column);
       }

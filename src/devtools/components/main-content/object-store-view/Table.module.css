@@ -144,6 +144,12 @@
     align-items: center;
     gap: var(--size-1);
 
+    .readonly {
+      margin-inline-end: auto;
+      color: var(--text-2);
+      font-style: italic;
+    }
+
     button {
       padding-block-start: 2px;
 

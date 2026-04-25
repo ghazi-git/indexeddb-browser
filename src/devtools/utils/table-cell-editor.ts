@@ -20,8 +20,12 @@ export class JSONEditor implements ICellEditorComp {
   cancelBtn!: HTMLButtonElement;
   hideErrorsBtn!: HTMLButtonElement;
   focusManager!: EditorFocusManager;
+  readonly = false;
+  initialValue: string | null = null;
 
-  init(params: ICellEditorParams) {
+  init(params: ICellEditorParams & { readonly: boolean }) {
+    this.readonly = params.readonly;
+    this.initialValue = params.value;
     this.gridCell = params.eGridCell;
     this.gui = document.createElement("div");
     this.gui.className = styles["json-editor"];
@@ -83,6 +87,7 @@ export class JSONEditor implements ICellEditorComp {
     this.editor.container.style.maxInlineSize = "600px";
     const containerChild = this.editor.container.firstChild as HTMLElement;
     containerChild.style.marginBlockEnd = "0";
+    this.editor.textarea.readOnly = this.readonly;
     this.editor.textarea.style.cursor = "text";
 
     this.focusManager = new EditorFocusManager(
@@ -108,6 +113,8 @@ export class JSONEditor implements ICellEditorComp {
   }
 
   getValue() {
+    if (this.readonly) return this.initialValue;
+
     const value = this.editor.textarea.value.trim();
     if (value === "") return null;
 
@@ -145,7 +152,7 @@ export class JSONEditor implements ICellEditorComp {
   _createHint() {
     const elt = document.createElement("small");
     elt.innerText =
-      "Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab for indentation.";
+      "Use ctrl+M/ctrl+shift+M(Mac) to toggle the use of Tab between indentation and moving out of the editor.";
     return elt;
   }
 
@@ -153,35 +160,45 @@ export class JSONEditor implements ICellEditorComp {
     const btnContainer = document.createElement("div");
     btnContainer.className = styles["btn-container"];
 
-    this.cancelBtn = this._createButton("Cancel");
+    if (this.readonly) {
+      const readonly = document.createElement("div");
+      readonly.className = styles.readonly;
+      readonly.innerText = "Read-only";
+      btnContainer.append(readonly);
+    }
+
+    this.cancelBtn = this._createButton(this.readonly ? "Close" : "Cancel");
     this.cancelBtn.addEventListener("click", () => {
       gridApi.stopEditing(true);
     });
+    btnContainer.append(this.cancelBtn);
 
-    this.saveBtn = this._createButton("Save");
-    this.saveBtn.classList.add(styles.save);
-    this.saveBtn.addEventListener("click", () => {
-      const value = this.editor.textarea.value.trim();
-      if (value === "") {
-        // will be considered as null
-        gridApi.stopEditing();
-        return;
-      }
-
-      try {
-        const parsed = parseJSONFromUser(value);
-        if (isJSON(parsed)) {
+    if (!this.readonly) {
+      this.saveBtn = this._createButton("Save");
+      this.saveBtn.classList.add(styles.save);
+      this.saveBtn.addEventListener("click", () => {
+        const value = this.editor.textarea.value.trim();
+        if (value === "") {
+          // will be considered as null
           gridApi.stopEditing();
-        } else {
-          this._showError("Invalid JSON.");
+          return;
         }
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : "Invalid JSON.";
-        this._showError(msg, true);
-      }
-    });
 
-    btnContainer.append(this.cancelBtn, this.saveBtn);
+        try {
+          const parsed = parseJSONFromUser(value);
+          if (isJSON(parsed)) {
+            gridApi.stopEditing();
+          } else {
+            this._showError("Invalid JSON.");
+          }
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "Invalid JSON.";
+          this._showError(msg, true);
+        }
+      });
+      btnContainer.append(this.saveBtn);
+    }
+
     return btnContainer;
   }
 

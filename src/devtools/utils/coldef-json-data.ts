@@ -9,6 +9,7 @@ export function getJSONDataColdef(
   column: TableColumn,
   editable: boolean,
   initialSort: SortDef | null,
+  readonly: boolean,
 ): ColDef {
   return {
     field: column.name,
@@ -18,6 +19,7 @@ export function getJSONDataColdef(
     cellRenderer: JSONDataRenderer,
     editable,
     cellEditor: JSONEditor,
+    cellEditorParams: { readonly },
     valueGetter: (params) => {
       const value = params.data[params.colDef.field!];
       if (value == null) {
