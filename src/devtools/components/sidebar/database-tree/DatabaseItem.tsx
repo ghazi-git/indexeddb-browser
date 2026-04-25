@@ -65,13 +65,15 @@ export default function DatabaseItem(props: DatabaseItemProps) {
         // forward the event to the element under the `ContextMenu.Trigger`
         // this is needed for keyboard navigation since this is the element
         // whose tabindex is set
+        const triggerPos = contextMenuTrigger.getBoundingClientRect();
         const customEvent = new MouseEvent("contextmenu", {
           bubbles: true,
           cancelable: true,
           view: window,
           button: 2,
-          clientY: event.clientY,
-          clientX: event.clientX,
+          // always place the menu at the center of the trigger element
+          clientX: triggerPos.left + triggerPos.width / 2,
+          clientY: triggerPos.top + triggerPos.height / 2,
         });
         contextMenuTrigger.dispatchEvent(customEvent);
       }}
