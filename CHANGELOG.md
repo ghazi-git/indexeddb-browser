@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-04-26
+
 ### Fixed
 
 - Fix keyboard navigation for the readonly json editor.
