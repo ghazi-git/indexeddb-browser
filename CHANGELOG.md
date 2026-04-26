@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Support displaying indexes data.
+
 ## [2.0.0] - 2026-04-22
 
 ### Added
