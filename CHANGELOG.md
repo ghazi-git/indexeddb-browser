@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix keyboard navigation for the readonly json editor.
+
 ## [2.1.0] - 2026-04-26
 
 ### Added

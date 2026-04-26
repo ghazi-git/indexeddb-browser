@@ -16,7 +16,7 @@ export class JSONEditor implements ICellEditorComp {
   errorMsgElement!: HTMLDivElement;
   errorContainer!: HTMLDivElement;
   editor!: PrismEditor;
-  saveBtn!: HTMLButtonElement;
+  saveBtn: HTMLButtonElement | null = null;
   cancelBtn!: HTMLButtonElement;
   hideErrorsBtn!: HTMLButtonElement;
   focusManager!: EditorFocusManager;
@@ -250,13 +250,16 @@ class EditorFocusManager {
   constructor(
     public editorContainer: HTMLDivElement,
     public cancel: HTMLButtonElement,
-    public save: HTMLButtonElement,
+    public save: HTMLButtonElement | null,
     public hideErrors: HTMLButtonElement,
     public includeHideErrors = false,
   ) {}
 
   get elements(): HTMLElement[] {
-    const managedElements = [this.editorContainer, this.cancel, this.save];
+    const managedElements = [this.editorContainer, this.cancel];
+    if (this.save) {
+      managedElements.push(this.save);
+    }
     if (this.includeHideErrors) {
       managedElements.push(this.hideErrors);
     }
@@ -294,7 +297,9 @@ class EditorFocusManager {
 
   excludeHideErrors() {
     this.includeHideErrors = false;
-    this.focusElement(this.save);
+    if (this.save) {
+      this.focusElement(this.save);
+    }
   }
 
   private focusElement(elt: HTMLElement) {
