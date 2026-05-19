@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-05-19
+
 ### Added
 
 - Show the devtools panel when inspecting local file pages `file:///*`.
