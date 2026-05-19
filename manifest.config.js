@@ -28,4 +28,5 @@ export default defineManifest(async (env) => ({
     default_popup: "src/popup.html",
     default_title: "IndexedDB Browser",
   },
+  host_permissions: ["file:///*"],
 }));

@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Show the devtools panel when inspecting local file pages `file:///*`.
+
 ## [2.1.1] - 2026-04-26
 
 ### Fixed
