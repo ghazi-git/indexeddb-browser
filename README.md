@@ -8,7 +8,8 @@ Chrome extension that adds a DevTools panel to manage IndexedDB data.
 
 - Search, sort and display IndexedDB data in a table.
 - Add, edit and delete IndexedDB data.
-- Manage IndexedDB data of other chrome extensions.
+- Manage IndexedDB data of other chrome extensions. As of chrome 151, this extension's panel will be shown when inspecting
+  other extensions only after enabling the flag chrome://flags/#extensions-on-extension-urls. Read more [here](https://groups.google.com/a/chromium.org/g/chromium-extensions/c/6P4NjWHyLPk/m/jS7JFaDMCwAJ).
 - Developed with accessibility in mind.
 
 ### Nice Extras
